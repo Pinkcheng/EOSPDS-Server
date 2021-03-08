@@ -1,1 +1,1 @@
-eospds-server
+EOSPDS-server
