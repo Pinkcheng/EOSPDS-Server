@@ -129,7 +129,7 @@ mysql> show databases;
 
 mysql> 
 ```
-### 修改程式中的設定檔
+### 修改專案mysql連線設定檔
 修改根目錄下的檔案`ormconfig.json`檔案
 ```json=
 {
