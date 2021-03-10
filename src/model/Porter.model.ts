@@ -88,7 +88,10 @@ export class PorterTypeModel {
     this.mPorterTypeRepo = getCustomRepository(PorterTypeRepository);
   }
 
-  async findByTypeID(id: number) {
-    return await this.mPorterTypeRepo.findByID(id);
+  async count() {
+    const porter = await this.mPorterRepo
+      .createQueryBuilder('porter')
+      .getCount();
+    return porter;
   }
 }
