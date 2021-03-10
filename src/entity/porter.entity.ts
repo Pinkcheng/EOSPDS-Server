@@ -44,7 +44,7 @@ export class Porter {
 
   // 傳送員生日日期
   @Column('date', {
-    name: 'poter_birthday',
+    name: 'porter_birthday',
     default: null
   })
   birthday: string;
