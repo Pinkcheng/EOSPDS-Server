@@ -19,12 +19,14 @@ app.set('port', process.env.PORT || 3000);
 
 // 壓縮
 app.use(compression());
-//將request進來的data 轉成 json()
-app.use(bodyParser.json());
+// json 排版
+app.set('json spaces', 2);
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 })
 );
+// 安全選項 https://expressjs.com/zh-tw/advanced/best-practice-security.html
 app.use(helmet());
 
 app.set('trust proxy', 1); // trust first proxy
@@ -56,7 +58,6 @@ app.use(function (req, res, next) {
   // Pass to next layer of middleware
   next();
 });
-
 app.use('/', router);
 
 export default app;
