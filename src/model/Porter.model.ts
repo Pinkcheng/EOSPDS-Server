@@ -5,6 +5,21 @@ import md5 from 'md5';
 
 @EntityRepository(Porter)
 export class PorterRepository extends Repository<Porter> {
+  findByID(ID: string) {
+    return this.findOne({ ID });
+  }
+
+  findByName(name: string){
+    return this.findOne({ name });
+  }
+
+  findByAccount(account: string) {
+    return this.findOne({ account });
+  }
+
+  findByTagNumber(tagNumber: string) {
+    return this.findOne({ tagNumber });
+  }
 }
 
 export class PorterModel {
@@ -35,6 +50,26 @@ export class PorterModel {
     newPorter.gender = gender;
 
     const porter = await this.mPorterRepo.save(newPorter);
+    return porter;
+  }
+
+  async findByID(ID: string) {
+    const porter = await this.mPorterRepo.findByID(ID);
+    return porter;
+  }
+
+  async findByName(name: string) {
+    const porter = await this.mPorterRepo.findByName(name);
+    return porter;
+  }
+
+  async findByAccount(account: string) {
+    const porter = await this.mPorterRepo.findByAccount(account);
+    return porter;
+  }
+
+  async findByTagNumber(tagNumber: string) {
+    const porter = await this.mPorterRepo.findByTagNumber(tagNumber);
     return porter;
   }
 }
