@@ -20,9 +20,9 @@ export const add = (req: Request, res: Response) => {
   porterModel.createPorter(
     id, name, account, password, tagNumber, type, permission,
     birthday, gender === '1' ? true : false, () => {
-      res.json(ResponseHandler.set(RESPONSE_STATUS.SUCCESS));
+      res.json(ResponseHandler.addPorter(RESPONSE_STATUS.SUCCESS));
     }, (responseStatus: RESPONSE_STATUS) => {
-      res.json(ResponseHandler.set(responseStatus));
+      res.json(ResponseHandler.addPorter(responseStatus));
     });
 };
 

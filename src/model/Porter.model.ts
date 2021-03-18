@@ -57,6 +57,10 @@ export class PorterRepository extends Repository<Porter> {
     return this.findOne({ account });
   }
 
+  findByAccountPassword(account: string, password: string){
+    return this.findOne({ account, password });
+  }
+
   findByTagNumber(tagNumber: string) {
     return this.findOne({ tagNumber });
   }
@@ -173,6 +177,11 @@ export class PorterModel {
 
   async findByAccount(account: string) {
     const porter = await this.mPorterRepo.findByAccount(account);
+    return porter;
+  }
+
+  async findByAccountPassword(account: string, password: string){
+    const porter = await this.mPorterRepo.findByAccountPassword(account, md5(password));
     return porter;
   }
 
