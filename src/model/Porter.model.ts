@@ -158,7 +158,7 @@ export class PorterModel {
       success();
     } catch (err) {
       console.error(err);
-      fail(RESPONSE_STATUS.ERROR_NUKNOWN);
+      fail(RESPONSE_STATUS.ERROR_UNKNOWN);
     }
   }
 

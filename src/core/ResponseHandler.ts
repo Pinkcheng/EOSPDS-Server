@@ -2,7 +2,7 @@ import * as Response from './ResponseCode';
 
 export class ResponseHandler {
   static addPorter(code: Response.ADD_PORTER_RESPONSE_STATUS, data: any = {}) {
-    const { SUCCESS, WARNING_ID_IS_EMPTY, WARNING_TYPE_IS_EMPTY, WARNING_ACCOUNT_IS_EMPTY, WARNING_NAME_IS_EMPTY, WARNING_PASSWORD_IS_EMPTY, ERROR_REPEAT_NAME, ERROR_REPEAT_ACCOUNT, ERROR_REPEAT_TAG_NUMBER, ERROR_NUKNOWN, ERROR_TYPE_NOT_FOUND, ERROR_REPEAT_ID, WARNING_PERMISSION_IS_EMPTY, ERROR_PERMISSION_NOT_FOUND } = Response.ADD_PORTER_RESPONSE_STATUS;
+    const { SUCCESS, WARNING_ID_IS_EMPTY, WARNING_TYPE_IS_EMPTY, WARNING_ACCOUNT_IS_EMPTY, WARNING_NAME_IS_EMPTY, WARNING_PASSWORD_IS_EMPTY, ERROR_REPEAT_NAME, ERROR_REPEAT_ACCOUNT, ERROR_REPEAT_TAG_NUMBER, ERROR_UNKNOWN, ERROR_TYPE_NOT_FOUND, ERROR_REPEAT_ID, WARNING_PERMISSION_IS_EMPTY, ERROR_PERMISSION_NOT_FOUND } = Response.ADD_PORTER_RESPONSE_STATUS;
 
     let message = '';
 
@@ -46,7 +46,7 @@ export class ResponseHandler {
       case ERROR_PERMISSION_NOT_FOUND:
         message = '【錯誤：新增傳送員】找不到傳送員權限類型';
         break;
-      case ERROR_NUKNOWN:
+      case ERROR_UNKNOWN:
         message = '【錯誤：新增傳送員】發生非預期的錯誤';
         break;
       default:
@@ -57,7 +57,7 @@ export class ResponseHandler {
   }
 
   static auth(code: Response.AUTH_RESPONSE_STATUS, data: any = {}) {
-    const { SUCCESS, WARNING_ACCOUNT_IS_EMPTY, WARNING_PASSWORD_IS_EMPTY, ERROR_LOGIN_FAIL, ERROR_NUKNOWN } = Response.AUTH_RESPONSE_STATUS;
+    const { SUCCESS, WARNING_ACCOUNT_IS_EMPTY, WARNING_PASSWORD_IS_EMPTY, WARNING_TOKEN_IS_EMPTY, WARNING_ID_IS_EMPTY, ERROR_LOGIN_FAIL, ERROR_INVALID_TOKEN, ERROR_TOKEN_EXPIRED, ERROR_UNKNOWN } = Response.AUTH_RESPONSE_STATUS;
 
     let message = '';
 
@@ -66,16 +66,28 @@ export class ResponseHandler {
         message = '登入成功';
         break;
       case WARNING_ACCOUNT_IS_EMPTY:
-        message = '【警告：登入】登入帳號為空';
+        message = '【警告：身份驗證】登入帳號為空';
         break;
       case WARNING_PASSWORD_IS_EMPTY:
-        message = '【警告：登入】登入密碼為空';
+        message = '【警告：身份驗證】登入密碼為空';
+        break;
+      case WARNING_ID_IS_EMPTY:
+        message = '【警告：身份驗證】傳送員id為空';
+        break;
+      case WARNING_TOKEN_IS_EMPTY:
+        message = '【警告：身份驗證】toke為空';
         break;
       case ERROR_LOGIN_FAIL:
-        message = '【錯誤：登入失敗】帳號或是密碼錯誤';
+        message = '【錯誤：身份驗證失敗】帳號或是密碼錯誤';
         break;
-      case ERROR_NUKNOWN:
-        message = '【錯誤：登入錯誤】發生非預期的錯誤';
+      case ERROR_INVALID_TOKEN:
+        message = '【錯誤：身份驗證失敗】無效的token';
+        break;
+      case ERROR_TOKEN_EXPIRED:
+        message = '【錯誤：身份驗證失敗】token已經過期';
+        break;
+      case ERROR_UNKNOWN:
+        message = '【錯誤：身份驗證錯誤】發生非預期的錯誤';
         break;
       default:
         throw (new Error('No have response message or code'));
@@ -85,7 +97,7 @@ export class ResponseHandler {
   }
 
   static response(
-    code: Response.ADD_PORTER_RESPONSE_STATUS,
+    code: any,
     message: string = '',
     data: any = {}) {
     return {

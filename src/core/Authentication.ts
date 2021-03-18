@@ -55,12 +55,8 @@ export class Authentication {
           }
         }).catch(err => {
           console.error(err);
-          reject(AUTH_RESPONSE_STATUS.ERROR_NUKNOWN);
+          reject(AUTH_RESPONSE_STATUS.ERROR_UNKNOWN);
         });
     });
-  }
-
-  verify(token: string) {
-    return verify(token, process.env.JWT_SECRET);
   }
 }
