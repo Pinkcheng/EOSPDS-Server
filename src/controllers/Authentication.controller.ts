@@ -14,6 +14,6 @@ export const login = (req: Request, res: Response) => {
       res.json(ResponseHandler.auth(AUTH_RESPONSE_STATUS.SUCCESS, { token: token }));
     }, status => {
       console.log('login fail');
-      res.json(ResponseHandler.auth(status));
+      res.status(400).json(ResponseHandler.auth(status));
     });
 };

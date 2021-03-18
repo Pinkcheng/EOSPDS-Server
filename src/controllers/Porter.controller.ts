@@ -22,7 +22,7 @@ export const add = (req: Request, res: Response) => {
     birthday, gender === '1' ? true : false, () => {
       res.json(ResponseHandler.addPorter(RESPONSE_STATUS.SUCCESS));
     }, (responseStatus: RESPONSE_STATUS) => {
-      res.json(ResponseHandler.addPorter(responseStatus));
+      res.status(400).json(ResponseHandler.addPorter(responseStatus));
     });
 };
 
