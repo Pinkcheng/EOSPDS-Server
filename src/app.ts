@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import helmet from 'helmet';
 
-import router from './router';
+import apiRouter from './router/api.router';
 
 // Read .env files settings
 dotenv.config();
@@ -43,7 +43,8 @@ app.use(function (req, res, next) {
   // Pass to next layer of middleware
   next();
 });
-app.use('/', router);
+
+app.use('/api', apiRouter);
 
 export default app;
 
