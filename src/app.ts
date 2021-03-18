@@ -6,6 +6,7 @@ import path from 'path';
 import helmet from 'helmet';
 
 import apiRouter from './router/api.router';
+import authRouter from './router/authentication.router';
 
 // Read .env files settings
 dotenv.config();
@@ -45,6 +46,7 @@ app.use(function (req, res, next) {
 });
 
 app.use('/api', apiRouter);
+app.use('/auth', authRouter);
 
 export default app;
 
