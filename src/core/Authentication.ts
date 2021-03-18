@@ -2,11 +2,15 @@ import { PorterModel } from '../model/Porter.model';
 import dotenv from 'dotenv';
 import { sign, verify } from 'jsonwebtoken';
 import { AUTH_RESPONSE_STATUS } from './ResponseCode';
+import { compare as passwordCompare } from 'bcrypt';
+import { Porter } from '../entity/porter.entity';
+
 
 // Read .env files settings
 dotenv.config();
 
 export class Authentication {
+  private mPorter: Porter;
   /**
    * 登入系統，並取得token
    * @param account 登入帳號
@@ -23,21 +27,35 @@ export class Authentication {
         reject(AUTH_RESPONSE_STATUS.WARNING_PASSWORD_IS_EMPTY);
         return;
       }
-      // 檢查是否有帳號和密碼相同的傳送員
+      // 取得相同帳號的傳送員
       const porterModel = new PorterModel();
-      porterModel.findByAccountPassword(account, password)
+      porterModel.findByAccount(account)
         .then(porter => {
-          // 如果帳號存在，則回傳token給使用者
-          if (porter) {
-            resolve(sign({ 
-                id: porter.ID,
-                name: porter.name,
-                permission: porter.permission 
-              }, process.env.JWT_SECRET, { expiresIn: '1 day' })
+          // 找不到該帳號傳送員
+          if (!porter) {
+            reject(AUTH_RESPONSE_STATUS.ERROR_LOGIN_FAIL);
+            return;
+          } else {
+            this.mPorter = porter;
+            // 開始比對密碼
+            return passwordCompare(password, porter.password);
+          }
+        }).then(result => {
+          if (result) {
+            // 密碼比對成功
+            resolve(sign({
+              id: this.mPorter.ID,
+              name: this.mPorter.name,
+              permission: this.mPorter.permission
+            }, process.env.JWT_SECRET, { expiresIn: '1 day' })
             );
           } else {
+            // 密碼比對錯誤
             reject(AUTH_RESPONSE_STATUS.ERROR_LOGIN_FAIL);
           }
+        }).catch(err => {
+          console.error(err);
+          reject(AUTH_RESPONSE_STATUS.ERROR_NUKNOWN);
         });
     });
   }

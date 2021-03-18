@@ -3,7 +3,8 @@ import { PorterType } from './../entity/PorterType.entity';
 import { Porter } from './../entity/porter.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
-import md5 from 'md5';
+import { hashSync as passwordHashSync } from 'bcrypt';
+const saltRounds = 10;
 
 @EntityRepository(PorterPermission)
 export class PorterPermissionRepository extends Repository<PorterPermission> {
@@ -55,10 +56,6 @@ export class PorterRepository extends Repository<Porter> {
 
   findByAccount(account: string) {
     return this.findOne({ account });
-  }
-
-  findByAccountPassword(account: string, password: string){
-    return this.findOne({ account, password });
   }
 
   findByTagNumber(tagNumber: string) {
@@ -149,7 +146,7 @@ export class PorterModel {
     newPorter.ID = id;
     newPorter.name = name;
     newPorter.account = account;
-    newPorter.password = md5(password);
+    newPorter.password = passwordHashSync(password, saltRounds);
     newPorter.tagNumber = tagNumber ? tagNumber : null;
     newPorter.type = findType;
     newPorter.birthday = birthday;
@@ -177,11 +174,6 @@ export class PorterModel {
 
   async findByAccount(account: string) {
     const porter = await this.mPorterRepo.findByAccount(account);
-    return porter;
-  }
-
-  async findByAccountPassword(account: string, password: string){
-    const porter = await this.mPorterRepo.findByAccountPassword(account, md5(password));
     return porter;
   }
 

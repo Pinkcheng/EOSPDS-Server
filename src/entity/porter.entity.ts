@@ -26,7 +26,7 @@ export class Porter {
   account: string;
   // 傳送員登入密碼
   @Column('varchar', {
-    length: 40,
+    length: 70,
     name: 'porter_password'
   })
   password: string;
