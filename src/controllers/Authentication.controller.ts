@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { FormFormatter } from '../library/FormFormatter.lib';
-import { Authentication } from '../library/Authentication.lib';
-import { ResponseHandler } from '../library/ResponseHandler.lib';
-import { AUTH_RESPONSE_STATUS } from '../library/ResponseCode';
+import { FormFormatter } from '../core/FormFormatter';
+import { Authentication } from '../core/Authentication';
+import { ResponseHandler } from '../core/ResponseHandler';
+import { AUTH_RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const login = (req: Request, res: Response) => {
   const account = FormFormatter.set(req.body.account);

@@ -2,7 +2,7 @@ import { PorterPermission } from './../entity/PorterPermission.entity';
 import { PorterType } from './../entity/PorterType.entity';
 import { Porter } from './../entity/porter.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
-import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../library/ResponseCode';
+import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
 import md5 from 'md5';
 
 @EntityRepository(PorterPermission)

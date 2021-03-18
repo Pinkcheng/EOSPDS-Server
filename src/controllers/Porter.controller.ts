@@ -1,8 +1,8 @@
 import { PorterModel } from './../model/Porter.model';
-import { ResponseHandler } from '../library/ResponseHandler.lib';
+import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
-import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../library/ResponseCode';
-import { FormFormatter } from '../library/FormFormatter.lib';
+import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
+import { FormFormatter } from '../core/FormFormatter';
 
 export const add = (req: Request, res: Response) => {
   const id = FormFormatter.set(req.body.id);
