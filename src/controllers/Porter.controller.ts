@@ -11,16 +11,18 @@ export const add = (req: Request, res: Response) => {
   const password = FormFormatter.set(req.body.password);
   const tagNumber = FormFormatter.set(req.body.tag);
   const type = parseInt(FormFormatter.set(req.body.type));
+  const permission = parseInt(FormFormatter.set(req.body.permission));
   const birthday = FormFormatter.set(req.body.birthday);
   const gender = FormFormatter.set(req.body.gender);
   
   // 檢查是否有重複的欄位
   const porterModel = new PorterModel();
   porterModel.createPorter(
-    id, name, account, password, tagNumber, type,
+    id, name, account, password, tagNumber, type, permission,
     birthday, gender === '1' ? true : false, () => {
       res.json(ResponseHandler.set(RESPONSE_STATUS.SUCCESS));
     }, (responseStatus: RESPONSE_STATUS) => {
       res.json(ResponseHandler.set(responseStatus));
     });
 };
+

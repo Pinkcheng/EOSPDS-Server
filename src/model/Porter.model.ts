@@ -1,8 +1,28 @@
+import { PorterPermission } from './../entity/PorterPermission.entity';
 import { PorterType } from './../entity/PorterType.entity';
 import { Porter } from './../entity/porter.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../model/ResponseCode';
 import md5 from 'md5';
+
+@EntityRepository(PorterPermission)
+export class PorterPermissionRepository extends Repository<PorterPermission> {
+  findByID(ID: number) {
+    return this.findOne({ ID });
+  }
+}
+
+export class PorterPermissionModel {
+  private mPorterPermissionRepo: PorterPermissionRepository;
+
+  constructor() {
+    this.mPorterPermissionRepo = getCustomRepository(PorterPermissionRepository);
+  }
+
+  async findByTypeID(id: number) {
+    return await this.mPorterPermissionRepo.findByID(id);
+  }
+}
 
 @EntityRepository(PorterType)
 export class PorterTypeRepository extends Repository<PorterType> {
@@ -22,6 +42,7 @@ export class PorterTypeModel {
     return await this.mPorterTypeRepo.findByID(id);
   }
 }
+
 @EntityRepository(Porter)
 export class PorterRepository extends Repository<Porter> {
   findByID(ID: string) {
@@ -55,6 +76,7 @@ export class PorterModel {
     password: string,
     tagNumber: string,
     type: number,
+    permission: number,
     birthday: string,
     gender: boolean,
     success: any,
@@ -76,13 +98,16 @@ export class PorterModel {
     } else if (!id) {
       fail(RESPONSE_STATUS.WARNING_ID_IS_EMPTY);
       return;
+    } else if (!permission && permission != 0) {
+      fail(RESPONSE_STATUS.WARNING_PERMISSION_IS_EMPTY);
+      return;
     }
     // 帳號全部轉換成小寫
     account = account.toLocaleLowerCase();
     const count = await this.count();
     // 有資料才需要比對，是否有重複的資料欄位
     if (count > 0) {
-    // 確認是否有重複的傳送員編號
+      // 確認是否有重複的傳送員編號
       if (await this.findByID(id)) {
         fail(RESPONSE_STATUS.ERROR_REPEAT_ID);
         return;
@@ -108,24 +133,31 @@ export class PorterModel {
     if (!findType) {
       fail(RESPONSE_STATUS.ERROR_TYPE_NOT_FOUND);
       return;
-    } else {
-      const newPorter = new Porter();
-      newPorter.ID = id;
-      newPorter.name = name;
-      newPorter.account = account;
-      newPorter.password = md5(password);
-      newPorter.tagNumber = tagNumber ? tagNumber : null;
-      newPorter.type = findType;
-      newPorter.birthday = birthday;
-      newPorter.gender = gender;
-      
-      try {
-        await this.mPorterRepo.save(newPorter);
-        success();
-      } catch (err) {
-        console.error(err);
-        fail(RESPONSE_STATUS.ERROR_NUKNOWN);
-      }
+    }
+    // 是否有傳送員權限的類型
+    const findPermission = await new PorterPermissionModel().findByTypeID(permission);
+    if (!findPermission) {
+      fail(RESPONSE_STATUS.ERROR_PERMISSION_NOT_FOUND);
+      return;
+    }
+
+    const newPorter = new Porter();
+    newPorter.ID = id;
+    newPorter.name = name;
+    newPorter.account = account;
+    newPorter.password = md5(password);
+    newPorter.tagNumber = tagNumber ? tagNumber : null;
+    newPorter.type = findType;
+    newPorter.birthday = birthday;
+    newPorter.gender = gender;
+    newPorter.permission = findPermission;
+
+    try {
+      await this.mPorterRepo.save(newPorter);
+      success();
+    } catch (err) {
+      console.error(err);
+      fail(RESPONSE_STATUS.ERROR_NUKNOWN);
     }
   }
 

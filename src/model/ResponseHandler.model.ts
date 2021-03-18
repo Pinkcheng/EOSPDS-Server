@@ -2,7 +2,7 @@ import { ADD_PORTER_RESPONSE_STATUS } from './ResponseCode';
 
 export class ResponseHandler {
   static set(code: ADD_PORTER_RESPONSE_STATUS, data: Array<any> = []) {
-    const { SUCCESS, WARNING_ID_IS_EMPTY, WARNING_TYPE_IS_EMPTY, WARNING_ACCOUNT_IS_EMPTY, WARNING_NAME_IS_EMPTY, WARNING_PASSWORD_IS_EMPTY, ERROR_REPEAT_NAME, ERROR_REPEAT_ACCOUNT, ERROR_REPEAT_TAG_NUMBER, ERROR_NUKNOWN, ERROR_TYPE_NOT_FOUND, ERROR_REPEAT_ID } = ADD_PORTER_RESPONSE_STATUS;
+    const { SUCCESS, WARNING_ID_IS_EMPTY, WARNING_TYPE_IS_EMPTY, WARNING_ACCOUNT_IS_EMPTY, WARNING_NAME_IS_EMPTY, WARNING_PASSWORD_IS_EMPTY, ERROR_REPEAT_NAME, ERROR_REPEAT_ACCOUNT, ERROR_REPEAT_TAG_NUMBER, ERROR_NUKNOWN, ERROR_TYPE_NOT_FOUND, ERROR_REPEAT_ID, WARNING_PERMISSION_IS_EMPTY, ERROR_PERMISSION_NOT_FOUND } = ADD_PORTER_RESPONSE_STATUS;
 
     let message = '';
 
@@ -25,6 +25,9 @@ export class ResponseHandler {
       case WARNING_TYPE_IS_EMPTY:
         message = '【警告：新增傳送員】傳送員類型為空';
         break;
+      case WARNING_PERMISSION_IS_EMPTY:
+        message = '【警告：新增傳送員】傳送員權限為空';
+        break;
       case ERROR_REPEAT_NAME:
         message = '【錯誤：新增傳送員】重複的傳送員姓名';
         break;
@@ -39,6 +42,9 @@ export class ResponseHandler {
         break;
       case ERROR_REPEAT_ID:
         message = '【錯誤：新增傳送員】重複的傳送員編號';
+        break;
+      case ERROR_PERMISSION_NOT_FOUND:
+        message = '【錯誤：新增傳送員】找不到傳送員權限類型';
         break;
       case ERROR_NUKNOWN:
         message = '【錯誤：新增傳送員】發生非預期的錯誤';
