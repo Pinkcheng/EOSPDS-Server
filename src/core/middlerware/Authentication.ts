@@ -10,6 +10,7 @@ export const auth = (req: Request, res: Response, next: any) => {
       return;
     }
     // 從來自客戶端請求的 header 取得和擷取 JWT
+    // TODO: 認證是否要確認編號
     const token = req.header('Authorization').replace('Bearer ', '');
     // 驗證 Token
     const decoded = verify(token, process.env.JWT_SECRET);
@@ -19,7 +20,7 @@ export const auth = (req: Request, res: Response, next: any) => {
       return;
     }
     // 無效的token，解碼後的傳送員id，和表單傳過來的不同
-    if (req.body.id !== decoded.id) {
+    if (req.body.id !== decoded.id +'') {
       res.json(ResponseHandler.auth(AUTH_RESPONSE_STATUS.ERROR_INVALID_TOKEN));
       return;
     }
