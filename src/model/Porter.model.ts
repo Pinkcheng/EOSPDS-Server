@@ -109,22 +109,22 @@ export class PorterModel {
     // 有資料才需要比對，是否有重複的資料欄位
     if (count > 0) {
       // 確認是否有重複的傳送員編號
-      if (await this.findByID(id)) {
+      if (await this.mPorterRepo.findByID(id)) {
         fail(RESPONSE_STATUS.ERROR_REPEAT_ID);
         return;
       }
       // 確認是否有重複的傳送員姓名
-      if (await this.findByName(name)) {
+      if (await this.mPorterRepo.findByName(name)) {
         fail(RESPONSE_STATUS.ERROR_REPEAT_NAME);
         return;
       }
       // 確認是否有重複的傳送員帳號
-      if (await this.findByAccount(account)) {
+      if (await this.mPorterRepo.findByAccount(account)) {
         fail(RESPONSE_STATUS.ERROR_REPEAT_ACCOUNT);
         return;
       }
       // 確認是否有重複的傳送員標籤編號
-      if (await this.findByTagNumber(tagNumber)) {
+      if (await this.mPorterRepo.findByTagNumber(tagNumber)) {
         fail(RESPONSE_STATUS.ERROR_REPEAT_TAG_NUMBER);
         return;
       }
