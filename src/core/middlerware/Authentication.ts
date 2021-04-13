@@ -27,7 +27,10 @@ export const auth = (req: Request, res: Response, next: any) => {
     next();
   } catch (err) {
     // token過期例外處理
-    if (err.name === 'TokenExpiredError') {
+    if (err.name === 'JsonWebTokenError') {
+      res.status(401).json(ResponseHandler.auth(AUTH_RESPONSE_STATUS.ERROR_INVALID_TOKEN));
+    // token無效例外處理
+    } else if (err.name === 'TokenExpiredError') {
       res.status(401).json(ResponseHandler.auth(AUTH_RESPONSE_STATUS.ERROR_TOKEN_EXPIRED));
     } else {
       console.error(err);
