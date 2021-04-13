@@ -1,5 +1,14 @@
 # EOSPDS-server
 
+## 準備專案執行環境檔.env
+在執行專案之前，請在專案根目錄下準備`.env`檔案，與`package.json`檔案同一個資料夾
+```shell
+# 伺服器執行的port
+PORT=9487
+# 設定token加密密碼，請勿公布
+JWT_SECRET=myprojectname
+```
+
 ## 準備資料庫
 ### 安裝資料庫
 1. 安裝`Ubuntu-Server 20.04`版本，官方網站下載位置[點我下載](https://ubuntu.com/download/server)
