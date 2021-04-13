@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-
+// TODO:應該為systempermission
 @Entity('porter_permission')
 export class PorterPermission {
   // 權限等級

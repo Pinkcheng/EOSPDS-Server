@@ -1,13 +1,13 @@
 import express from 'express';
-import session from 'express-session';
 import dotenv from 'dotenv';
 import compression from 'compression'; // compresses requests
 import bodyParser from 'body-parser';
 import path from 'path';
 import helmet from 'helmet';
-import uuidv4 from 'uuid/v4';
 
-import router from './router';
+import apiRouter from './router/api.router';
+import authRouter from './router/authentication.router';
+import { auth } from './core/middlerware/Authentication';
 
 // Read .env files settings
 dotenv.config();
@@ -30,15 +30,6 @@ app.use(
 app.use(helmet());
 
 app.set('trust proxy', 1); // trust first proxy
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  genid: function() {
-    return uuidv4(); // use UUIDs for session IDs
-  },
-  cookie: { secure: true }
-}));
 
 // Add headers
 app.use(function (req, res, next) {
@@ -51,14 +42,13 @@ app.use(function (req, res, next) {
   // Request headers you wish to allow
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
 
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
   // Pass to next layer of middleware
   next();
 });
-app.use('/', router);
+
+// TODO: 使用api均需要有token才能操作
+app.use('/api', auth, apiRouter);
+app.use('/auth', authRouter);
 
 export default app;
 

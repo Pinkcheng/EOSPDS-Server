@@ -2,8 +2,9 @@ import { PorterPermission } from './../entity/PorterPermission.entity';
 import { PorterType } from './../entity/PorterType.entity';
 import { Porter } from './../entity/porter.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
-import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../model/ResponseCode';
-import md5 from 'md5';
+import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
+import { hashSync as passwordHashSync } from 'bcrypt';
+const saltRounds = 10;
 
 @EntityRepository(PorterPermission)
 export class PorterPermissionRepository extends Repository<PorterPermission> {
@@ -108,22 +109,22 @@ export class PorterModel {
     // 有資料才需要比對，是否有重複的資料欄位
     if (count > 0) {
       // 確認是否有重複的傳送員編號
-      if (await this.findByID(id)) {
+      if (await this.mPorterRepo.findByID(id)) {
         fail(RESPONSE_STATUS.ERROR_REPEAT_ID);
         return;
       }
       // 確認是否有重複的傳送員姓名
-      if (await this.findByName(name)) {
+      if (await this.mPorterRepo.findByName(name)) {
         fail(RESPONSE_STATUS.ERROR_REPEAT_NAME);
         return;
       }
       // 確認是否有重複的傳送員帳號
-      if (await this.findByAccount(account)) {
+      if (await this.mPorterRepo.findByAccount(account)) {
         fail(RESPONSE_STATUS.ERROR_REPEAT_ACCOUNT);
         return;
       }
       // 確認是否有重複的傳送員標籤編號
-      if (await this.findByTagNumber(tagNumber)) {
+      if (await this.mPorterRepo.findByTagNumber(tagNumber)) {
         fail(RESPONSE_STATUS.ERROR_REPEAT_TAG_NUMBER);
         return;
       }
@@ -145,7 +146,7 @@ export class PorterModel {
     newPorter.ID = id;
     newPorter.name = name;
     newPorter.account = account;
-    newPorter.password = md5(password);
+    newPorter.password = passwordHashSync(password, saltRounds);
     newPorter.tagNumber = tagNumber ? tagNumber : null;
     newPorter.type = findType;
     newPorter.birthday = birthday;
@@ -157,7 +158,7 @@ export class PorterModel {
       success();
     } catch (err) {
       console.error(err);
-      fail(RESPONSE_STATUS.ERROR_NUKNOWN);
+      fail(RESPONSE_STATUS.ERROR_UNKNOWN);
     }
   }
 
