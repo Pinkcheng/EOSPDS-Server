@@ -47,7 +47,7 @@ app.use(function (req, res, next) {
 });
 
 // TODO: 使用api均需要有token才能操作
-app.use('/api', auth, apiRouter);
+app.use('/api/v1.0/', auth, apiRouter);
 app.use('/auth', authRouter);
 
 export default app;
