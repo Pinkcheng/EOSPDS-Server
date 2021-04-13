@@ -1,7 +1,14 @@
 # EOSPDS-server
+[1. 準備資料庫](#1.-準備資料庫) <br/>
+[1.1 安裝資料庫](#1.1-安裝資料庫) <br/>
+[1.2 建立資料庫和使用者](#1.2-建立資料庫和使用者) <br/>
+[1.3 修改專案mysql連線設定檔](#1.3-修改專案mysql連線設定檔]) <br/>
+[2. 設定專案環境變數 `.env`](#2.-設定專案環境變數`.env`)
 
-## 準備資料庫
-### 安裝資料庫
+---
+
+## 1. 準備資料庫
+### 1.1 安裝資料庫
 1. 安裝`Ubuntu-Server 20.04`版本，官方網站下載位置[點我下載](https://ubuntu.com/download/server)
 2. 更新ubuntu server
 ```shell
@@ -75,7 +82,7 @@ mysql> show databases;
 
 mysql> 
 ```
-### 建立資料庫和使用者
+### 1.2 建立資料庫和使用者
 1. 登入資料庫
 ```shell
 mysql -u 上方的預設帳號名稱 -p
@@ -129,7 +136,8 @@ mysql> show databases;
 
 mysql> 
 ```
-### 修改專案mysql連線設定檔
+
+### 1.3 修改專案mysql連線設定檔
 修改根目錄下的檔案`ormconfig.json`檔案
 ```json=
 {
@@ -148,7 +156,8 @@ mysql>
 }
 ```
 
-### 專案環境設定檔案
+## 2. 設定專案環境變數`.env`
+於根目錄下新增環境設定檔`.env`
 ```
 #express port
 PORT=9487
