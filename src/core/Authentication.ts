@@ -6,7 +6,7 @@ dotenv.config();
 
 import { AUTH_RESPONSE_STATUS } from './ResponseCode';
 import { SystemParameterModel } from '../model/SystemParameter.model';
-import { AuthenticationModel } from '../model/Authentication.model';
+import { UserModel } from '../model/User.model';
 
 export class Authentication {
   
@@ -29,17 +29,18 @@ export class Authentication {
 
       const porterModel = new PorterModel();
       const systemParameterModel = new SystemParameterModel();
-      const authenticationModel = new AuthenticationModel();
+      const userModel = new UserModel();
 
       try {
+        // TODO: 系統管理員登入帳號密碼，移動到system_password即可
         // 取得系統管理員登入帳號和密碼
         const systemAccount = await systemParameterModel.get('SYSTEM_ADMIN_ACCOUNT');
         const systemAccountPassword = await systemParameterModel.get('SYSTEM_ADMIN_ACCOUNT_PASSWORD');
-        const checkSystemPassword = await authenticationModel.comparePassword(password, systemAccountPassword.value);
+        const checkSystemPassword = await userModel.comparePassword(password, systemAccountPassword.value);
 
         // 先判斷登入的帳號是否為，系統管理員的帳號
         if (systemAccount.value === account && checkSystemPassword) {
-          resolve(authenticationModel.generateAccessToken('9999', account, 0));
+          resolve(userModel.generateAccessToken('9999', account, 0));
         } else { // 如不是則尋找，是否為請求單位，或是傳送員的帳號
           const porter = await porterModel.findByAccount(account);
           // 找不到該帳號傳送員
@@ -48,10 +49,10 @@ export class Authentication {
             return;
           } else {
             // 比對使用者密碼
-            const checkPassword = await authenticationModel.comparePassword(password, porter.password);
+            const checkPassword = await userModel.comparePassword(password, porter.password);
             if (checkPassword) {
               // TODO: porter permission is undefind
-              resolve(authenticationModel.generateAccessToken(porter.ID, porter.name, porter.permission.ID));
+              resolve(userModel.generateAccessToken(porter.ID, porter.name, porter.permission.ID));
             } else {
               // 密碼比對錯誤
               reject(AUTH_RESPONSE_STATUS.ERROR_LOGIN_FAIL);
