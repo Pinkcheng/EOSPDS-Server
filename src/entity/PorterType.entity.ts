@@ -9,6 +9,7 @@ export class PorterType {
     name: 'id'
   })
   ID: number;
+  
   // 傳送員類型名稱
   @Column('varchar', {
     length: 50,
