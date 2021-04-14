@@ -2,7 +2,7 @@ import { SystemPermission } from '../entity/SystemPermission.entity';
 import { PorterType } from './../entity/PorterType.entity';
 import { Porter } from '../entity/Porter.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
-import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
+import { ADD_USER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
 import { hashSync as passwordHashSync } from 'bcrypt';
 const saltRounds = 10;
 
@@ -94,7 +94,7 @@ export class PorterModel {
       fail(RESPONSE_STATUS.WARNING_PASSWORD_IS_EMPTY);
       return;
     } else if (!type) {
-      fail(RESPONSE_STATUS.WARNING_TYPE_IS_EMPTY);
+      fail(RESPONSE_STATUS.WARNING_PORTER_TYPE_IS_EMPTY);
       return;
     } else if (!id) {
       fail(RESPONSE_STATUS.WARNING_ID_IS_EMPTY);
@@ -103,9 +103,8 @@ export class PorterModel {
       fail(RESPONSE_STATUS.WARNING_PERMISSION_IS_EMPTY);
       return;
     }
-    // 帳號全部轉換成小寫
-    account = account.toLocaleLowerCase();
-    const count = await this.count();
+    
+    const count = await this.mPorterRepo.count();
     // 有資料才需要比對，是否有重複的資料欄位
     if (count > 0) {
       // 確認是否有重複的傳送員編號
@@ -125,14 +124,14 @@ export class PorterModel {
       }
       // 確認是否有重複的傳送員標籤編號
       if (await this.mPorterRepo.findByTagNumber(tagNumber)) {
-        fail(RESPONSE_STATUS.ERROR_REPEAT_TAG_NUMBER);
+        fail(RESPONSE_STATUS.ERROR_REPEAT_PORTER_TAG_NUMBER);
         return;
       }
     }
     // 是否有該傳送員型態
     const findType = await new PorterTypeModel().findByTypeID(type);
     if (!findType) {
-      fail(RESPONSE_STATUS.ERROR_TYPE_NOT_FOUND);
+      fail(RESPONSE_STATUS.ERROR_PORTER_TYPE_NOT_FOUND);
       return;
     }
     // 是否有傳送員權限的類型

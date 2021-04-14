@@ -1,7 +1,7 @@
 import { PorterModel } from './../model/Porter.model';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
-import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
+import { ADD_USER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
 import { FormFormatter } from '../core/FormFormatter';
 
 export const add = (req: Request, res: Response) => {
@@ -20,9 +20,9 @@ export const add = (req: Request, res: Response) => {
   porterModel.createPorter(
     id, name, account, password, tagNumber, type, permission,
     birthday, gender === '1' ? true : false, () => {
-      res.json(ResponseHandler.addPorter(RESPONSE_STATUS.SUCCESS));
+      res.json(ResponseHandler.addUser(RESPONSE_STATUS.SUCCESS));
     }, (responseStatus: RESPONSE_STATUS) => {
-      res.status(400).json(ResponseHandler.addPorter(responseStatus));
+      res.status(400).json(ResponseHandler.addUser(responseStatus));
     });
 };
 

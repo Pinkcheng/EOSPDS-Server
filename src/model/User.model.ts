@@ -1,8 +1,11 @@
+import { SystemPermission } from './../entity/SystemPermission.entity';
 import { User } from '../entity/User.entity';
 import { sign } from 'jsonwebtoken';
 import { compare as comparePassword } from 'bcrypt';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
-import { AUTH_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
+import { ADD_USER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
+import { hashSync as passwordHashSync } from 'bcrypt';
+const saltRounds = 10;
 
 import dotenv from 'dotenv';
 // Read .env files settings
@@ -22,28 +25,33 @@ export class UserModel {
     this.mUserRepo = getCustomRepository(UserRepository);
   }
 
-  creatUser(id: string, account: string, password: string) {
-    new Promise<any>(async (resolve, reject) => {
+  creatUser(
+    id: string,
+    account: string,
+    password: string,
+    permission: SystemPermission
+  ) {
+    return new Promise<any>(async (resolve, reject) => {
       // 確認輸入的帳號是否為空值
       if (!account) {
-        reject(RESPONSE_STATUS.WARNING_ACCOUNT_IS_EMPTY);
+        reject(RESPONSE_STATUS.ACCOUNT_IS_EMPTY);
         return;
         // 確認輸入的密碼是否為空值
       } else if (!password) {
-        reject(RESPONSE_STATUS.WARNING_PASSWORD_IS_EMPTY);
+        reject(RESPONSE_STATUS.PASSWORD_IS_EMPTY);
         return;
       }
 
       // 帳號全部轉換成小寫
       account = account.toLocaleLowerCase();
-      
+
       // 檢查是否有重複的帳號名稱
       // 有資料才需要比對，是否有重複的資料欄位
       const count = await this.mUserRepo.count();
       if (count > 0) {
         // 發現有重複的帳號名稱
         if (await this.mUserRepo.findByAccount(account)) {
-          reject(RESPONSE_STATUS.ERROR_REPEAT_ACCOUNT);
+          reject(RESPONSE_STATUS.REPEAT_ACCOUNT);
           return;
         }
       }
@@ -51,14 +59,15 @@ export class UserModel {
       const newUser = new User();
       newUser.ID = id;
       newUser.account = account;
-      newUser.password = password;
+      newUser.password = passwordHashSync(password, saltRounds);
+      newUser.permission = permission;
 
       try {
         await this.mUserRepo.save(newUser);
         resolve(RESPONSE_STATUS.SUCCESS);
       } catch (err) {
         console.error(err);
-        reject(RESPONSE_STATUS.ERROR_UNKNOWN);
+        reject(RESPONSE_STATUS.UNKNOWN);
       }
     });
   }

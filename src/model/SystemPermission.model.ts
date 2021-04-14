@@ -31,4 +31,8 @@ export class SystemPermissionModel {
       console.error(err);
     }
   }
+
+  async find(id: number) {
+    return this.mSystemPermissionRepo.findById(id);
+  }
 }
