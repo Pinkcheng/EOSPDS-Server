@@ -7,7 +7,7 @@ import helmet from 'helmet';
 
 import apiRouter from './router/api.router';
 import authRouter from './router/authentication.router';
-import { auth } from './core/middlerware/Authentication';
+import { auth } from './core/middlerware/Authentication.middlerware';
 
 // Read .env files settings
 dotenv.config();
