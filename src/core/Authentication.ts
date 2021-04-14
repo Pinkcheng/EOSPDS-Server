@@ -7,7 +7,7 @@ dotenv.config();
 import { sign } from 'jsonwebtoken';
 import { AUTH_RESPONSE_STATUS } from './ResponseCode';
 import { compare as passwordCompare } from 'bcrypt';
-import { Porter } from '../entity/porter.entity';
+import { Porter } from '../entity/Porter.entity';
 import { SystemParameterModel } from '../model/SystemParameter.model';
 
 export class Authentication {
@@ -60,8 +60,10 @@ export class Authentication {
             reject(AUTH_RESPONSE_STATUS.ERROR_LOGIN_FAIL);
             return;
           } else {
+            // 比對使用者密碼
             const checkPassword = await passwordCompare(password, porter.password);
             if (checkPassword) {
+              // TODO: porter permission is undefind
               resolve(this.generateToken(porter.ID, porter.name, porter.permission.ID));
             } else {
               // 密碼比對錯誤
