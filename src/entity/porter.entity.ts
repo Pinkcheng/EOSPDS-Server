@@ -1,4 +1,4 @@
-import { PorterPermission } from './PorterPermission.entity';
+import { SystemPermission } from './SystemPermission.entity';
 import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 import { PorterType } from './PorterType.entity';
 
@@ -56,10 +56,10 @@ export class Porter {
     type => type.ID
   )
   type: PorterType;
-  // 傳送員權限
+  // 系統權限
   @ManyToOne(
-    () => PorterPermission,
+    () => SystemPermission,
     permission => permission.ID
   )
-  permission: PorterPermission;
+  permission: SystemPermission;
 }

@@ -1,13 +1,13 @@
-import { PorterPermission } from './../entity/PorterPermission.entity';
+import { SystemPermission } from '../entity/SystemPermission.entity';
 import { PorterType } from './../entity/PorterType.entity';
-import { Porter } from './../entity/porter.entity';
+import { Porter } from '../entity/Porter.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
 import { hashSync as passwordHashSync } from 'bcrypt';
 const saltRounds = 10;
 
-@EntityRepository(PorterPermission)
-export class PorterPermissionRepository extends Repository<PorterPermission> {
+@EntityRepository(SystemPermission)
+export class PorterPermissionRepository extends Repository<SystemPermission> {
   findByID(ID: number) {
     return this.findOne({ ID });
   }

@@ -7,7 +7,7 @@ import helmet from 'helmet';
 
 import apiRouter from './router/api.router';
 import authRouter from './router/authentication.router';
-import { auth } from './core/middlerware/Authentication';
+import { auth } from './core/middlerware/Authentication.middlerware';
 
 // Read .env files settings
 dotenv.config();
@@ -47,7 +47,7 @@ app.use(function (req, res, next) {
 });
 
 // TODO: 使用api均需要有token才能操作
-app.use('/api', auth, apiRouter);
+app.use('/api/v1.0/', auth, apiRouter);
 app.use('/auth', authRouter);
 
 export default app;
