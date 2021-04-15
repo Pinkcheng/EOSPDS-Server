@@ -1,28 +1,26 @@
 import { PorterModel } from './../model/Porter.model';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
-import { ADD_USER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
-import { FormFormatter } from '../core/FormFormatter';
+import { Formatter } from '../core/Formatter';
+import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const add = (req: Request, res: Response) => {
-  const id = FormFormatter.set(req.body.id);
-  const name = FormFormatter.set(req.body.name);
-  const account = FormFormatter.set(req.body.account);
-  const password = FormFormatter.set(req.body.password);
-  const tagNumber = FormFormatter.set(req.body.tag);
-  const type = parseInt(FormFormatter.set(req.body.type));
-  const permission = parseInt(FormFormatter.set(req.body.permission));
-  const birthday = FormFormatter.set(req.body.birthday);
-  const gender = FormFormatter.set(req.body.gender);
-  
-  // 檢查是否有重複的欄位
+  const name = Formatter.formInput(req.body.name);
+  const account = Formatter.formInput(req.body.account);
+  const password = Formatter.formInput(req.body.password);
+  const tagNumber = Formatter.formInput(req.body.tag);
+  const type = parseInt(Formatter.formInput(req.body.type));
+  const birthday = Formatter.formInput(req.body.birthday);
+  const gender = Formatter.formInput(req.body.gender);
+
   const porterModel = new PorterModel();
   porterModel.createPorter(
-    id, name, account, password, tagNumber, type, permission,
-    birthday, gender === '1' ? true : false, () => {
-      res.json(ResponseHandler.addUser(RESPONSE_STATUS.SUCCESS));
-    }, (responseStatus: RESPONSE_STATUS) => {
-      res.status(400).json(ResponseHandler.addUser(responseStatus));
+    name, account, password, type, tagNumber, birthday, 
+    gender === '1' ? true : false)
+    .then(() => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.USER_SUCCESS));
+    }, responseCode => {
+      res.status(400).json(ResponseHandler.message(responseCode));
     });
 };
 

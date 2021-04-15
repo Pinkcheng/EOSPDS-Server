@@ -7,6 +7,7 @@ export class ResponseHandler {
     let message = '';
 
     switch (code) {
+      // =============== 新增使用者 =====================
       case USER_SUCCESS:
         message = '傳送員資料新增成功';
         break;
@@ -37,6 +38,7 @@ export class ResponseHandler {
       case USER_UNKNOWN:
         message = '【錯誤：新增人員】發生非預期的錯誤';
         break;
+      // =============== 認證相關 =====================
       case AUTH_SUCCESS:
         message = '登入成功';
         break;
@@ -47,7 +49,7 @@ export class ResponseHandler {
         message = '【警告：身份驗證】登入密碼為空';
         break;
       case AUTH_ID_IS_EMPTY:
-        message = '【警告：身份驗證】id為空';
+        message = '【警告：身份驗證】授權人員的id為空';
         break;
       case AUTH_TOKEN_IS_EMPTY:
         message = '【警告：身份驗證】toke為空';

@@ -73,7 +73,7 @@ export class PorterModel {
     birthday: string = null,
     gender: boolean = null,
   ) {
-    return new Promise<any>(async (resolve, reject) => {
+    return new Promise<RESPONSE_STATUS>(async (resolve, reject) => {
       // 確認表單中必要的欄位，是否有空值
       if (!name) {
         reject(RESPONSE_STATUS.USER_NAME_IS_EMPTY);
