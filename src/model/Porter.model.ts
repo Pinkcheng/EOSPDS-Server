@@ -1,3 +1,4 @@
+import { Formatter } from './../core/Formatter';
 import { SystemPermissionModel } from './SystemPermission.model';
 import { UserModel } from './User.model';
 import { PorterType } from '../entity/PorterType.entity';
@@ -50,15 +51,6 @@ export class PorterModel {
     this.mPorterRepo = getCustomRepository(PorterRepository);
   }
 
-  // TODO: 移動到core裡面
-  // 左邊補0
-  padLeft(str: string, lenght: number): string {
-    if (str.length >= lenght)
-      return str;
-    else
-      return this.padLeft('0' + str, lenght);
-  }
-
   // 產生傳送員編號
   async generatePorterID(porterType: number) {
     const porterID = 'P' + porterType;
@@ -67,7 +59,7 @@ export class PorterModel {
     // 數量+1
     count++;
     // 補0
-    const id = this.padLeft(count + '', parseInt(process.env.PORTER_ID_LENGTH));
+    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.PORTER_ID_LENGTH));
 
     return (porterID + id);
   }
@@ -142,10 +134,6 @@ export class PorterModel {
           reject(RESPONSE_STATUS.USER_UNKNOWN);
         });
     });
-
-
-
-
   }
 
   async findByID(ID: string) {
