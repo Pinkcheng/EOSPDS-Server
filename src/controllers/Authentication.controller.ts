@@ -1,19 +1,18 @@
+import { UserModel } from '../model/User.model';
 import { Request, Response } from 'express';
-import { FormFormatter } from '../core/FormFormatter';
-import { Authentication } from '../core/Authentication';
+import { Formatter } from '../core/Formatter';
 import { ResponseHandler } from '../core/ResponseHandler';
-import { AUTH_RESPONSE_STATUS } from '../core/ResponseCode';
+import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const login = (req: Request, res: Response) => {
-  const account = FormFormatter.set(req.body.account);
-  const password = FormFormatter.set(req.body.password);
-  
-  const auth = new Authentication();
-  auth.login(account, password)
+  const account = Formatter.formInput(req.body.account);
+  const password = Formatter.formInput(req.body.password);
+
+  const userModel = new UserModel();
+  userModel.login(account, password)
     .then(token => {
-      res.json(ResponseHandler.auth(AUTH_RESPONSE_STATUS.SUCCESS, { token: token }));
-    }, status => {
-      console.log('login fail');
-      res.status(400).json(ResponseHandler.auth(status));
+      res.json(ResponseHandler.message(RESPONSE_STATUS.AUTH_SUCCESS, token));
+    }, responseCode => {
+      res.status(400).json(ResponseHandler.message(responseCode));
     });
 };

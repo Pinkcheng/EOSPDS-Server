@@ -1,7 +1,7 @@
 import xss from 'xss';
 
-export class FormFormatter {
-  static set(input: string) {
+export class Formatter {
+  static formInput(input: string) {
     if (input) {
       // 去除換行
       input = input.replace(/\r\n|\n/g, '');
@@ -14,5 +14,13 @@ export class FormFormatter {
     }
 
     return input;
+  }
+
+  // 左邊補0
+  static paddingLeftZero(str: string, lenght: number): string {
+    if (str.length >= lenght)
+      return str;
+    else
+      return this.paddingLeftZero('0' + str, lenght);
   }
 }

@@ -72,6 +72,24 @@ export class UserModel {
     });
   }
 
+  login(account: string, password: string) {
+    return new Promise<any>(async (resolve, reject) => {
+      const findUser = await this.mUserRepo.findByAccount(account);
+      if (!findUser) {
+        reject(RESPONSE_STATUS.AUTH_LOGIN_FAIL);
+        return;
+      } else {
+        const passwordCheck = this.comparePassword(password, findUser.password);
+        if (!passwordCheck) {
+          reject(RESPONSE_STATUS.AUTH_LOGIN_FAIL);
+          return;
+        } else {
+          resolve(this.generateAccessToken(findUser.ID, '-name-', 1));
+        }
+      }
+    });
+  }
+
   generateAccessToken(
     id: string,
     name: string,
