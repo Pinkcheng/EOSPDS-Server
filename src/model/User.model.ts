@@ -3,7 +3,7 @@ import { User } from '../entity/User.entity';
 import { sign } from 'jsonwebtoken';
 import { compare as comparePassword } from 'bcrypt';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
-import { ADD_USER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
+import { RESPONSE_STATUS } from '../core/ResponseCode';
 import { hashSync as passwordHashSync } from 'bcrypt';
 const saltRounds = 10;
 
@@ -34,11 +34,11 @@ export class UserModel {
     return new Promise<any>(async (resolve, reject) => {
       // 確認輸入的帳號是否為空值
       if (!account) {
-        reject(RESPONSE_STATUS.ACCOUNT_IS_EMPTY);
+        reject(RESPONSE_STATUS.USER_ACCOUNT_IS_EMPTY);
         return;
         // 確認輸入的密碼是否為空值
       } else if (!password) {
-        reject(RESPONSE_STATUS.PASSWORD_IS_EMPTY);
+        reject(RESPONSE_STATUS.USER_PASSWORD_IS_EMPTY);
         return;
       }
 
@@ -51,7 +51,7 @@ export class UserModel {
       if (count > 0) {
         // 發現有重複的帳號名稱
         if (await this.mUserRepo.findByAccount(account)) {
-          reject(RESPONSE_STATUS.REPEAT_ACCOUNT);
+          reject(RESPONSE_STATUS.USER_REPEAT_ACCOUNT);
           return;
         }
       }
@@ -64,10 +64,10 @@ export class UserModel {
 
       try {
         await this.mUserRepo.save(newUser);
-        resolve(RESPONSE_STATUS.SUCCESS);
+        resolve(RESPONSE_STATUS.USER_SUCCESS);
       } catch (err) {
         console.error(err);
-        reject(RESPONSE_STATUS.UNKNOWN);
+        reject(RESPONSE_STATUS.USER_UNKNOWN);
       }
     });
   }
