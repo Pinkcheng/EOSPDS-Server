@@ -14,14 +14,14 @@ export class User {
   @Index({ unique: true })
   @Column('varchar', {
     length: 50,
-    name: 'porter_account'
+    name: 'account'
   })
   account: string;
 
   // 人員登入密碼
   @Column('varchar', {
     length: 70,
-    name: 'porter_password'
+    name: 'password'
   })
   password: string;
 
