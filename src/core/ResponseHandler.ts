@@ -1,92 +1,67 @@
 import * as Response from './ResponseCode';
 
 export class ResponseHandler {
-  static addPorter(code: Response.ADD_PORTER_RESPONSE_STATUS, data: any = {}) {
-    const { SUCCESS, WARNING_ID_IS_EMPTY, WARNING_TYPE_IS_EMPTY, WARNING_ACCOUNT_IS_EMPTY, WARNING_NAME_IS_EMPTY, WARNING_PASSWORD_IS_EMPTY, ERROR_REPEAT_NAME, ERROR_REPEAT_ACCOUNT, ERROR_REPEAT_TAG_NUMBER, ERROR_UNKNOWN, ERROR_TYPE_NOT_FOUND, ERROR_REPEAT_ID, WARNING_PERMISSION_IS_EMPTY, ERROR_PERMISSION_NOT_FOUND } = Response.ADD_PORTER_RESPONSE_STATUS;
+  static message(code: Response.RESPONSE_STATUS, data: any = {}) {
+    const { USER_SUCCESS, USER_PORTER_TYPE_IS_EMPTY, USER_ACCOUNT_IS_EMPTY, USER_NAME_IS_EMPTY, USER_PASSWORD_IS_EMPTY, USER_REPEAT_NAME, USER_REPEAT_ACCOUNT, USER_REPEAT_PORTER_TAG_NUMBER, USER_UNKNOWN, USER_PORTER_TYPE_NOT_FOUND, AUTH_ACCOUNT_IS_EMPTY, AUTH_ID_IS_EMPTY, AUTH_INVALID_TOKEN, AUTH_LOGIN_FAIL, AUTH_PASSWORD_IS_EMPTY, AUTH_SUCCESS, AUTH_TOKEN_EXPIRED, AUTH_TOKEN_IS_EMPTY, AUTH_UNKNOWN } = Response.RESPONSE_STATUS;
 
     let message = '';
 
     switch (code) {
-      case SUCCESS:
+      case USER_SUCCESS:
         message = '傳送員資料新增成功';
         break;
-      case WARNING_NAME_IS_EMPTY:
-        message = '【警告：新增傳送員】傳送員姓名為空';
+      case USER_NAME_IS_EMPTY:
+        message = '【警告：新增人員】人員姓名為空';
         break;
-      case WARNING_ID_IS_EMPTY:
-        message = '【警告：新增傳送員】傳送員編號為空';
+      case USER_ACCOUNT_IS_EMPTY:
+        message = '【警告：新增人員】人員帳號為空';
         break;
-      case WARNING_ACCOUNT_IS_EMPTY:
-        message = '【警告：新增傳送員】傳送員帳號為空';
+      case USER_PASSWORD_IS_EMPTY:
+        message = '【警告：新增人員】人員密碼為空';
         break;
-      case WARNING_PASSWORD_IS_EMPTY:
-        message = '【警告：新增傳送員】傳送員密碼為空';
+      case USER_PORTER_TYPE_IS_EMPTY:
+        message = '【警告：新增人員】傳送員類型為空';
         break;
-      case WARNING_TYPE_IS_EMPTY:
-        message = '【警告：新增傳送員】傳送員類型為空';
+      case USER_REPEAT_NAME:
+        message = '【錯誤：新增人員】重複的姓名';
         break;
-      case WARNING_PERMISSION_IS_EMPTY:
-        message = '【警告：新增傳送員】傳送員權限為空';
+      case USER_REPEAT_ACCOUNT:
+        message = '【錯誤：新增人員】重複的人員帳號';
         break;
-      case ERROR_REPEAT_NAME:
-        message = '【錯誤：新增傳送員】重複的傳送員姓名';
+      case USER_REPEAT_PORTER_TAG_NUMBER:
+        message = '【錯誤：新增人員】重複的傳送人員標籤';
         break;
-      case ERROR_REPEAT_ACCOUNT:
-        message = '【錯誤：新增傳送員】重複的傳送員帳號';
+      case USER_PORTER_TYPE_NOT_FOUND:
+        message = '【錯誤：新增人員】找不到傳送員類型';
         break;
-      case ERROR_REPEAT_TAG_NUMBER:
-        message = '【錯誤：新增傳送員】重複的標籤編號';
+      case USER_UNKNOWN:
+        message = '【錯誤：新增人員】發生非預期的錯誤';
         break;
-      case ERROR_TYPE_NOT_FOUND:
-        message = '【錯誤：新增傳送員】找不到傳送員類型';
-        break;
-      case ERROR_REPEAT_ID:
-        message = '【錯誤：新增傳送員】重複的傳送員編號';
-        break;
-      case ERROR_PERMISSION_NOT_FOUND:
-        message = '【錯誤：新增傳送員】找不到傳送員權限類型';
-        break;
-      case ERROR_UNKNOWN:
-        message = '【錯誤：新增傳送員】發生非預期的錯誤';
-        break;
-      default:
-        throw (new Error('No have response message or code'));
-    }
-
-    return this.response(code, message, data);
-  }
-
-  static auth(code: Response.AUTH_RESPONSE_STATUS, data: any = {}) {
-    const { SUCCESS, WARNING_ACCOUNT_IS_EMPTY, WARNING_PASSWORD_IS_EMPTY, WARNING_TOKEN_IS_EMPTY, WARNING_ID_IS_EMPTY, ERROR_LOGIN_FAIL, ERROR_INVALID_TOKEN, ERROR_TOKEN_EXPIRED, ERROR_UNKNOWN } = Response.AUTH_RESPONSE_STATUS;
-
-    let message = '';
-
-    switch (code) {
-      case SUCCESS:
+      case AUTH_SUCCESS:
         message = '登入成功';
         break;
-      case WARNING_ACCOUNT_IS_EMPTY:
+      case AUTH_ACCOUNT_IS_EMPTY:
         message = '【警告：身份驗證】登入帳號為空';
         break;
-      case WARNING_PASSWORD_IS_EMPTY:
+      case AUTH_PASSWORD_IS_EMPTY:
         message = '【警告：身份驗證】登入密碼為空';
         break;
-      case WARNING_ID_IS_EMPTY:
-        message = '【警告：身份驗證】傳送員id為空';
+      case AUTH_ID_IS_EMPTY:
+        message = '【警告：身份驗證】id為空';
         break;
-      case WARNING_TOKEN_IS_EMPTY:
+      case AUTH_TOKEN_IS_EMPTY:
         message = '【警告：身份驗證】toke為空';
         break;
-      case ERROR_LOGIN_FAIL:
+      case AUTH_LOGIN_FAIL:
         message = '【錯誤：身份驗證失敗】帳號或是密碼錯誤';
         break;
-      case ERROR_INVALID_TOKEN:
+      case AUTH_INVALID_TOKEN:
         message = '【錯誤：身份驗證失敗】無效的token';
         break;
-      case ERROR_TOKEN_EXPIRED:
+      case AUTH_TOKEN_EXPIRED:
         message = '【錯誤：身份驗證失敗】token已經過期';
         break;
-      case ERROR_UNKNOWN:
+      case AUTH_UNKNOWN:
         message = '【錯誤：身份驗證錯誤】發生非預期的錯誤';
         break;
       default:

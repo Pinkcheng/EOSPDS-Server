@@ -8,6 +8,7 @@ export class SystemParameter {
     unsigned: true
   })
   ID: number;
+
   // 參數名稱
   @Column('varchar', {
     length: 50,
@@ -15,6 +16,7 @@ export class SystemParameter {
   })
   @Index({ unique: true })
   parameter: string;
+  
   // 參數值
   @Column('text', {
     name: 'value'

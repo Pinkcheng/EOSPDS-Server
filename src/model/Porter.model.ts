@@ -1,29 +1,13 @@
-import { SystemPermission } from '../entity/SystemPermission.entity';
-import { PorterType } from './../entity/PorterType.entity';
-import { Porter } from '../entity/Porter.entity';
+import { SystemPermissionModel } from './SystemPermission.model';
+import { UserModel } from './User.model';
+import { PorterType } from '../entity/PorterType.entity';
+import { Porter } from '../entity/porter.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
-import { ADD_PORTER_RESPONSE_STATUS as RESPONSE_STATUS } from '../core/ResponseCode';
-import { hashSync as passwordHashSync } from 'bcrypt';
-const saltRounds = 10;
+import { RESPONSE_STATUS } from '../core/ResponseCode';
 
-@EntityRepository(SystemPermission)
-export class PorterPermissionRepository extends Repository<SystemPermission> {
-  findByID(ID: number) {
-    return this.findOne({ ID });
-  }
-}
-
-export class PorterPermissionModel {
-  private mPorterPermissionRepo: PorterPermissionRepository;
-
-  constructor() {
-    this.mPorterPermissionRepo = getCustomRepository(PorterPermissionRepository);
-  }
-
-  async findByTypeID(id: number) {
-    return await this.mPorterPermissionRepo.findByID(id);
-  }
-}
+import dotenv from 'dotenv';
+// Read .env files settings
+dotenv.config();
 
 @EntityRepository(PorterType)
 export class PorterTypeRepository extends Repository<PorterType> {
@@ -54,10 +38,6 @@ export class PorterRepository extends Repository<Porter> {
     return this.findOne({ name });
   }
 
-  findByAccount(account: string) {
-    return this.findOne({ account });
-  }
-
   findByTagNumber(tagNumber: string) {
     return this.findOne({ tagNumber });
   }
@@ -70,96 +50,102 @@ export class PorterModel {
     this.mPorterRepo = getCustomRepository(PorterRepository);
   }
 
+  // TODO: 移動到core裡面
+  // 左邊補0
+  padLeft(str: string, lenght: number): string {
+    if (str.length >= lenght)
+      return str;
+    else
+      return this.padLeft('0' + str, lenght);
+  }
+
+  // 產生傳送員編號
+  async generatePorterID(porterType: number) {
+    const porterID = 'P' + porterType;
+    // 取得目前傳送員的數量
+    let count = await this.mPorterRepo.count();
+    // 數量+1
+    count++;
+    // 補0
+    const id = this.padLeft(count + '', parseInt(process.env.PORTER_ID_LENGTH));
+
+    return (porterID + id);
+  }
+
   async createPorter(
-    id: string,
     name: string,
     account: string,
     password: string,
-    tagNumber: string,
     type: number,
-    permission: number,
-    birthday: string,
-    gender: boolean,
-    success: any,
-    fail: any
+    tagNumber: string = null,
+    birthday: string = null,
+    gender: boolean = null,
   ) {
-    // 確認表單欄位是否有空值
-    if (!name) {
-      fail(RESPONSE_STATUS.WARNING_NAME_IS_EMPTY);
-      return;
-    } else if (!account) {
-      fail(RESPONSE_STATUS.WARNING_ACCOUNT_IS_EMPTY);
-      return;
-    } else if (!password) {
-      fail(RESPONSE_STATUS.WARNING_PASSWORD_IS_EMPTY);
-      return;
-    } else if (!type) {
-      fail(RESPONSE_STATUS.WARNING_TYPE_IS_EMPTY);
-      return;
-    } else if (!id) {
-      fail(RESPONSE_STATUS.WARNING_ID_IS_EMPTY);
-      return;
-    } else if (!permission && permission != 0) {
-      fail(RESPONSE_STATUS.WARNING_PERMISSION_IS_EMPTY);
-      return;
-    }
-    // 帳號全部轉換成小寫
-    account = account.toLocaleLowerCase();
-    const count = await this.count();
-    // 有資料才需要比對，是否有重複的資料欄位
-    if (count > 0) {
-      // 確認是否有重複的傳送員編號
-      if (await this.mPorterRepo.findByID(id)) {
-        fail(RESPONSE_STATUS.ERROR_REPEAT_ID);
+    return new Promise<any>(async (resolve, reject) => {
+      // 確認表單中必要的欄位，是否有空值
+      if (!name) {
+        reject(RESPONSE_STATUS.USER_NAME_IS_EMPTY);
+        return;
+      } else if (!account) {
+        reject(RESPONSE_STATUS.USER_ACCOUNT_IS_EMPTY);
+        return;
+      } else if (!password) {
+        reject(RESPONSE_STATUS.USER_PASSWORD_IS_EMPTY);
+        return;
+      } else if (!type) {
+        reject(RESPONSE_STATUS.USER_PORTER_TYPE_IS_EMPTY);
         return;
       }
+
       // 確認是否有重複的傳送員姓名
       if (await this.mPorterRepo.findByName(name)) {
-        fail(RESPONSE_STATUS.ERROR_REPEAT_NAME);
-        return;
-      }
-      // 確認是否有重複的傳送員帳號
-      if (await this.mPorterRepo.findByAccount(account)) {
-        fail(RESPONSE_STATUS.ERROR_REPEAT_ACCOUNT);
+        reject(RESPONSE_STATUS.USER_REPEAT_NAME);
         return;
       }
       // 確認是否有重複的傳送員標籤編號
       if (await this.mPorterRepo.findByTagNumber(tagNumber)) {
-        fail(RESPONSE_STATUS.ERROR_REPEAT_TAG_NUMBER);
+        reject(RESPONSE_STATUS.USER_REPEAT_PORTER_TAG_NUMBER);
         return;
       }
-    }
-    // 是否有該傳送員型態
-    const findType = await new PorterTypeModel().findByTypeID(type);
-    if (!findType) {
-      fail(RESPONSE_STATUS.ERROR_TYPE_NOT_FOUND);
-      return;
-    }
-    // 是否有傳送員權限的類型
-    const findPermission = await new PorterPermissionModel().findByTypeID(permission);
-    if (!findPermission) {
-      fail(RESPONSE_STATUS.ERROR_PERMISSION_NOT_FOUND);
-      return;
-    }
+      // 是否有該傳送員型態
+      const findType = await new PorterTypeModel().findByTypeID(type);
+      if (!findType) {
+        reject(RESPONSE_STATUS.USER_PORTER_TYPE_NOT_FOUND);
+        return;
+      }
 
-    const newPorter = new Porter();
-    newPorter.ID = id;
-    newPorter.name = name;
-    newPorter.account = account;
-    newPorter.password = passwordHashSync(password, saltRounds);
-    newPorter.tagNumber = tagNumber ? tagNumber : null;
-    newPorter.type = findType;
-    newPorter.birthday = birthday;
-    newPorter.gender = gender;
-    newPorter.permission = findPermission;
+      // 新增帳號
+      const userModel = new UserModel();
+      const newPorter = new Porter();
+      const newPorterID = await this.generatePorterID(type);
 
-    try {
-      await this.mPorterRepo.save(newPorter);
-      success();
-    } catch (err) {
-      console.error(err);
-      fail(RESPONSE_STATUS.ERROR_UNKNOWN);
-    }
+      userModel.creatUser(
+        newPorterID, account, password, await new SystemPermissionModel().find(2))
+        .then(() => {
+          // 新增帳號成功，新增傳送員
+          newPorter.ID = newPorterID;
+          newPorter.name = name;
+          newPorter.tagNumber = tagNumber;
+          newPorter.type = findType;
+          newPorter.birthday = birthday;
+          newPorter.gender = gender;
+
+          return this.mPorterRepo.save(newPorter);
+        }, responseCode => {
+          // 新增帳號失敗
+          reject(responseCode);
+          return;
+        }).then(() => {
+          resolve(RESPONSE_STATUS.USER_SUCCESS);
+        }).catch(err => {
+          console.error(err);
+          reject(RESPONSE_STATUS.USER_UNKNOWN);
+        });
+    });
+
+
+
+
   }
 
   async findByID(ID: string) {
@@ -169,11 +155,6 @@ export class PorterModel {
 
   async findByName(name: string) {
     const porter = await this.mPorterRepo.findByName(name);
-    return porter;
-  }
-
-  async findByAccount(account: string) {
-    const porter = await this.mPorterRepo.findByAccount(account);
     return porter;
   }
 

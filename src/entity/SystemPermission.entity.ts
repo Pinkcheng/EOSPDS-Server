@@ -8,6 +8,7 @@ export class SystemPermission {
     name: 'id'
   })
   ID: number;
+  
   // 權限名稱
   @Column('varchar', {
     length: 50,
