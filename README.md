@@ -159,8 +159,14 @@ mysql>
 ## 2. 設定專案環境變數`.env`
 於根目錄下新增環境設定檔`.env`
 ```
-#express port
+# 伺服器啟動port
 PORT=9487
-#連線登入加密密碼，盡量為亂碼
-JWT_SECRET=5d41402abc4b2a76b9719d911017c592
+# 授權鑰匙私鑰
+JWT_SECRET=key
+# 授權鑰匙預設過期時間
+ACCESS_TOKEN_DEFAULT_TIMEOUT='1 day'
+# 系統管理員帳號密碼
+ADMIN_ACCOUNT=admin
+ADMIN_ACCOUNT_PASSWORD=admin
+
 ```
