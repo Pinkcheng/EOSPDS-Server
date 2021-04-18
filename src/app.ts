@@ -41,14 +41,11 @@ app.use(function (req, res, next) {
 
   // Request headers you wish to allow
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
   
-
   // Pass to next layer of middleware
   next();
 });
 
-// TODO: 使用api均需要有token才能操作
 app.use('/api/v1.0/', auth, apiRouter);
 app.use('/auth', authRouter);
 

@@ -84,6 +84,7 @@ export class UserModel {
           reject(RESPONSE_STATUS.AUTH_LOGIN_FAIL);
           return;
         } else {
+          // TODO: 處理join
           resolve(this.generateAccessToken(findUser.ID, '-name-', 1));
         }
       }
