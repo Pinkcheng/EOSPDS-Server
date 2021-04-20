@@ -1,5 +1,5 @@
 import { SystemPermission } from './../entity/SystemPermission.entity';
-import { User } from '../entity/User.entity';
+import { User } from '../entity/UserList.entity';
 import { sign } from 'jsonwebtoken';
 import { compare as comparePassword } from 'bcrypt';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
@@ -25,7 +25,7 @@ export class UserModel {
     this.mUserRepo = getCustomRepository(UserRepository);
   }
 
-  creatUser(
+  create(
     id: string,
     account: string,
     password: string,
@@ -72,6 +72,12 @@ export class UserModel {
     });
   }
 
+  async updateToken(ID: string, token: string) {
+    const user = await this.mUserRepo.findOne({ ID });
+    user.token = token;
+    await this.mUserRepo.save(user);
+  }
+
   login(account: string, password: string) {
     return new Promise<any>(async (resolve, reject) => {
       const findUser = await this.mUserRepo.findByAccount(account);
@@ -85,7 +91,9 @@ export class UserModel {
           return;
         } else {
           // TODO: 處理join
-          resolve(this.generateAccessToken(findUser.ID, '-name-', 1));
+          const accessToken = this.generateAccessToken(findUser.ID, '-name-', 1);
+          await this.updateToken(findUser.ID, accessToken);
+          resolve(accessToken);
         }
       }
     });

@@ -111,7 +111,7 @@ export class PorterModel {
       const newPorter = new Porter();
       const newPorterID = await this.generatePorterID(type);
 
-      userModel.creatUser(
+      userModel.create(
         newPorterID, account, password, await new SystemPermissionModel().find(2))
         .then(() => {
           // 新增帳號成功，新增傳送員

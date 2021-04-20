@@ -16,7 +16,7 @@ export class Initialize {
     // // 新增系統管理員
     const adminSystemPermission = await systemPermissionModel.find(0);
     const userModel = new UserModel();
-    userModel.creatUser('9999',
+    userModel.create('9999',
       process.env.ADMIN_ACCOUNT,
       process.env.ADMIN_ACCOUNT_PASSWORD,
       adminSystemPermission
