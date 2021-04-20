@@ -27,7 +27,7 @@ export class User {
 
   // 人員取得api token
   @Column('varchar', {
-    length: 250,
+    length: 50,
     name: 'token',
     default: null
   })

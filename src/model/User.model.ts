@@ -16,6 +16,10 @@ export class UserRepository extends Repository<User> {
   findByAccount(account: string) {
     return this.findOne({ account });
   }
+
+  findByToken(token: string) {
+    return this.findOne({ token });
+  }
 }
 
 export class UserModel {
@@ -72,7 +76,15 @@ export class UserModel {
     });
   }
 
+  async findByToken(token: string) {
+    token = token.split('.')[2];
+    const user = await this.mUserRepo.findByToken(token);
+    return user;
+  }
+
   async updateToken(ID: string, token: string) {
+    // 分割token，取第三個，才存入資料庫
+    token = token.split('.')[2];
     const user = await this.mUserRepo.findOne({ ID });
     user.token = token;
     await this.mUserRepo.save(user);
