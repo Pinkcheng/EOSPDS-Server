@@ -1,3 +1,5 @@
+import { PorterModel } from './Porter.model';
+import { Porter } from './../entity/Porter.entity';
 import { SystemPermission } from './../entity/SystemPermission.entity';
 import { User } from '../entity/UserList.entity';
 import { sign } from 'jsonwebtoken';
@@ -112,12 +114,27 @@ export class UserModel {
           reject(RESPONSE_STATUS.AUTH_LOGIN_FAIL);
           return;
         } else {
-
+          let userName = '', permissionID = 9999, permissionName = '';
+          switch (findUser.permission.ID) {
+            case 0:
+              userName = findUser.permission.name;
+              permissionID = 0;
+              permissionName = findUser.permission.name;
+              break;
+            case 2:
+              const porterModel = new PorterModel();
+              const porter = await porterModel.findByID(findUser.ID);
+              userName = porter.name;
+              permissionID = 1;
+              permissionName = findUser.permission.name;
+              break;
+            default:
+              reject(RESPONSE_STATUS.AUTH_UNKNOWN);
+              return;
+          }
 
           const accessToken = this.generateAccessToken(
-            findUser.ID, '-name-', 
-            findUser.permission.ID, 
-            findUser.permission.name);
+            findUser.ID, userName, permissionID, permissionName);
           await this.updateToken(findUser.ID, accessToken);
           resolve(accessToken);
         }
