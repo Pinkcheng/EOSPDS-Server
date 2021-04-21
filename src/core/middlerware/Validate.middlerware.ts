@@ -1,12 +1,11 @@
+import { UserModel } from '../../model/User.model';
 import { ResponseHandler } from '../ResponseHandler';
 import { Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { RESPONSE_STATUS } from '../ResponseCode';
 
-export const auth = (req: Request, res: Response, next: any) => {
+export const auth = async (req: Request, res: Response, next: any) => {
   try {
-    const userID = req.body.userID;
-
     if (!req.header('Authorization')) {
       res.json(ResponseHandler.message(RESPONSE_STATUS.AUTH_TOKEN_IS_EMPTY));
       return;
@@ -15,18 +14,17 @@ export const auth = (req: Request, res: Response, next: any) => {
     const token = req.header('Authorization').replace('Bearer ', '');
     // 驗證 Token
     const decoded = verify(token, process.env.JWT_SECRET);
-    // 人員編號不能為空
-    if (!userID) {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.AUTH_ID_IS_EMPTY));
-      return;
+    // 確認使用者傳過來的token，是否有在資料庫中，就是確認是否合法
+    const userModel = new UserModel();
+    const findUser = await userModel.findByToken(token);
+    // 不合法就回傳，合法就繼續執行
+    if (!findUser) {
+      res.status(401).json(ResponseHandler.message(RESPONSE_STATUS.AUTH_INVALID_TOKEN));
+    } else {
+      // 記錄使用者的權限
+      req.body.permission = findUser.permission.ID;
+      next();
     }
-    // 無效的token，解碼後的人員d，和表單傳過來的不同
-    if (userID !== decoded.id + '') {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.AUTH_INVALID_TOKEN));
-      return;
-    }
-
-    next();
   } catch (err) {
     // token過期例外處理
     if (err.name === 'JsonWebTokenError') {
@@ -39,4 +37,18 @@ export const auth = (req: Request, res: Response, next: any) => {
       res.status(401).json(ResponseHandler.message(RESPONSE_STATUS.AUTH_UNKNOWN));
     }
   }
+};
+
+export const whoCanDoIt = (minPermissionID: number) => {
+  return async (req: Request, res: Response, next: any) => {
+    try {
+      if (req.body.permission <= minPermissionID) {
+        next();
+      } else {
+        res.status(401).json(ResponseHandler.message(RESPONSE_STATUS.AUTH_ACCESS_FAIL));
+      }
+    } catch (err) {
+      next(err);
+    }
+  };
 };

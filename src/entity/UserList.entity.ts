@@ -1,7 +1,7 @@
 import { SystemPermission } from './SystemPermission.entity';
 import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 
-@Entity('user_password')
+@Entity('user_list')
 export class User {
   // 人員編號
   @PrimaryColumn('varchar', {
@@ -24,6 +24,14 @@ export class User {
     name: 'password'
   })
   password: string;
+
+  // 人員取得api token
+  @Column('varchar', {
+    length: 50,
+    name: 'token',
+    default: null
+  })
+  token: string;
 
   // 人員系統權限
   @ManyToOne(
