@@ -1,7 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-
-@Entity('porter_permission')
-export class PorterPermission {
+@Entity('system_permission')
+export class SystemPermission {
   // 權限等級
   @PrimaryColumn({
     type: 'int',
@@ -9,6 +8,7 @@ export class PorterPermission {
     name: 'id'
   })
   ID: number;
+  
   // 權限名稱
   @Column('varchar', {
     length: 50,
