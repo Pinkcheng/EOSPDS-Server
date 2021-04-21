@@ -14,11 +14,21 @@ dotenv.config();
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
   findByAccount(account: string) {
-    return this.findOne({ account });
+    const user = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.permission', 'permission')
+      .where('user.account = :account', { account: account })
+      .getOne();
+
+    return user;
   }
 
   findByToken(token: string) {
-    return this.findOne({ token });
+    const user = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.permission', 'permission')
+      .where('user.token = :token', { token: token })
+      .getOne();
+
+    return user;
   }
 }
 
@@ -102,8 +112,12 @@ export class UserModel {
           reject(RESPONSE_STATUS.AUTH_LOGIN_FAIL);
           return;
         } else {
-          // TODO: 處理join
-          const accessToken = this.generateAccessToken(findUser.ID, '-name-', 1);
+
+
+          const accessToken = this.generateAccessToken(
+            findUser.ID, '-name-', 
+            findUser.permission.ID, 
+            findUser.permission.name);
           await this.updateToken(findUser.ID, accessToken);
           resolve(accessToken);
         }
@@ -114,13 +128,15 @@ export class UserModel {
   generateAccessToken(
     id: string,
     name: string,
-    permission: number,
+    permissionID: number,
+    permissionName: string,
     expires: string = process.env.ACCESS_TOKEN_DEFAULT_TIMEOUT
   ) {
     return sign({
       id: id,
       name: name,
-      permission: permission
+      permission: permissionID,
+      permissionName: permissionName
     }, process.env.JWT_SECRET,
       { expiresIn: expires });
   }
