@@ -42,6 +42,14 @@ export class PorterRepository extends Repository<Porter> {
   findByTagNumber(tagNumber: string) {
     return this.findOne({ tagNumber });
   }
+
+  getAll() {
+    const porter = this.createQueryBuilder('porter')
+      .leftJoinAndSelect('porter.type', 'type')
+      .getMany();
+
+    return porter;
+  }
 }
 
 export class PorterModel {
@@ -156,5 +164,9 @@ export class PorterModel {
       .createQueryBuilder('porter')
       .getCount();
     return porter;
+  }
+  async allAll() {
+    const porterList = await this.mPorterRepo.getAll();
+    return porterList;
   }
 }

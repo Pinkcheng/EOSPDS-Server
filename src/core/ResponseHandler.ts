@@ -2,7 +2,7 @@ import * as Response from './ResponseCode';
 
 export class ResponseHandler {
   static message(code: Response.RESPONSE_STATUS, data: any = {}) {
-    const { USER_SUCCESS, USER_PORTER_TYPE_IS_EMPTY, USER_ACCOUNT_IS_EMPTY, USER_NAME_IS_EMPTY, USER_PASSWORD_IS_EMPTY, USER_REPEAT_NAME, USER_REPEAT_ACCOUNT, USER_REPEAT_PORTER_TAG_NUMBER, USER_UNKNOWN, USER_PORTER_TYPE_NOT_FOUND, AUTH_ACCOUNT_IS_EMPTY, AUTH_ID_IS_EMPTY, AUTH_INVALID_TOKEN, AUTH_LOGIN_FAIL, AUTH_PASSWORD_IS_EMPTY, AUTH_SUCCESS, AUTH_TOKEN_EXPIRED, AUTH_TOKEN_IS_EMPTY, AUTH_ACCESS_FAIL, AUTH_UNKNOWN } = Response.RESPONSE_STATUS;
+    const { USER_SUCCESS, USER_PORTER_TYPE_IS_EMPTY, USER_ACCOUNT_IS_EMPTY, USER_NAME_IS_EMPTY, USER_PASSWORD_IS_EMPTY, USER_REPEAT_NAME, USER_REPEAT_ACCOUNT, USER_REPEAT_PORTER_TAG_NUMBER, USER_UNKNOWN, USER_PORTER_TYPE_NOT_FOUND, AUTH_ACCOUNT_IS_EMPTY, AUTH_ID_IS_EMPTY, AUTH_INVALID_TOKEN, AUTH_LOGIN_FAIL, AUTH_PASSWORD_IS_EMPTY, AUTH_SUCCESS, AUTH_TOKEN_EXPIRED, AUTH_TOKEN_IS_EMPTY, AUTH_ACCESS_FAIL, AUTH_UNKNOWN, DATA_SUCCESS, DATA_UNKNOWN } = Response.RESPONSE_STATUS;
 
     let message = '';
 
@@ -68,6 +68,13 @@ export class ResponseHandler {
         break;
       case AUTH_UNKNOWN:
         message = '【錯誤：身份驗證錯誤】發生非預期的錯誤';
+        break;
+      // =============== 資料取得相關 =====================
+      case DATA_SUCCESS:
+        message = '取得資料成功';
+        break;
+      case DATA_UNKNOWN:
+        message = '【錯誤：取得資料】發生非預期的錯誤';
         break;
       default:
         throw (new Error('No have response message or code'));
