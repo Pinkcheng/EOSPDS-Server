@@ -32,15 +32,30 @@ export class PorterTypeModel {
 @EntityRepository(Porter)
 export class PorterRepository extends Repository<Porter> {
   findByID(ID: string) {
-    return this.findOne({ ID });
+    const porter = this.createQueryBuilder('porter')
+      .leftJoinAndSelect('porter.type', 'type')
+      .where({ ID })
+      .getOne();
+
+    return porter;
   }
 
   findByName(name: string) {
-    return this.findOne({ name });
+    const porter = this.createQueryBuilder('porter')
+      .leftJoinAndSelect('porter.type', 'type')
+      .where({ name })
+      .getOne();
+
+    return porter;
   }
 
   findByTagNumber(tagNumber: string) {
-    return this.findOne({ tagNumber });
+    const porter = this.createQueryBuilder('porter')
+      .leftJoinAndSelect('porter.type', 'type')
+      .where({ tagNumber })
+      .getOne();
+
+    return porter;
   }
 
   getAll() {

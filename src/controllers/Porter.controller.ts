@@ -37,7 +37,13 @@ export const list = (req: Request, res: Response) => {
 };
 
 export const get = (req: Request, res: Response) => {
-
+  const porterModel = new PorterModel();
+  porterModel.findByID(req.params.porterID)
+    .then(porter => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, porter));
+    }).catch(err => {
+      res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+    });
 };
 
 export const update = (req: Request, res: Response) => {
