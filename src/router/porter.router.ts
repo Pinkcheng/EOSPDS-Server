@@ -3,6 +3,13 @@ import express from 'express';
 const porterRouter = express.Router();
 import * as porterController from '../controllers/Porter.controller';
 
-porterRouter.post('/porter/add', whoCanDoIt(1), porterController.add);
+porterRouter.route('/')
+  .post(whoCanDoIt(1), porterController.create)
+  .get(whoCanDoIt(1), porterController.list);
+
+porterRouter.route('/:porterID')
+  .get(whoCanDoIt(2), porterController.get)
+  .patch(whoCanDoIt(2), porterController.update)
+  .delete(whoCanDoIt(1), porterController.del);
 
 export default porterRouter;
