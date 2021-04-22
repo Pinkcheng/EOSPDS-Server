@@ -11,6 +11,10 @@ export const list = (req: Request, res: Response) => {
 
 };
 
+export const buildingList = (req: Request, res: Response) => {
+
+};
+
 export const get = (req: Request, res: Response) => {
 
 };

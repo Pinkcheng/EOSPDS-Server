@@ -4,12 +4,15 @@ const departmentRouter = express.Router();
 import * as departmentController from '../controllers/Department.controllers';
 
 departmentRouter.route('/')
-  .post(whoCanDoIt(1), departmentController.create)
+  .post(whoCanDoIt(0), departmentController.create)
   .get(whoCanDoIt(1), departmentController.list);
 
 departmentRouter.route('/:departmentID')
-  .get(whoCanDoIt(2), departmentController.get)
-  .patch(whoCanDoIt(2), departmentController.update)
-  .delete(whoCanDoIt(1), departmentController.del);
+  .get(whoCanDoIt(1), departmentController.get)
+  .patch(whoCanDoIt(0), departmentController.update)
+  .delete(whoCanDoIt(0), departmentController.del);
+
+departmentRouter.route('/building')
+  .get(whoCanDoIt(1), departmentController.buildingList);
 
 export default departmentRouter;
