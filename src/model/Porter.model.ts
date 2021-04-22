@@ -65,6 +65,13 @@ export class PorterRepository extends Repository<Porter> {
 
     return porter;
   }
+
+  del(ID: string) {
+    this.createQueryBuilder('porter')
+      .delete()
+      .where({ ID })
+      .execute();
+  }
 }
 
 export class PorterModel {
@@ -180,8 +187,17 @@ export class PorterModel {
       .getCount();
     return porter;
   }
+
   async allAll() {
     const porterList = await this.mPorterRepo.getAll();
     return porterList;
+  }
+
+  async del(ID: string) {
+    // 先刪除帳號
+    const userModel = new UserModel();
+    userModel.del(ID);
+
+    return await this.mPorterRepo.del(ID);
   }
 }
