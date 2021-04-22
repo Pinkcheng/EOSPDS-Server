@@ -7,7 +7,7 @@ departmentRouter.route('/')
   .post(whoCanDoIt(1), departmentController.create)
   .get(whoCanDoIt(1), departmentController.list);
 
-departmentRouter.route('/:porterID')
+departmentRouter.route('/:departmentID')
   .get(whoCanDoIt(2), departmentController.get)
   .patch(whoCanDoIt(2), departmentController.update)
   .delete(whoCanDoIt(1), departmentController.del);
