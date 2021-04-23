@@ -4,8 +4,8 @@ import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 @EntityRepository(Building)
 export class BuildingRepository extends Repository<Building> {
-  agetAll() {
-    const buildingList = this.mBuildingModel.createQueryBuilder('building')
+  getAll() {
+    const buildingList = this.createQueryBuilder('building')
       .getMany();
 
     return buildingList;
@@ -54,7 +54,7 @@ export class BuildingModel {
   }
 
   async getAll() {
-    const buildingList = await this.mBuildingRepo.agetAll();
+    const buildingList = await this.mBuildingRepo.getAll();
     return buildingList;
   }
 

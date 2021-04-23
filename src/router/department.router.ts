@@ -1,6 +1,7 @@
 import { whoCanDoIt } from './../core/middlerware/Validate.middlerware';
 import express from 'express';
-const departmentRouter = express.Router();
+export const departmentRouter = express.Router();
+export const buildingRouter = express.Router();
 import * as departmentController from '../controllers/Department.controllers';
 
 departmentRouter.route('/')
@@ -12,7 +13,5 @@ departmentRouter.route('/:departmentID')
   .patch(whoCanDoIt(0), departmentController.update)
   .delete(whoCanDoIt(0), departmentController.del);
 
-departmentRouter.route('/building')
+buildingRouter.route('/')
   .get(whoCanDoIt(2), departmentController.buildingList);
-
-export default departmentRouter;

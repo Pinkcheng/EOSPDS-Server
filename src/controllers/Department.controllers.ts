@@ -16,8 +16,10 @@ export const list = (req: Request, res: Response) => {
 export const buildingList = (req: Request, res: Response) => {
   const buildingModel = new BuildingModel();
   buildingModel.getAll()
-    .then(buildList => {
-
+    .then(buildingList => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, buildingList));
+    }).catch(err => {
+      res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
     });
 };
 
