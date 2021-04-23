@@ -17,15 +17,3 @@ export const update = (req: Request, res: Response) => {
 
 export const del = (req: Request, res: Response) => {
 };
-
-export const auto = (req: Request, res: Response) => {
-};
-
-export const assign = (req: Request, res: Response) => {
-};
-
-export const start = (req: Request, res: Response) => {
-};
-
-export const finish = (req: Request, res: Response) => {
-};
