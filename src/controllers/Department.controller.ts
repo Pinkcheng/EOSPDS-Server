@@ -1,5 +1,5 @@
-import { DepartmentModel } from './../model/Department.model';
-import { BuildingModel } from './../model/Building.model';
+import { DepartmentModel } from '../model/Department.model';
+import { BuildingModel } from '../model/Building.model';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
 import { Formatter } from '../core/Formatter';
