@@ -1,18 +1,16 @@
-import { DepartmentModel } from './../model/Department.model';
-import { BuildingModel } from './../model/Building.model';
+import { MissionTypeModel } from './../model/MissionType.model';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
 import { Formatter } from '../core/Formatter';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const create = (req: Request, res: Response) => {
-  const id = Formatter.formInput(req.body.id);
   const name = req.body.name;
 
-  const departmentModel = new DepartmentModel();
-  departmentModel.create(id, name)
+  const missionTypeModel = new MissionTypeModel();
+  missionTypeModel.create(name)
     .then(() => {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS));
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
@@ -21,22 +19,10 @@ export const create = (req: Request, res: Response) => {
 };
 
 export const list = (req: Request, res: Response) => {
-  const departmentModel = new DepartmentModel();
-  departmentModel.getAll()
-    .then(departmentList => {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, departmentList));
-    }, errCode => {
-      res.status(400).json(ResponseHandler.message(errCode));
-    }).catch(err => {
-      res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
-    });
-};
-
-export const buildingList = (req: Request, res: Response) => {
-  const buildingModel = new BuildingModel();
-  buildingModel.getAll()
-    .then(buildingList => {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, buildingList));
+  const missionTypeModel = new MissionTypeModel();
+  missionTypeModel.getAll()
+    .then(missionTypeList => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missionTypeList));
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
@@ -45,10 +31,10 @@ export const buildingList = (req: Request, res: Response) => {
 };
 
 export const get = (req: Request, res: Response) => {
-  const departmentModel = new DepartmentModel();
-  departmentModel.findByID(req.params.departmentID)
-    .then(departmentList => {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, departmentList));
+  const missionTypeModel = new MissionTypeModel();
+  missionTypeModel.findByID(parseInt(req.params.missionTypeID))
+    .then(missionType => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missionType));
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
@@ -57,11 +43,11 @@ export const get = (req: Request, res: Response) => {
 };
 
 export const update = (req: Request, res: Response) => {
-  const id = Formatter.formInput(req.params.departmentID);
+  const id = parseInt(Formatter.formInput(req.params.missionTypeID));
   const name = req.body.name;
 
-  const departmentModel = new DepartmentModel();
-  departmentModel.update(id, name)
+  const missionTypeModel = new MissionTypeModel();
+  missionTypeModel.update(id, name)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
     }, errCode => {
@@ -72,10 +58,10 @@ export const update = (req: Request, res: Response) => {
 };
 
 export const del = (req: Request, res: Response) => {
-  const departmentModel = new DepartmentModel();
-  departmentModel.del(req.params.departmentID)
-    .then(departmentList => {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_DELETE_SUCCESS, departmentList));
+  const missionTypeModel = new MissionTypeModel();
+  missionTypeModel.del(parseInt(req.params.missionTypeID))
+    .then(() => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_DELETE_SUCCESS));
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
