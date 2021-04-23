@@ -1,10 +1,11 @@
-import { whoCanDoIt } from './../core/middlerware/Validate.middlerware';
 import express from 'express';
 const apiRouter = express.Router();
 
-import * as porterController from '../controllers/Porter.controller';
+import porterRouter from './porter.router';
+import { departmentRouter, buildingRouter } from './department.router';
 
-//porter操作相關
-apiRouter.post('/porter/add', whoCanDoIt(1), porterController.add);
+apiRouter.use('/porter', porterRouter);
+apiRouter.use('/department', departmentRouter);
+apiRouter.use('/building', buildingRouter);
 
 export default apiRouter;

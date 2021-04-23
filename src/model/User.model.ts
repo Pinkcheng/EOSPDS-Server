@@ -32,6 +32,13 @@ export class UserRepository extends Repository<User> {
 
     return user;
   }
+
+  del(ID: string) {
+    this.createQueryBuilder('user')
+      .delete()
+      .where({ ID })
+      .execute();
+  }
 }
 
 export class UserModel {
@@ -140,6 +147,10 @@ export class UserModel {
         }
       }
     });
+  }
+
+  async del(ID: string) {
+    return await this.mUserRepo.del(ID);
   }
 
   generateAccessToken(

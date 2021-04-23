@@ -32,15 +32,45 @@ export class PorterTypeModel {
 @EntityRepository(Porter)
 export class PorterRepository extends Repository<Porter> {
   findByID(ID: string) {
-    return this.findOne({ ID });
+    const porter = this.createQueryBuilder('porter')
+      .leftJoinAndSelect('porter.type', 'type')
+      .where({ ID })
+      .getOne();
+
+    return porter;
   }
 
   findByName(name: string) {
-    return this.findOne({ name });
+    const porter = this.createQueryBuilder('porter')
+      .leftJoinAndSelect('porter.type', 'type')
+      .where({ name })
+      .getOne();
+
+    return porter;
   }
 
   findByTagNumber(tagNumber: string) {
-    return this.findOne({ tagNumber });
+    const porter = this.createQueryBuilder('porter')
+      .leftJoinAndSelect('porter.type', 'type')
+      .where({ tagNumber })
+      .getOne();
+
+    return porter;
+  }
+
+  getAll() {
+    const porter = this.createQueryBuilder('porter')
+      .leftJoinAndSelect('porter.type', 'type')
+      .getMany();
+
+    return porter;
+  }
+
+  del(ID: string) {
+    this.createQueryBuilder('porter')
+      .delete()
+      .where({ ID })
+      .execute();
   }
 }
 
@@ -156,5 +186,18 @@ export class PorterModel {
       .createQueryBuilder('porter')
       .getCount();
     return porter;
+  }
+
+  async allAll() {
+    const porterList = await this.mPorterRepo.getAll();
+    return porterList;
+  }
+
+  async del(ID: string) {
+    // 先刪除帳號
+    const userModel = new UserModel();
+    userModel.del(ID);
+
+    return await this.mPorterRepo.del(ID);
   }
 }
