@@ -1,3 +1,4 @@
+import { BuildingModel } from '../model/Building.model';
 import { UserModel } from '../model/User.model';
 import { SystemPermissionModel } from './SystemPermission.model';
 
@@ -25,5 +26,10 @@ export class Initialize {
     }, () => {
       console.log('已經有系統管理員');
     });
+
+    const buildingModel = new BuildingModel();
+    buildingModel.create('B1100', '新醫療大樓一樓').then(() => {}, () => {});
+    buildingModel.create('B1102', '新醫療大樓99樓').then(() => {}, () => {});
+    buildingModel.create('B1103', '新醫療大樓88樓').then(() => {}, () => {});
   }
 }
