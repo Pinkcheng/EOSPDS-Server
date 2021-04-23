@@ -12,7 +12,7 @@ export const create = (req: Request, res: Response) => {
   const departmentModel = new DepartmentModel();
   departmentModel.create(id, name)
     .then(() => {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS));
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
@@ -47,8 +47,8 @@ export const buildingList = (req: Request, res: Response) => {
 export const get = (req: Request, res: Response) => {
   const departmentModel = new DepartmentModel();
   departmentModel.findByID(req.params.departmentID)
-    .then(departmentList => {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, departmentList));
+    .then(department => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, department));
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
@@ -74,8 +74,8 @@ export const update = (req: Request, res: Response) => {
 export const del = (req: Request, res: Response) => {
   const departmentModel = new DepartmentModel();
   departmentModel.del(req.params.departmentID)
-    .then(departmentList => {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_DELETE_SUCCESS, departmentList));
+    .then(() => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_DELETE_SUCCESS));
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
