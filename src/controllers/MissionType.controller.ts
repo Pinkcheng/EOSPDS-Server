@@ -33,7 +33,7 @@ export const list = (req: Request, res: Response) => {
 
 export const get = (req: Request, res: Response) => {
   const missionTypeModel = new MissionTypeModel();
-  missionTypeModel.findByID(parseInt(req.params.missionTypeID))
+  missionTypeModel.findByID(req.params.missionTypeID)
     .then(missionType => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missionType));
     }, errCode => {
@@ -44,7 +44,7 @@ export const get = (req: Request, res: Response) => {
 };
 
 export const update = (req: Request, res: Response) => {
-  const id = parseInt(Formatter.formInput(req.params.missionTypeID));
+  const id = Formatter.formInput(req.params.missionTypeID);
   const name = req.body.name;
   const transport = req.body.transport;
 
@@ -61,7 +61,7 @@ export const update = (req: Request, res: Response) => {
 
 export const del = (req: Request, res: Response) => {
   const missionTypeModel = new MissionTypeModel();
-  missionTypeModel.del(parseInt(req.params.missionTypeID))
+  missionTypeModel.del(req.params.missionTypeID)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_DELETE_SUCCESS));
     }, errCode => {

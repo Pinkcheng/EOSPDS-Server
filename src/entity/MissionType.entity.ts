@@ -1,13 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn, Index } from 'typeorm';
+import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
 @Entity('mission_type')
 export class MissionType {
-  @PrimaryGeneratedColumn({
-    type: 'int',
-    unsigned: true,
-    name: 'id'
+  @PrimaryColumn({
+    type: 'varchar',
+    length: 10,
+    name: 'tid'
   })
-  ID: number;
+  id: string;
   
   @Index()
   @Column('varchar', {
