@@ -66,7 +66,7 @@ export class MissionTypeModel {
     return await this.mMissionTypeRepo.del(ID);
   }
 
-  update(ID: number, name: string) {
+  update(ID: number, name: string, transport: string) {
     return new Promise<any>(async (resolve, reject) => {
       if (!ID || !name) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
@@ -78,6 +78,7 @@ export class MissionTypeModel {
           return;
         } else {
           findMissionType.name = name;
+          findMissionType.transport = transport;
     
           try {
             await this.mMissionTypeRepo.save(findMissionType);

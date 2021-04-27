@@ -46,9 +46,10 @@ export const get = (req: Request, res: Response) => {
 export const update = (req: Request, res: Response) => {
   const id = parseInt(Formatter.formInput(req.params.missionTypeID));
   const name = req.body.name;
+  const transport = req.body.transport;
 
   const missionTypeModel = new MissionTypeModel();
-  missionTypeModel.update(id, name)
+  missionTypeModel.update(id, name, transport)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
     }, errCode => {
