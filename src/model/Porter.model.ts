@@ -12,8 +12,8 @@ dotenv.config();
 
 @EntityRepository(PorterType)
 export class PorterTypeRepository extends Repository<PorterType> {
-  findByID(ID: number) {
-    return this.findOne({ ID });
+  findByID(id: number) {
+    return this.findOne({ id });
   }
 }
 
@@ -31,10 +31,10 @@ export class PorterTypeModel {
 
 @EntityRepository(Porter)
 export class PorterRepository extends Repository<Porter> {
-  findByID(ID: string) {
+  findByID(id: string) {
     const porter = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
-      .where({ ID })
+      .where({ id })
       .getOne();
 
     return porter;
@@ -66,10 +66,10 @@ export class PorterRepository extends Repository<Porter> {
     return porter;
   }
 
-  del(ID: string) {
+  del(id: string) {
     this.createQueryBuilder('porter')
       .delete()
-      .where({ ID })
+      .where({ id })
       .execute();
   }
 }
@@ -94,7 +94,7 @@ export class PorterModel {
     return (porterID + id);
   }
 
-  async createPorter(
+  async create(
     name: string,
     account: string,
     password: string,
@@ -145,7 +145,7 @@ export class PorterModel {
         newPorterID, account, password, await new SystemPermissionModel().find(2))
         .then(() => {
           // 新增帳號成功，新增傳送員
-          newPorter.ID = newPorterID;
+          newPorter.id = newPorterID;
           newPorter.name = name;
           newPorter.tagNumber = tagNumber;
           newPorter.type = findType;
@@ -166,8 +166,8 @@ export class PorterModel {
     });
   }
 
-  async findByID(ID: string) {
-    const porter = await this.mPorterRepo.findByID(ID);
+  async findByID(id: string) {
+    const porter = await this.mPorterRepo.findByID(id);
     return porter;
   }
 
@@ -193,11 +193,11 @@ export class PorterModel {
     return porterList;
   }
 
-  async del(ID: string) {
+  async del(id: string) {
     // 先刪除帳號
     const userModel = new UserModel();
-    userModel.del(ID);
+    userModel.del(id);
 
-    return await this.mPorterRepo.del(ID);
+    return await this.mPorterRepo.del(id);
   }
 }

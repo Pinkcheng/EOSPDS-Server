@@ -7,7 +7,7 @@ export class SystemParameter {
     type: 'int',
     unsigned: true
   })
-  ID: number;
+  id: number;
 
   // 參數名稱
   @Column('varchar', {

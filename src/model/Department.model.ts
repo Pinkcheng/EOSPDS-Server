@@ -4,8 +4,8 @@ import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 @EntityRepository(Department)
 export class DepartmentRepository extends Repository<Department> {
-  findByID(ID: string) {
-    return this.findOne({ ID });
+  findByID(id: string) {
+    return this.findOne({ id });
   }
 
   getAll() {
@@ -15,10 +15,10 @@ export class DepartmentRepository extends Repository<Department> {
     return departmentList;
   }
 
-  del(ID: string) {
+  del(id: string) {
     this.createQueryBuilder('department')
       .delete()
-      .where({ ID })
+      .where({ id })
       .execute();
   }
 }
@@ -30,19 +30,19 @@ export class DepartmentModel {
     this.mDepartmentRepo = getCustomRepository(DepartmentRepository);
   }
 
-  create(ID: string, name: string) {
+  create(id: string, name: string) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!ID || !name) {
+      if (!id || !name) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
-        const findDepartment = await this.mDepartmentRepo.findOne({ ID });
+        const findDepartment = await this.mDepartmentRepo.findOne({ id });
         if (findDepartment) {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else {
           const newDepartment = new Department();
-          newDepartment.ID = ID;
+          newDepartment.id = id;
           newDepartment.name = name;
     
           try {
@@ -62,22 +62,22 @@ export class DepartmentModel {
     return departmentList;
   }
 
-  async del(ID: string) {
-    return await this.mDepartmentRepo.del(ID);
+  async del(id: string) {
+    return await this.mDepartmentRepo.del(id);
   }
 
-  update(ID: string, name: string) {
+  update(id: string, name: string) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!ID || !name) {
+      if (!id || !name) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
-        const findDepartment = await this.mDepartmentRepo.findOne({ ID });
+        const findDepartment = await this.mDepartmentRepo.findOne({ id });
         if (!findDepartment) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
         } else {
-          findDepartment.ID = ID;
+          findDepartment.id = id;
           findDepartment.name = name;
     
           try {
@@ -92,8 +92,8 @@ export class DepartmentModel {
     });
   }
 
-  async findByID(ID: string) {
-    const department = await this.mDepartmentRepo.findByID(ID);
+  async findByID(id: string) {
+    const department = await this.mDepartmentRepo.findByID(id);
     return department;
   }
 }
