@@ -1,4 +1,4 @@
-import { MissionType } from './../entity/MissionType.entity';
+import { MissionType } from '../entity/MissionType.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
@@ -30,9 +30,9 @@ export class MissionTypeModel {
     this.mMissionTypeRepo = getCustomRepository(MissionTypegRepository);
   }
 
-  create(name: string) {
+  create(name: string, transport: string) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!name) {
+      if (!name || !transport) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
@@ -43,6 +43,7 @@ export class MissionTypeModel {
         } else {
           const newMissionTYPe = new MissionType();
           newMissionTYPe.name = name;
+          newMissionTYPe.transport = transport;
     
           try {
             await this.mMissionTypeRepo.save(newMissionTYPe);
