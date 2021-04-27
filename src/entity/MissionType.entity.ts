@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, Index } from 'typeorm';
 
 @Entity('mission_type')
 export class MissionType {
@@ -9,9 +9,16 @@ export class MissionType {
   })
   ID: number;
   
+  @Index()
   @Column('varchar', {
     length: 100,
     name: 'name'
   })
   name: string;
+
+  @Column({
+    type: 'varchar',
+    name: 'transport'
+  })
+  transport: string;
 }

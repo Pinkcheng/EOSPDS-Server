@@ -9,6 +9,6 @@ apiRouter.use('/porter', porterRouter);
 apiRouter.use('/department', departmentRouter);
 apiRouter.use('/building', buildingRouter);
 apiRouter.use('/mission', missionRouter);
-apiRouter.use('/missionType', missionTypeRouter);
+apiRouter.use('/mission_type', missionTypeRouter);
 
 export default apiRouter;

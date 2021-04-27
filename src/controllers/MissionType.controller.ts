@@ -1,4 +1,4 @@
-import { MissionTypeModel } from './../model/MissionType.model';
+import { MissionTypeModel } from '../model/Mission.model';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
 import { Formatter } from '../core/Formatter';
@@ -6,9 +6,10 @@ import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const create = (req: Request, res: Response) => {
   const name = req.body.name;
+  const transport = req.body.transport;
 
   const missionTypeModel = new MissionTypeModel();
-  missionTypeModel.create(name)
+  missionTypeModel.create(name, transport)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {
