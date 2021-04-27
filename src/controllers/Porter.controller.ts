@@ -14,7 +14,7 @@ export const create = (req: Request, res: Response) => {
   const gender = Formatter.formInput(req.body.gender);
 
   const porterModel = new PorterModel();
-  porterModel.createPorter(
+  porterModel.create(
     name, account, password, type, tagNumber, birthday,
     gender === '1' ? true : false)
     .then(() => {

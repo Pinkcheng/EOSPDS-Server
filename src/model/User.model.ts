@@ -1,5 +1,4 @@
 import { PorterModel } from './Porter.model';
-import { Porter } from './../entity/Porter.entity';
 import { SystemPermission } from './../entity/SystemPermission.entity';
 import { User } from '../entity/UserList.entity';
 import { sign } from 'jsonwebtoken';
@@ -33,10 +32,10 @@ export class UserRepository extends Repository<User> {
     return user;
   }
 
-  del(ID: string) {
+  del(id: string) {
     this.createQueryBuilder('user')
       .delete()
-      .where({ ID })
+      .where({ id })
       .execute();
   }
 }
@@ -80,7 +79,7 @@ export class UserModel {
       }
 
       const newUser = new User();
-      newUser.ID = id;
+      newUser.id = id;
       newUser.account = account;
       newUser.password = passwordHashSync(password, saltRounds);
       newUser.permission = permission;
@@ -104,7 +103,7 @@ export class UserModel {
   async updateToken(ID: string, token: string) {
     // 分割token，取第三個，才存入資料庫
     token = token.split('.')[2];
-    const user = await this.mUserRepo.findOne({ ID });
+    const user = await this.mUserRepo.findOne({ id: ID });
     user.token = token;
     await this.mUserRepo.save(user);
   }
@@ -122,7 +121,7 @@ export class UserModel {
           return;
         } else {
           let userName = '', permissionID = 9999, permissionName = '';
-          switch (findUser.permission.ID) {
+          switch (findUser.permission.id) {
             case 0:
               userName = findUser.permission.name;
               permissionID = 0;
@@ -130,7 +129,7 @@ export class UserModel {
               break;
             case 2:
               const porterModel = new PorterModel();
-              const porter = await porterModel.findByID(findUser.ID);
+              const porter = await porterModel.findByID(findUser.id);
               userName = porter.name;
               permissionID = 1;
               permissionName = findUser.permission.name;
@@ -141,16 +140,16 @@ export class UserModel {
           }
 
           const accessToken = this.generateAccessToken(
-            findUser.ID, userName, permissionID, permissionName);
-          await this.updateToken(findUser.ID, accessToken);
+            findUser.id, userName, permissionID, permissionName);
+          await this.updateToken(findUser.id, accessToken);
           resolve(accessToken);
         }
       }
     });
   }
 
-  async del(ID: string) {
-    return await this.mUserRepo.del(ID);
+  async del(id: string) {
+    return await this.mUserRepo.del(id);
   }
 
   generateAccessToken(

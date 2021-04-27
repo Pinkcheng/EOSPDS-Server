@@ -11,10 +11,10 @@ export class BuildingRepository extends Repository<Building> {
     return buildingList;
   }
 
-  del(ID: string) {
+  del(id: string) {
     this.createQueryBuilder('building')
       .delete()
-      .where({ ID })
+      .where({ id })
       .execute();
   }
 }
@@ -26,19 +26,19 @@ export class BuildingModel {
     this.mBuildingRepo = getCustomRepository(BuildingRepository);
   }
 
-  create(ID: string, name: string) {
+  create(id: string, name: string) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!ID || !name) {
+      if (!id || !name) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
-        const findBuilding = await this.mBuildingRepo.findOne({ ID });
+        const findBuilding = await this.mBuildingRepo.findOne({ id });
         if (findBuilding) {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else {
           const newBuilding = new Building();
-          newBuilding.ID = ID;
+          newBuilding.id = id;
           newBuilding.name = name;
     
           try {
@@ -58,22 +58,22 @@ export class BuildingModel {
     return buildingList;
   }
 
-  async del(ID: string) {
-    return await this.mBuildingRepo.del(ID);
+  async del(id: string) {
+    return await this.mBuildingRepo.del(id);
   }
 
-  update(ID: string, name: string) {
+  update(id: string, name: string) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!ID || !name) {
+      if (!id || !name) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
-        const findBuilding = await this.mBuildingRepo.findOne({ ID });
+        const findBuilding = await this.mBuildingRepo.findOne({ id });
         if (!findBuilding) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
         } else {
-          findBuilding.ID = ID;
+          findBuilding.id = id;
           findBuilding.name = name;
     
           try {

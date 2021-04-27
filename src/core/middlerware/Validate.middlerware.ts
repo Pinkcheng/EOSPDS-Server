@@ -22,7 +22,7 @@ export const auth = async (req: Request, res: Response, next: any) => {
       res.status(401).json(ResponseHandler.message(RESPONSE_STATUS.AUTH_INVALID_TOKEN));
     } else {
       // 記錄使用者的權限
-      req.body.permission = findUser.permission.ID;
+      req.body.permission = findUser.permission.id;
       next();
     }
   } catch (err) {

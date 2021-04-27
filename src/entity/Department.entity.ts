@@ -6,7 +6,7 @@ export class Department {
     length: 10,
     name: 'did'
   })
-  ID: string;
+  id: string;
 
   @Column('varchar', {
     length: 30,

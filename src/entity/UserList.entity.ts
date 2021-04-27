@@ -8,7 +8,7 @@ export class User {
     length: 20,
     name: 'user_id'
   })
-  ID: string;
+  id: string;
 
   // 人員登入帳號
   @Index({ unique: true })
@@ -36,7 +36,7 @@ export class User {
   // 人員系統權限
   @ManyToOne(
     () => SystemPermission,
-    permission => permission.ID
+    permission => permission.id
   )
   permission: SystemPermission;
 }
