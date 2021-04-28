@@ -19,9 +19,9 @@ export class BuildingRepository extends Repository<Building> {
   }
 
   findByNameWithoutMyself(searchName: string, myselfID: string) {
-    const list = this.createQueryBuilder('missionType')
-      .where(`missionType.name = '${ searchName }'`)
-      .andWhere(`missionType.id != '${ myselfID }'`)
+    const list = this.createQueryBuilder('building')
+      .where(`building.name = '${ searchName }'`)
+      .andWhere(`building.id != '${ myselfID }'`)
       .getOne();
 
     return list;
