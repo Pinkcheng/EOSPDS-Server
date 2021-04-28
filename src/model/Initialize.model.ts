@@ -1,6 +1,6 @@
 import { BuildingModel } from '../model/Building.model';
 import { UserModel } from '../model/User.model';
-import { SystemPermissionModel } from './SystemPermission.model';
+import { SystemPermissionModel } from './System.model';
 
 import dotenv from 'dotenv';
 // Read .env files settings

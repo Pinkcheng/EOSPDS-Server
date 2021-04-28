@@ -1,5 +1,5 @@
 import { Formatter } from './../core/Formatter';
-import { SystemPermissionModel } from './SystemPermission.model';
+import { SystemPermissionModel } from './System.model';
 import { UserModel } from './User.model';
 import { PorterType } from '../entity/PorterType.entity';
 import { Porter } from '../entity/porter.entity';
