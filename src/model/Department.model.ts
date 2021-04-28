@@ -21,6 +21,15 @@ export class DepartmentRepository extends Repository<Department> {
       .where({ id })
       .execute();
   }
+
+  findByNameWithoutMyself(searchName: string, myselfID: string) {
+    const list = this.createQueryBuilder('department')
+      .where(`department.name = '${ searchName }'`)
+      .andWhere(`department.id != '${ myselfID }'`)
+      .getOne();
+
+    return list;
+  }
 }
 
 export class DepartmentModel {
@@ -47,7 +56,7 @@ export class DepartmentModel {
     
           try {
             await this.mDepartmentRepo.save(newDepartment);
-            resolve(RESPONSE_STATUS.DATA_SUCCESS);
+            resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
           } catch (err) {
             console.error(err);
             reject(RESPONSE_STATUS.DATA_UNKNOWN);
@@ -72,17 +81,23 @@ export class DepartmentModel {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
-        const findDepartment = await this.mDepartmentRepo.findOne({ id });
-        if (!findDepartment) {
+        const findDepartmentByID = await this.mDepartmentRepo.findOne({ id });
+        const findDepartmentByName = await this.mDepartmentRepo
+          .findByNameWithoutMyself(name, id);
+
+        if (!findDepartmentByID) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
+        } else if (findDepartmentByName) {
+          reject(RESPONSE_STATUS.DATA_REPEAT);
+          return;
         } else {
-          findDepartment.id = id;
-          findDepartment.name = name;
+          findDepartmentByID.id = id;
+          findDepartmentByID.name = name;
     
           try {
-            await this.mDepartmentRepo.save(findDepartment);
-            resolve(RESPONSE_STATUS.DATA_SUCCESS);
+            await this.mDepartmentRepo.save(findDepartmentByID);
+            resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
           } catch (err) {
             console.error(err);
             reject(RESPONSE_STATUS.DATA_UNKNOWN);

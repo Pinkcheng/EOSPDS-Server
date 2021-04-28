@@ -6,7 +6,7 @@ export class User {
   // 人員編號
   @PrimaryColumn('varchar', {
     length: 20,
-    name: 'user_id'
+    name: 'uid'
   })
   id: string;
 
