@@ -24,6 +24,15 @@ export class MissionTypegRepository extends Repository<MissionType> {
       .where({ id })
       .execute();
   }
+
+  findByNameWithoutMyself(searchName: string, myselfID: string) {
+    const list = this.createQueryBuilder('missionType')
+      .where(`missionType.name = '${ searchName }'`)
+      .andWhere(`missionType.id != '${ myselfID }'`)
+      .getOne();
+
+    return list;
+  }
 }
 
 export class MissionTypeModel {
@@ -78,7 +87,8 @@ export class MissionTypeModel {
         return;
       } else {
         const findMissionTypeByID = await this.mMissionTypeRepo.findOne({ id });
-        const findMissionTypeByName = await this.mMissionTypeRepo.findOne({ name });
+        const findMissionTypeByName = await this.mMissionTypeRepo
+          .findByNameWithoutMyself(name, id);
 
         if (!findMissionTypeByID) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
@@ -155,6 +165,15 @@ export class MissionLabelRepository extends Repository<MissionLabel> {
       .where({ id })
       .execute();
   }
+
+  findByNameWithoutMyself(searchName: string, myselfID: string) {
+    const list = this.createQueryBuilder('missionType')
+      .where(`missionType.name = '${ searchName }'`)
+      .andWhere(`missionType.id != '${ myselfID }'`)
+      .getOne();
+
+    return list;
+  }
 }
 
 export class MissionLabelModel {
@@ -220,12 +239,13 @@ export class MissionLabelModel {
       } else {
         const findMissionType = await new MissionTypeModel().findByID(missionTypeID);
         const findMissionLabelByID = await this.mMissionLabelRepo.findOne({ id });
-        const findMissionLabelByName = await this.mMissionLabelRepo.findOne({ name });
+        const findMissionLabelByName = await this.mMissionLabelRepo
+          .findByNameWithoutMyself(name, id);
 
         if (!findMissionLabelByID) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
-        } else if (findMissionLabelByName) {
+        } else if (findMissionLabelByName) { // TODO: 更新檢查名稱，要唯一值，必須要排除自己
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else if (!findMissionType) {
