@@ -124,18 +124,24 @@ export class MissionTypeModel {
 @EntityRepository(MissionLabel)
 export class MissionLabelRepository extends Repository<MissionLabel> {
   findByID(id: string) {
-    return this.findOne({ id });
+    const label = this.createQueryBuilder('label')
+      .leftJoinAndSelect('label.type', 'type')
+      .where({ id })
+      .getOne();
+
+    return label;
   }
 
   getAll() {
-    const missionLabelList = this.createQueryBuilder('missionLabel')
+    const labels = this.createQueryBuilder('label')
+      .leftJoinAndSelect('label.type', 'type')
       .getMany();
 
-    return missionLabelList;
+    return labels;
   }
 
   del(id: string) {
-    this.createQueryBuilder('missionLabel')
+    this.createQueryBuilder('label')
       .delete()
       .where({ id })
       .execute();
