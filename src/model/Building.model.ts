@@ -11,11 +11,20 @@ export class BuildingRepository extends Repository<Building> {
     return buildingList;
   }
 
-  del(ID: string) {
+  del(id: string) {
     this.createQueryBuilder('building')
       .delete()
-      .where({ ID })
+      .where({ id })
       .execute();
+  }
+
+  findByNameWithoutMyself(searchName: string, myselfID: string) {
+    const list = this.createQueryBuilder('building')
+      .where(`building.name = '${ searchName }'`)
+      .andWhere(`building.id != '${ myselfID }'`)
+      .getOne();
+
+    return list;
   }
 }
 
@@ -26,24 +35,24 @@ export class BuildingModel {
     this.mBuildingRepo = getCustomRepository(BuildingRepository);
   }
 
-  create(ID: string, name: string) {
+  create(id: string, name: string) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!ID || !name) {
+      if (!id || !name) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
-        const findBuilding = await this.mBuildingRepo.findOne({ ID });
+        const findBuilding = await this.mBuildingRepo.findOne({ id });
         if (findBuilding) {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else {
           const newBuilding = new Building();
-          newBuilding.ID = ID;
+          newBuilding.id = id;
           newBuilding.name = name;
     
           try {
             await this.mBuildingRepo.save(newBuilding);
-            resolve(RESPONSE_STATUS.DATA_SUCCESS);
+            resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
           } catch (err) {
             console.error(err);
             reject(RESPONSE_STATUS.DATA_UNKNOWN);
@@ -58,27 +67,33 @@ export class BuildingModel {
     return buildingList;
   }
 
-  async del(ID: string) {
-    return await this.mBuildingRepo.del(ID);
+  async del(id: string) {
+    return await this.mBuildingRepo.del(id);
   }
 
-  update(ID: string, name: string) {
+  update(id: string, name: string) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!ID || !name) {
+      if (!id || !name) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
-        const findBuilding = await this.mBuildingRepo.findOne({ ID });
-        if (!findBuilding) {
+        const findBuildingByID = await this.mBuildingRepo.findOne({ id });
+        const findBuildingByName = await this.mBuildingRepo
+          .findByNameWithoutMyself(name, id);
+
+        if (!findBuildingByID) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
+        } else if(findBuildingByName) {
+          reject(RESPONSE_STATUS.DATA_REPEAT);
+          return;
         } else {
-          findBuilding.ID = ID;
-          findBuilding.name = name;
+          findBuildingByID.id = id;
+          findBuildingByID.name = name;
     
           try {
-            await this.mBuildingRepo.save(findBuilding);
-            resolve(RESPONSE_STATUS.DATA_SUCCESS);
+            await this.mBuildingRepo.save(findBuildingByID);
+            resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
           } catch (err) {
             console.error(err);
             reject(RESPONSE_STATUS.DATA_UNKNOWN);

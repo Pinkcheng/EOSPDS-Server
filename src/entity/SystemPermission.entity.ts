@@ -7,7 +7,7 @@ export class SystemPermission {
     unsigned: true,
     name: 'id'
   })
-  ID: number;
+  id: number;
   
   // 權限名稱
   @Column('varchar', {

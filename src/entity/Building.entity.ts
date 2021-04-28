@@ -6,7 +6,7 @@ export class Building {
     length: 10,
     name: 'bid'
   })
-  ID: string;
+  id: string;
 
   @Column('varchar', {
     length: 30,

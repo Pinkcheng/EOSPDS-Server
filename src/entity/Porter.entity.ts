@@ -8,7 +8,7 @@ export class Porter {
     length: 10,
     name: 'pid'
   })
-  ID: string;
+  id: string;
 
   // 傳送員姓名
   @Index({ unique: true })
@@ -44,7 +44,7 @@ export class Porter {
   // 傳送員類型編號
   @ManyToOne(
     () => PorterType,
-    type => type.ID
+    type => type.id
   )
   type: PorterType;
 }

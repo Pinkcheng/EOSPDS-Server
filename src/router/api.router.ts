@@ -1,4 +1,4 @@
-import { missionRouter, missionTypeRouter } from './mission.router';
+import { missionRouter, missionTypeRouter, missionLabelRouter, missionInstrumentRouter } from './mission.router';
 import express from 'express';
 const apiRouter = express.Router();
 
@@ -9,6 +9,8 @@ apiRouter.use('/porter', porterRouter);
 apiRouter.use('/department', departmentRouter);
 apiRouter.use('/building', buildingRouter);
 apiRouter.use('/mission', missionRouter);
-apiRouter.use('/missionType', missionTypeRouter);
+apiRouter.use('/mission_type', missionTypeRouter);
+apiRouter.use('/mission_label', missionLabelRouter);
+apiRouter.use('/mission_instrument', missionInstrumentRouter);
 
 export default apiRouter;

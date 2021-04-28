@@ -6,9 +6,9 @@ export class User {
   // 人員編號
   @PrimaryColumn('varchar', {
     length: 20,
-    name: 'user_id'
+    name: 'uid'
   })
-  ID: string;
+  id: string;
 
   // 人員登入帳號
   @Index({ unique: true })
@@ -36,7 +36,7 @@ export class User {
   // 人員系統權限
   @ManyToOne(
     () => SystemPermission,
-    permission => permission.ID
+    permission => permission.id
   )
   permission: SystemPermission;
 }

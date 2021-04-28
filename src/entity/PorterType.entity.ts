@@ -8,7 +8,7 @@ export class PorterType {
     unsigned: true,
     name: 'id'
   })
-  ID: number;
+  id: number;
   
   // 傳送員類型名稱
   @Column('varchar', {

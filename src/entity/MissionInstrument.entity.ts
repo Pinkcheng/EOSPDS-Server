@@ -1,11 +1,11 @@
 import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
-@Entity('mission_type')
-export class MissionType {
+@Entity('mission_instrument')
+export class MissionInstrument {
   @PrimaryColumn({
     type: 'varchar',
     length: 10,
-    name: 'tid'
+    name: 'iid'
   })
   id: string;
   
@@ -15,10 +15,4 @@ export class MissionType {
     name: 'name'
   })
   name: string;
-
-  @Column({
-    type: 'varchar',
-    name: 'transport'
-  })
-  transport: string;
 }
