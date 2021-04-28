@@ -4,10 +4,12 @@ import express from 'express';
 export const missionRouter = express.Router();
 export const missionTypeRouter = express.Router();
 export const missionLabelRouter = express.Router();
+export const missionInstrumentRouter = express.Router();
 
 import * as missionController from '../controllers/Mission.controller';
 import * as missionTypeController from '../controllers/MissionType.controller';
 import * as missionLabelController from '../controllers/MissionLabel.controller';
+import * as missionInstrumentController from '../controllers/MissionInstrument.controller';
 
 // =================== mission ==================
 missionRouter.route('/')
@@ -43,3 +45,13 @@ missionLabelRouter.route('/:missionLabelID')
   .get(whoCanDoIt(1), missionLabelController.get)
   .patch(whoCanDoIt(1), missionLabelController.update)
   .delete(whoCanDoIt(1), missionLabelController.del);
+
+// =================== mission instrument ==================
+missionInstrumentRouter.route('/')
+.post(whoCanDoIt(1), missionInstrumentController.create)
+.get(whoCanDoIt(1), missionInstrumentController.list);
+
+missionInstrumentRouter.route('/:missionInstrumentID')
+  .get(whoCanDoIt(1), missionInstrumentController.get)
+  .patch(whoCanDoIt(1), missionInstrumentController.update)
+  .delete(whoCanDoIt(1), missionInstrumentController.del);
