@@ -40,8 +40,8 @@ export class SystemParameterModel {
 
 @EntityRepository(SystemPermission)
 export class SystemPermissionRepository extends Repository<SystemPermission> {
-  findById(ID: number) {
-    return this.findOne({ ID });
+  findById(id: number) {
+    return this.findOne({ id });
   }
 }
 
@@ -54,7 +54,7 @@ export class SystemPermissionModel {
 
   async create(id: number, name: string) {
     const newSystemPermission = new SystemPermission();
-    newSystemPermission.ID = id;
+    newSystemPermission.id = id;
     newSystemPermission.name = name;
 
     // 如果有相同的權限編號，就略過
