@@ -140,6 +140,15 @@ export class MissionLabelRepository extends Repository<MissionLabel> {
     return labels;
   }
 
+  getAllByMissionType(type: MissionType) {
+    const labels = this.createQueryBuilder('label')
+      .leftJoinAndSelect('label.type', 'type')
+      .where({ type })
+      .getMany();
+
+    return labels;
+  }
+
   del(id: string) {
     this.createQueryBuilder('label')
       .delete()
@@ -188,9 +197,15 @@ export class MissionLabelModel {
     });
   }
 
-  async getAll() {
-    const labelList = await this.mMissionLabelRepo.getAll();
-    return labelList;
+  async getAll(missionTypeID: string) {
+    if (!missionTypeID) {
+      const labelList = await this.mMissionLabelRepo.getAll();
+      return labelList;
+    } else {
+      const findMissionType = await new MissionTypeModel().findByID(missionTypeID);
+      const labelList = await this.mMissionLabelRepo.getAllByMissionType(findMissionType);
+      return labelList;
+    }
   }
 
   async del(id: string) {

@@ -20,8 +20,10 @@ export const create = (req: Request, res: Response) => {
 };
 
 export const list = (req: Request, res: Response) => {
+  const missionTypeID = req.query.mission_type_id;
+
   const missionLabelModel = new MissionLabelModel();
-  missionLabelModel.getAll()
+  missionLabelModel.getAll(missionTypeID as string)
     .then(missionLabelList => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missionLabelList));
     }, errCode => {
