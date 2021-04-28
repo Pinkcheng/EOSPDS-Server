@@ -19,7 +19,7 @@ export class MissionLabel {
 
   @ManyToOne(
     () => MissionType,
-    transport => transport.id
+    type => type.id
   )
   type: MissionType;
 }

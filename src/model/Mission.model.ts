@@ -1,6 +1,7 @@
-import { MissionLabel } from './../entity/MissionLabel.entity';
-import { Formatter } from './../core/Formatter';
 import { MissionType } from '../entity/MissionType.entity';
+import { MissionLabel } from './../entity/MissionLabel.entity';
+
+import { Formatter } from './../core/Formatter';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
@@ -120,7 +121,7 @@ export class MissionTypeModel {
   }
 }
 
-@EntityRepository(MissionType)
+@EntityRepository(MissionLabel)
 export class MissionLabelRepository extends Repository<MissionLabel> {
   findByID(id: string) {
     return this.findOne({ id });
@@ -232,7 +233,7 @@ export class MissionLabelModel {
 
   // 產生編號
   async generaterID() {
-    const ID = 'T';
+    const ID = 'L';
     // 取得目前數量
     let count = await this.mMissionLabelRepo.count();
     // 數量+1
