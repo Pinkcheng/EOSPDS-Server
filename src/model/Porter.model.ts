@@ -59,11 +59,11 @@ export class PorterRepository extends Repository<Porter> {
   }
 
   getAll() {
-    const porter = this.createQueryBuilder('porter')
+    const porters = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
       .getMany();
 
-    return porter;
+    return porters;
   }
 
   del(id: string) {
