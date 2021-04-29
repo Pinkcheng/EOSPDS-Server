@@ -1,3 +1,4 @@
+import { MissionProcess } from './../entity/MissionProcess.entity';
 import { MissionInstrument } from './../entity/MissionInstrument.entity';
 import { MissionType } from '../entity/MissionType.entity';
 import { MissionLabel } from './../entity/MissionLabel.entity';
@@ -5,6 +6,7 @@ import { MissionLabel } from './../entity/MissionLabel.entity';
 import { Formatter } from './../core/Formatter';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
+import { DepartmentModel } from './Department.model';
 
 @EntityRepository(MissionType)
 export class MissionTypegRepository extends Repository<MissionType> {
@@ -28,8 +30,8 @@ export class MissionTypegRepository extends Repository<MissionType> {
 
   findByNameWithoutMyself(searchName: string, myselfID: string) {
     const list = this.createQueryBuilder('missionType')
-      .where(`missionType.name = '${ searchName }'`)
-      .andWhere(`missionType.id != '${ myselfID }'`)
+      .where(`missionType.name = '${searchName}'`)
+      .andWhere(`missionType.id != '${myselfID}'`)
       .getOne();
 
     return list;
@@ -169,8 +171,8 @@ export class MissionLabelRepository extends Repository<MissionLabel> {
 
   findByNameWithoutMyself(searchName: string, myselfID: string) {
     const list = this.createQueryBuilder('missionLabel')
-      .where(`missionLabel.name = '${ searchName }'`)
-      .andWhere(`missionLabel.id != '${ myselfID }'`)
+      .where(`missionLabel.name = '${searchName}'`)
+      .andWhere(`missionLabel.id != '${myselfID}'`)
       .getOne();
 
     return list;
@@ -246,7 +248,7 @@ export class MissionLabelModel {
         if (!findMissionLabelByID) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
-        } else if (findMissionLabelByName) { 
+        } else if (findMissionLabelByName) {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else if (!findMissionType) {
@@ -309,8 +311,8 @@ export class MissionInstrumentRepository extends Repository<MissionInstrument> {
 
   findByNameWithoutMyself(searchName: string, myselfID: string) {
     const list = this.createQueryBuilder('missionInstrument')
-      .where(`missionInstrument.name = '${ searchName }'`)
-      .andWhere(`missionInstrument.id != '${ myselfID }'`)
+      .where(`missionInstrument.name = '${searchName}'`)
+      .andWhere(`missionInstrument.id != '${myselfID}'`)
       .getOne();
 
     return list;
@@ -408,5 +410,50 @@ export class MissionInstrumentModel {
     const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.MISSION_INSTRUMENT_ID_LENGTH));
 
     return (ID + id);
+  }
+}
+
+export enum MISSION_STATUS {
+  'ADD' = 'add',
+  'START' = 'start',
+  'IN_PROGRESS' = 'in_progress',
+  'FINISH' = 'finish'
+}
+
+@EntityRepository(MissionProcess)
+export class MissionProcessRepository extends Repository<MissionProcess> {
+  findByMissionID(missionID: string) {
+    const missionProcess = this.createQueryBuilder('missionProcess')
+      .leftJoinAndSelect('missionProcess.department', 'department')
+      .where(`missionProcess.mid = '${ missionID }'`)
+      .getMany();
+
+    return missionProcess;
+  }
+}
+
+export class MissionProcessModel {
+  private mMissionProcessRepo: MissionProcessRepository;
+
+  constructor() {
+    this.mMissionProcessRepo = getCustomRepository(MissionProcessRepository);
+  }
+  // TODO: 加入交接人員，還有更新任務狀態，要可以更新交接人員
+  async insert(missoinID: string, status: MISSION_STATUS, time: string, departmentID: string) {
+    const newMissionProcess = new MissionProcess();
+    newMissionProcess.status = status;
+    newMissionProcess.mid = missoinID;
+    newMissionProcess.department = await new DepartmentModel().findByID(departmentID);
+    newMissionProcess.time = time;
+
+    try {
+      await this.mMissionProcessRepo.save(newMissionProcess);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async getMissionProcess(missionID: string) {
+    return await this.mMissionProcessRepo.findByMissionID(missionID);
   }
 }
