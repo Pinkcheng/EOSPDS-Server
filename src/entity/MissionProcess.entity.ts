@@ -20,8 +20,9 @@ export class MissionProcess {
   })
   status: string;
 
-  @Column('datetime', {
-    name: 'name'
+  @Column('timestamp', {
+    name: 'time',
+    default: () => 'CURRENT_TIMESTAMP' 
   })
   time: string;
 

@@ -1,4 +1,4 @@
-import { Porter } from './Porter.entity';
+import { Porter } from './porter.entity';
 import { MissionInstrument } from './MissionInstrument.entity';
 import { MissionLabel } from './MissionLabel.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
@@ -19,7 +19,8 @@ export class Mission {
   label: MissionLabel;
   // 任務內容
   @Column('text', {
-    name: 'content'
+    name: 'content',
+    default: null
   })
   content: string;
   // 任務狀態
@@ -31,7 +32,7 @@ export class Mission {
   // 任務運送工具
   @ManyToOne(
     () => MissionInstrument,
-    instrument => instrument.id
+    instrument => instrument.id,
   )
   instrument: MissionInstrument;
 

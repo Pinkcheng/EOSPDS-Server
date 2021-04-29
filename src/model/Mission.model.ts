@@ -1,3 +1,4 @@
+import { Mission } from './../entity/Mission.entity';
 import { MissionProcess } from './../entity/MissionProcess.entity';
 import { MissionInstrument } from './../entity/MissionInstrument.entity';
 import { MissionType } from '../entity/MissionType.entity';
@@ -425,7 +426,7 @@ export class MissionProcessRepository extends Repository<MissionProcess> {
   findByMissionID(missionID: string) {
     const missionProcess = this.createQueryBuilder('missionProcess')
       .leftJoinAndSelect('missionProcess.department', 'department')
-      .where(`missionProcess.mid = '${ missionID }'`)
+      .where(`missionProcess.mid = '${missionID}'`)
       .getMany();
 
     return missionProcess;
@@ -439,12 +440,11 @@ export class MissionProcessModel {
     this.mMissionProcessRepo = getCustomRepository(MissionProcessRepository);
   }
   // TODO: 加入交接人員，還有更新任務狀態，要可以更新交接人員
-  async insert(missoinID: string, status: MISSION_STATUS, time: string, departmentID: string) {
+  async insert(missoinID: string, status: MISSION_STATUS, departmentID: string) {
     const newMissionProcess = new MissionProcess();
     newMissionProcess.status = status;
     newMissionProcess.mid = missoinID;
     newMissionProcess.department = await new DepartmentModel().findByID(departmentID);
-    newMissionProcess.time = time;
 
     try {
       await this.mMissionProcessRepo.save(newMissionProcess);
@@ -455,5 +455,74 @@ export class MissionProcessModel {
 
   async getMissionProcess(missionID: string) {
     return await this.mMissionProcessRepo.findByMissionID(missionID);
+  }
+}
+
+@EntityRepository(Mission)
+export class MissionRepository extends Repository<Mission> {
+}
+
+export class MissionModel {
+  private mMissionRepo: MissionRepository;
+
+  constructor() {
+    this.mMissionRepo = getCustomRepository(MissionRepository);
+  }
+
+  create(labelID: string, departmentID: string, content?: string, instrumentID?: string) {
+    return new Promise<any>(async (resolve, reject) => {
+      if (!labelID) {
+        reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
+        return;
+      } else {
+        const findMissionLabel = await new MissionLabelModel().findByID(labelID);
+        const findMissionInstrument = instrumentID ? await new MissionInstrumentModel().findByID(instrumentID) : null;
+
+        if (instrumentID) {
+          if (!findMissionInstrument) {
+            reject(RESPONSE_STATUS.DATA_CREATE_FAIL);
+            return;
+          }
+        }
+
+        if (!findMissionLabel) {
+          reject(RESPONSE_STATUS.DATA_CREATE_FAIL);
+          return;
+        } else {
+          try {
+            const newMisionID = await this.generaterID();
+
+            const newMission = new Mission();
+            newMission.id = newMisionID;
+            newMission.content = content;
+            newMission.label = findMissionLabel;
+            newMission.instrument = findMissionInstrument;
+            await this.mMissionRepo.save(newMission);
+            
+            
+            const missionProcessModel = new MissionProcessModel();
+            await missionProcessModel.insert(newMisionID, MISSION_STATUS.ADD, departmentID);
+
+            resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
+          } catch(err) {
+            console.error(err);
+            reject(RESPONSE_STATUS.DATA_UNKNOWN);
+          }
+        }
+      }
+    });
+  }
+
+  // 產生編號
+  async generaterID() {
+    const ID = 'M';
+    // 取得目前數量
+    let count = await this.mMissionRepo.count();
+    // 數量+1
+    count++;
+    // 補0
+    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.MISSION_ID_LENGTH));
+
+    return (ID + id);
   }
 }
