@@ -6,6 +6,7 @@ import { MissionLabel } from './../entity/MissionLabel.entity';
 
 import { Formatter } from './../core/Formatter';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
+import date from 'date-and-time';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 import { DepartmentModel } from './Department.model';
 
@@ -440,11 +441,14 @@ export class MissionProcessModel {
     this.mMissionProcessRepo = getCustomRepository(MissionProcessRepository);
   }
   // TODO: 加入交接人員，還有更新任務狀態，要可以更新交接人員
-  async insert(missoinID: string, status: MISSION_STATUS, departmentID: string) {
+  async insert(missoinID: string, status: MISSION_STATUS, departmentID: string, time?: string) {
     const newMissionProcess = new MissionProcess();
     newMissionProcess.status = status;
     newMissionProcess.mid = missoinID;
     newMissionProcess.department = await new DepartmentModel().findByID(departmentID);
+    if (time) {
+      newMissionProcess.time = time;
+    }
 
     try {
       await this.mMissionProcessRepo.save(newMissionProcess);
@@ -510,7 +514,11 @@ export class MissionModel {
             await this.mMissionRepo.save(newMission);
             // 新增任務進度：add
             const missionProcessModel = new MissionProcessModel();
-            await missionProcessModel.insert(newMisionID, MISSION_STATUS.ADD, startDepartmentID);
+
+            await missionProcessModel.insert(newMisionID, MISSION_STATUS.ADD, startDepartmentID, date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'));
+            await missionProcessModel.insert(newMisionID, MISSION_STATUS.START, startDepartmentID);
+            await missionProcessModel.insert(newMisionID, MISSION_STATUS.IN_PROGRESS, startDepartmentID);
+            await missionProcessModel.insert(newMisionID, MISSION_STATUS.FINISH, startDepartmentID);
 
             resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
           } catch (err) {
@@ -522,7 +530,7 @@ export class MissionModel {
     });
   }
 
-  // 產生編號
+  // TODO: 產生編號規則
   async generaterID() {
     const ID = 'M';
     // 取得目前數量

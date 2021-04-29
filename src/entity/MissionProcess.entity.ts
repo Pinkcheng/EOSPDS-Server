@@ -22,7 +22,7 @@ export class MissionProcess {
 
   @Column('timestamp', {
     name: 'time',
-    default: () => 'CURRENT_TIMESTAMP' 
+    default: null
   })
   time: string;
 
