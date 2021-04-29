@@ -464,6 +464,17 @@ export class MissionProcessModel {
 
 @EntityRepository(Mission)
 export class MissionRepository extends Repository<Mission> {
+  findMissionBetweenNow(days: string) {
+    const missions = this.createQueryBuilder('mission')
+      .leftJoinAndSelect('mission.label', 'label')
+      .leftJoinAndSelect('mission.instrument', 'instrument')
+      .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
+      .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
+      .where(`mission.createTime >= '${days}'`)
+      .getMany();
+
+    return missions;
+  }
 }
 
 export class MissionModel {
@@ -515,10 +526,11 @@ export class MissionModel {
             // 新增任務進度：add
             const missionProcessModel = new MissionProcessModel();
 
-            await missionProcessModel.insert(newMisionID, MISSION_STATUS.ADD, startDepartmentID, date.format(new Date(), 'YYYY/MM/DD HH:mm:ss'));
-            await missionProcessModel.insert(newMisionID, MISSION_STATUS.START, startDepartmentID);
-            await missionProcessModel.insert(newMisionID, MISSION_STATUS.IN_PROGRESS, startDepartmentID);
-            await missionProcessModel.insert(newMisionID, MISSION_STATUS.FINISH, startDepartmentID);
+            await missionProcessModel.insert(newMisionID, MISSION_STATUS.ADD,
+              startDepartmentID, date.format(new Date(), process.env.DATE_FORMAT));
+            await missionProcessModel.insert(newMisionID, MISSION_STATUS.START, null);
+            await missionProcessModel.insert(newMisionID, MISSION_STATUS.IN_PROGRESS, null);
+            await missionProcessModel.insert(newMisionID, MISSION_STATUS.FINISH, endDepartmentID);
 
             resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
           } catch (err) {
@@ -527,6 +539,42 @@ export class MissionModel {
           }
         }
       }
+    });
+  }
+
+  list(days?: number) {
+    return new Promise<any>(async (resolve, reject) => {
+      // 若沒有指定查詢天數，則使用預設天數
+      if (!days) {
+        days = parseInt(process.env.MISSION_SELECT_DAYS);
+      }
+      // 進行查詢天數計算
+      const selectDate = date.addDays(new Date(), -(days));
+      const missionList = await this.mMissionRepo.findMissionBetweenNow(
+        date.format(selectDate, process.env.DATE_FORMAT));
+      // 若任務數量為0，回傳空陣列
+      if (missionList.length === 0) {
+        resolve([]);
+        return;
+      }
+      // 重組陣列，將任務狀態時間加入
+      const newMission = new Array(missionList.length);
+      missionList.forEach(async (mission, index) => {
+        // 取得該任務，所有任務狀態加入
+        const processList = await new MissionProcessModel().getMissionProcess(mission.id);
+        // 刪除不要的物件參數
+        processList.forEach(process => {
+          delete process.id;
+          delete process.mid;
+        });
+        // 將任務陣列丟到新的任務陣列
+        mission.process = processList;
+        newMission[index] = mission;
+        // 組合完畢回傳陣列
+        if (index === missionList.length - 1) {
+          resolve(newMission);
+        }
+      });
     });
   }
 

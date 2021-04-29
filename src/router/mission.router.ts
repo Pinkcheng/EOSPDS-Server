@@ -13,7 +13,8 @@ import * as missionInstrumentController from '../controllers/MissionInstrument.c
 
 // =================== mission ==================
 missionRouter.route('/')
-  .post(whoCanDoIt(1), missionController.create);
+  .post(whoCanDoIt(1), missionController.create)
+  .get(whoCanDoIt(1), missionController.list);
 
 // =================== mission type ==================
 missionTypeRouter.route('/')

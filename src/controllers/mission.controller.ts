@@ -21,3 +21,17 @@ export const create = (req: Request, res: Response) => {
       res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
     });
 };
+
+export const list = (req: Request, res: Response) => {
+  const days = parseInt(Formatter.formInput(req.query.days as string));
+  
+  const missionModel = new MissionModel();
+  missionModel.list(days)
+    .then(missions => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missions));
+    }, errCode => {
+      res.status(400).json(ResponseHandler.message(errCode));
+    }).catch(err => {
+      res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+    });
+};

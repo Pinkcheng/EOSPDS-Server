@@ -1,3 +1,4 @@
+import { MissionProcess } from './MissionProcess.entity';
 import { Department } from './Department.entity';
 import { Porter } from './porter.entity';
 import { MissionInstrument } from './MissionInstrument.entity';
@@ -30,28 +31,36 @@ export class Mission {
     default: 1
   })
   status: number;
+  // 任務建立時間
+  @Column('timestamp', {
+    name: 'create_time',
+    default: () => 'CURRENT_TIMESTAMP'
+  })
+  createTime: string;
   // 任務運送工具
   @ManyToOne(
     () => MissionInstrument,
     instrument => instrument.id,
   )
   instrument: MissionInstrument;
-
+  // 傳送員
   @ManyToOne(
     () => Porter,
     porter => porter.id
   )
   porter: Porter;
-
+  // 請求單位
   @ManyToOne(
     () => Department,
     department => department.id
   )
   startDepartment: Department;
-
+  // 送往單位
   @ManyToOne(
     () => Department,
     department => department.id
   )
   endDepartment: Department;
+
+  process: MissionProcess[];
 }
