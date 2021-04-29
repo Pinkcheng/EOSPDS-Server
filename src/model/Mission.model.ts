@@ -520,7 +520,7 @@ export class MissionModel {
           return;
         } else {
           try {
-            const newMisionID = await this.generaterID();
+            const newMisionID = await this.generaterID(findMissionLabel.type.id, findMissionLabel.id, date.format(new Date(), 'YYYYMMDD'));
 
             const newMission = new Mission();
             newMission.id = newMisionID;
@@ -583,9 +583,15 @@ export class MissionModel {
     });
   }
 
-  // TODO: 產生編號規則
-  async generaterID() {
-    const ID = 'M';
+  async generaterID(missionType: string, missionLabel: string, date: string) {
+    const type = parseInt(missionType.split('T')[1]);
+    const label = parseInt(missionLabel.split('L')[1]);
+
+    missionLabel = Formatter.paddingLeftZero(label + '',
+      parseInt(process.env.MISSION_LABEL_ID_LENGTH));
+
+    const ID = `M${type}${missionLabel}${date}`;
+
     // 取得目前數量
     let count = await this.mMissionRepo.count();
     // 數量+1
