@@ -469,13 +469,21 @@ export class MissionModel {
     this.mMissionRepo = getCustomRepository(MissionRepository);
   }
 
-  create(labelID: string, departmentID: string, content?: string, instrumentID?: string) {
+  create(
+    labelID: string,
+    startDepartmentID: string,
+    endDepartmentID: string,
+    content?: string,
+    instrumentID?: string
+  ) {
     return new Promise<any>(async (resolve, reject) => {
       if (!labelID) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
         const findMissionLabel = await new MissionLabelModel().findByID(labelID);
+        const findStartDepartment = await new DepartmentModel().findByID(startDepartmentID);
+        const findEndDepartment = await new DepartmentModel().findByID(endDepartmentID);
         const findMissionInstrument = instrumentID ? await new MissionInstrumentModel().findByID(instrumentID) : null;
 
         if (instrumentID) {
@@ -485,7 +493,7 @@ export class MissionModel {
           }
         }
 
-        if (!findMissionLabel) {
+        if (!findMissionLabel || !findStartDepartment || !findEndDepartment) {
           reject(RESPONSE_STATUS.DATA_CREATE_FAIL);
           return;
         } else {
@@ -497,14 +505,15 @@ export class MissionModel {
             newMission.content = content;
             newMission.label = findMissionLabel;
             newMission.instrument = findMissionInstrument;
+            newMission.startDepartment = findStartDepartment;
+            newMission.endDepartment = findEndDepartment;
             await this.mMissionRepo.save(newMission);
-            
-            
+            // 新增任務進度：add
             const missionProcessModel = new MissionProcessModel();
-            await missionProcessModel.insert(newMisionID, MISSION_STATUS.ADD, departmentID);
+            await missionProcessModel.insert(newMisionID, MISSION_STATUS.ADD, startDepartmentID);
 
             resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
-          } catch(err) {
+          } catch (err) {
             console.error(err);
             reject(RESPONSE_STATUS.DATA_UNKNOWN);
           }

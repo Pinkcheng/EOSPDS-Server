@@ -6,7 +6,7 @@ import { MissionModel } from '../model/Mission.model';
 
 export const create = (req: Request, res: Response) => {
   const missionModel = new MissionModel();
-  missionModel.create('L0001', 'D0001')
+  missionModel.create('L0001', 'D0001', 'D0001', '531病床 王小明', 'I0001')
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {

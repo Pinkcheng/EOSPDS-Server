@@ -1,3 +1,4 @@
+import { Department } from './Department.entity';
 import { Porter } from './porter.entity';
 import { MissionInstrument } from './MissionInstrument.entity';
 import { MissionLabel } from './MissionLabel.entity';
@@ -41,4 +42,16 @@ export class Mission {
     porter => porter.id
   )
   porter: Porter;
+
+  @ManyToOne(
+    () => Department,
+    department => department.id
+  )
+  startDepartment: Department;
+
+  @ManyToOne(
+    () => Department,
+    department => department.id
+  )
+  endDepartment: Department;
 }
