@@ -482,6 +482,18 @@ export class MissionRepository extends Repository<Mission> {
 
     return missions.getMany();;
   }
+
+  findByID(id: string) {
+    const mission = this.createQueryBuilder('mission')
+      .leftJoinAndSelect('mission.label', 'label')
+      .leftJoinAndSelect('mission.instrument', 'instrument')
+      .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
+      .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
+      .where({ id })
+      .getOne();
+
+    return mission;
+  }
 }
 
 export class MissionModel {
@@ -549,6 +561,7 @@ export class MissionModel {
     });
   }
 
+  // TODO: 自己的單位才能查自己的，系統管理員可以查全部的
   list(days?: number, department?: string) {
     return new Promise<any>(async (resolve, reject) => {
       // 若沒有指定查詢天數，則使用預設天數
@@ -580,6 +593,26 @@ export class MissionModel {
           resolve(missionList);
         }
       });
+    });
+  }
+  
+  get(missionID: string) {
+    return new Promise<any>(async (resolve, reject) => {
+      const mission = await this.mMissionRepo.findByID(missionID);
+      if (!mission) {
+        reject(RESPONSE_STATUS.DATA_UNKNOWN);
+        return;
+      } else {
+        const processList = await new MissionProcessModel().getMissionProcess(mission.id);
+        // 刪除不要的物件參數
+        processList.forEach(process => {
+          delete process.id;
+          delete process.mid;
+        });
+        // 將任務陣列丟到新的任務陣列
+        mission.process = processList;
+        resolve(mission);
+      }
     });
   }
 

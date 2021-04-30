@@ -36,3 +36,17 @@ export const list = (req: Request, res: Response) => {
       res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
     });
 };
+
+export const get = (req: Request, res: Response) => {
+  const missionID = req.params.missionID as string;
+
+  const missionModel = new MissionModel();
+  missionModel.get(missionID)
+    .then(missions => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missions));
+    }, errCode => {
+      res.status(400).json(ResponseHandler.message(errCode));
+    }).catch(err => {
+      res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+    });
+};
