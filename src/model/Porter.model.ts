@@ -1,3 +1,4 @@
+import { create } from './../../../EOSPDS-server/src/controllers/MissionLabel.controller';
 import { Formatter } from './../core/Formatter';
 import { SystemPermissionModel } from './System.model';
 import { UserModel } from './User.model';
@@ -22,6 +23,33 @@ export class PorterTypeModel {
 
   constructor() {
     this.mPorterTypeRepo = getCustomRepository(PorterTypeRepository);
+  }
+
+  async create(name: string) {
+    return new Promise<any>(async (resolve, reject) => {
+      if (!name) {
+        reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
+        return;
+      } else {
+        const findPorterTypeByName = await this.mPorterTypeRepo.findOne({ name });
+
+        if (findPorterTypeByName) {
+          reject(RESPONSE_STATUS.DATA_REPEAT);
+          return;
+        } else {
+          const newPorterType = new PorterType();
+          newPorterType.name = name;
+
+          try {
+            await this.mPorterTypeRepo.save(newPorterType);
+            resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
+          } catch (err) {
+            console.error(err);
+            reject(RESPONSE_STATUS.DATA_UNKNOWN);
+          }
+        }
+      }
+    });
   }
 
   async findByTypeID(id: number) {
