@@ -115,7 +115,7 @@ export class UserModel {
         reject(RESPONSE_STATUS.AUTH_LOGIN_FAIL);
         return;
       } else {
-        const passwordCheck = this.comparePassword(password, findUser.password);
+        const passwordCheck = await this.comparePassword(password, findUser.password);
         if (!passwordCheck) {
           reject(RESPONSE_STATUS.AUTH_LOGIN_FAIL);
           return;
