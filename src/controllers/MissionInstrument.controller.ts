@@ -6,9 +6,10 @@ import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const create = (req: Request, res: Response) => {
   const name = req.body.name;
+  const id = req.body.id;
 
   const missionInstrumentModel = new MissionInstrumentModel();
-  missionInstrumentModel.create(name)
+  missionInstrumentModel.create(id, name)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {

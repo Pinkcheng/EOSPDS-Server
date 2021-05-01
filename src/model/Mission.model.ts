@@ -328,9 +328,9 @@ export class MissionInstrumentModel {
     this.mMisionInstrumentRepo = getCustomRepository(MissionInstrumentRepository);
   }
 
-  create(name: string) {
+  create(id: string, name: string) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!name) {
+      if (!id || !name) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
@@ -341,7 +341,7 @@ export class MissionInstrumentModel {
           return;
         } else {
           const newMissionInstrument = new MissionInstrument();
-          newMissionInstrument.id = await this.generaterID();
+          newMissionInstrument.id = id;
           newMissionInstrument.name = name;
 
           try {
