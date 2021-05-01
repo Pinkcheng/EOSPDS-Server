@@ -1,3 +1,4 @@
+import { PorterTypeModel } from './Porter.model';
 import { MissionInstrumentModel } from './Mission.model';
 import { BuildingModel } from '../model/Building.model';
 import { UserModel } from '../model/User.model';
@@ -18,6 +19,8 @@ export class Initialize {
           return this.installMissionInstrument();
         }).then(() => {
           return this.installBuilding();
+        }).then(() => {
+          return this.installPorterType();
         }).then(() => {
           resolve();
         });
@@ -86,6 +89,22 @@ export class Initialize {
 
         if (index === initData.building.length - 1) {
           console.log('\n\t*** 安裝系統預設建築物 ***');
+          resolve();
+        }
+      });
+    });
+  }
+
+  // 新增傳送員類型
+  private installPorterType() {
+    const porterTypeModel = new PorterTypeModel();
+
+    return new Promise<void>(async (resolve, reject) => {
+      initData.porterType.forEach(async (item: string[], index: number) => {
+        await porterTypeModel.create(item[0]).then(() => { }, () => { });
+
+        if (index === initData.porterType.length - 1) {
+          console.log('\n\t*** 安裝系統預設傳送員類型 ***');
           resolve();
         }
       });
