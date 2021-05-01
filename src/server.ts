@@ -11,7 +11,7 @@ createConnection().then(() => {
 
   console.log('\n\t*** 開始安裝系統預設資料 *** ');
 
-  Initialize.installDatabaseDefaultData()
+  new Initialize().installDatabaseDefaultData()
     .then(() => {
       console.log('\n\t*** 全部安裝完成 ***');
       console.log('===================\n');
@@ -19,7 +19,7 @@ createConnection().then(() => {
       /**
        * Start Express server.
        */
-      const server = app.listen(app.get('port'), () => {
+      app.listen(app.get('port'), () => {
         console.log(
           '  App is running at http://localhost:%d in %s mode',
           app.get('port'),
