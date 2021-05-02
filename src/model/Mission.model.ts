@@ -480,7 +480,7 @@ export class MissionRepository extends Repository<Mission> {
       missions.andWhere(`mission.createTime >= '${days}'`);
     }
 
-    return missions.getMany();;
+    return missions.getMany();
   }
 }
 
