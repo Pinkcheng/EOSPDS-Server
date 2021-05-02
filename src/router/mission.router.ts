@@ -19,6 +19,9 @@ missionRouter.route('/')
 missionRouter.route('/:missionID')
   .get(whoCanDoIt(1), missionController.get);
 
+  missionRouter.route('/:missionID/dispatch')
+  .post(whoCanDoIt(1), missionController.dispatch);
+
 // =================== mission type ==================
 missionTypeRouter.route('/')
 .post(whoCanDoIt(1), missionTypeController.create)

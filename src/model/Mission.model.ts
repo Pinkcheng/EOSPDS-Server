@@ -1,3 +1,4 @@
+import { PorterModel } from './Porter.model';
 import { Mission } from './../entity/Mission.entity';
 import { MissionProcess } from './../entity/MissionProcess.entity';
 import { MissionInstrument } from './../entity/MissionInstrument.entity';
@@ -614,6 +615,35 @@ export class MissionModel {
         resolve(mission);
       }
     });
+  }
+
+  async manualDispatch(missionID: string, porterID: string) {
+    return new Promise<any>(async (resolve, reject) => {
+      if (!missionID || !porterID) {
+        reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
+        return;
+      } else {
+        const findMission = await this.mMissionRepo.findByID(missionID);
+        if (!findMission) {
+          reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+          return;
+        } else {
+          findMission.porter = await new PorterModel().findByID(porterID);
+
+          try {
+            await this.mMissionRepo.save(findMission);
+            resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
+          } catch (err) {
+            console.error(err);
+            reject(RESPONSE_STATUS.DATA_UNKNOWN);
+          }
+        }
+      }
+    });
+  }
+
+  async autoDispathc() {
+
   }
 
   async generaterID(missionType: string, missionLabel: string, date: string) {

@@ -50,3 +50,21 @@ export const get = (req: Request, res: Response) => {
       res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
     });
 };
+
+export const dispatch = (req: Request, res: Response) => {
+  const dispatch = req.body.dispatch;
+  const missionID = req.params.missionID;
+  const porterID = req.body.porter;
+
+  const missionModel = new MissionModel();
+  if (dispatch === '1') {
+    missionModel.manualDispatch(missionID, porterID)
+      .then(() => {
+        res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
+      }, errCode => {
+        res.status(400).json(ResponseHandler.message(errCode));
+      }).catch(err => {
+        res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+      });
+  }
+};
