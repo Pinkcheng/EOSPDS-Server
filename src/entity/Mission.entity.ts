@@ -5,6 +5,13 @@ import { MissionInstrument } from './MissionInstrument.entity';
 import { MissionLabel } from './MissionLabel.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 
+export enum MISSION_STATUS {
+  'NOT_DISPATCHED' = 1,
+  'NOT_STATED' = 2,
+  'IN_PROGRESS' = 3,
+  'FINISH' = 4
+}
+
 @Entity('mission_list')
 export class Mission {
   // 任務編號
@@ -28,9 +35,9 @@ export class Mission {
   // 任務狀態
   @Column('int', {
     name: 'status',
-    default: 1
+    default: MISSION_STATUS.NOT_DISPATCHED
   })
-  status: number;
+  status: MISSION_STATUS;
   // 任務建立時間
   @Column('timestamp', {
     name: 'create_time',

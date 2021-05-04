@@ -1,6 +1,6 @@
 import { PorterModel } from './Porter.model';
-import { Mission } from './../entity/Mission.entity';
-import { MissionProcess } from './../entity/MissionProcess.entity';
+import { Mission, MISSION_STATUS } from './../entity/Mission.entity';
+import { MissionProcess, MISSION_PROCESS_STATUS } from './../entity/MissionProcess.entity';
 import { MissionInstrument } from './../entity/MissionInstrument.entity';
 import { MissionType } from '../entity/MissionType.entity';
 import { MissionLabel } from './../entity/MissionLabel.entity';
@@ -415,24 +415,27 @@ export class MissionInstrumentModel {
     return (ID + id);
   }
 }
-
-export enum MISSION_STATUS {
-  'ADD' = 'add',
-  'START' = 'start',
-  'IN_PROGRESS' = 'in_progress',
-  'FINISH' = 'finish'
-}
-
 @EntityRepository(MissionProcess)
 export class MissionProcessRepository extends Repository<MissionProcess> {
-  findByMissionID(missionID: string) {
-    const missionProcess = this.createQueryBuilder('missionProcess')
-      .leftJoinAndSelect('missionProcess.department', 'department')
-      .where(`missionProcess.mid = '${missionID}'`)
+  findMissionProcessByID(missionID: string) {
+    const missionProcess = this.createQueryBuilder('process')
+      .leftJoinAndSelect('process.department', 'department')
+      .where(`process.mid = '${missionID}'`)
       .getMany();
 
     return missionProcess;
   }
+
+  findMissionProcessByIDAndStatus(missionID: string, status: MISSION_PROCESS_STATUS) {
+    const missionProcess = this.createQueryBuilder('process')
+      .leftJoinAndSelect('process.department', 'department')
+      .where(`process.mid = '${missionID}'`)
+      .andWhere(`process.status = '${status}'`)
+      .getOne();
+
+    return missionProcess;
+  }
+
 }
 
 export class MissionProcessModel {
@@ -442,7 +445,12 @@ export class MissionProcessModel {
     this.mMissionProcessRepo = getCustomRepository(MissionProcessRepository);
   }
   // TODO: 加入交接人員，還有更新任務狀態，要可以更新交接人員
-  async insert(missoinID: string, status: MISSION_STATUS, departmentID: string, time?: string) {
+  async insert(
+    missoinID: string,
+    status: MISSION_PROCESS_STATUS,
+    departmentID: string,
+    time?: string
+  ) {
     const newMissionProcess = new MissionProcess();
     newMissionProcess.status = status;
     newMissionProcess.mid = missoinID;
@@ -459,7 +467,56 @@ export class MissionProcessModel {
   }
 
   async getMissionProcess(missionID: string) {
-    return await this.mMissionProcessRepo.findByMissionID(missionID);
+    return await this.mMissionProcessRepo.findMissionProcessByID(missionID);
+  }
+
+  async updateMissionProcess(
+    missionID: string,
+    status: MISSION_STATUS,
+    departmentID: string,
+    time: string = date.format(new Date(), process.env.DATE_FORMAT)
+  ) {
+    return new Promise<any>(async (resolve, reject) => {
+      // 轉換任務狀態，為任務進度狀態
+      let missionProcessStatus: MISSION_PROCESS_STATUS;
+      switch (status) {
+        case MISSION_STATUS.NOT_DISPATCHED:
+          missionProcessStatus = MISSION_PROCESS_STATUS.ADD;
+          break;
+        case MISSION_STATUS.NOT_STATED:
+          missionProcessStatus = MISSION_PROCESS_STATUS.START;
+          break;
+        case MISSION_STATUS.IN_PROGRESS:
+          missionProcessStatus = MISSION_PROCESS_STATUS.IN_PROGRESS;
+          break;
+        case MISSION_STATUS.FINISH:
+          missionProcessStatus = MISSION_PROCESS_STATUS.FINISH;
+          break;
+        default:
+          reject(RESPONSE_STATUS.DATA_UNKNOWN);
+          return;
+      }
+
+      const findMissionProcess = await this.mMissionProcessRepo
+        .findMissionProcessByIDAndStatus(missionID, missionProcessStatus);
+      const findDepartment = await new DepartmentModel().findByID(departmentID);
+
+      if (!findMissionProcess || !findDepartment) {
+        reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+        return;
+      } else {
+        try {
+          // 更新任務狀態
+          findMissionProcess.time = time;
+          findMissionProcess.department = findDepartment;
+          await this.mMissionProcessRepo.save(findMissionProcess);
+          resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
+        } catch (err) {
+          console.error(err);
+          reject(RESPONSE_STATUS.DATA_UNKNOWN);
+        }
+      }
+    });
   }
 }
 
@@ -548,11 +605,11 @@ export class MissionModel {
             // 新增任務進度
             const missionProcessModel = new MissionProcessModel();
 
-            await missionProcessModel.insert(newMisionID, MISSION_STATUS.ADD,
+            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.ADD,
               startDepartmentID, date.format(new Date(), process.env.DATE_FORMAT));
-            await missionProcessModel.insert(newMisionID, MISSION_STATUS.START, null);
-            await missionProcessModel.insert(newMisionID, MISSION_STATUS.IN_PROGRESS, null);
-            await missionProcessModel.insert(newMisionID, MISSION_STATUS.FINISH, endDepartmentID);
+            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.START, null);
+            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.IN_PROGRESS, null);
+            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.FINISH, endDepartmentID);
 
             resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
           } catch (err) {
@@ -598,7 +655,7 @@ export class MissionModel {
       });
     });
   }
-  
+
   get(missionID: string) {
     return new Promise<any>(async (resolve, reject) => {
       const mission = await this.mMissionRepo.findByID(missionID);
@@ -626,14 +683,19 @@ export class MissionModel {
         return;
       } else {
         const findMission = await this.mMissionRepo.findByID(missionID);
-        if (!findMission) {
+        const findPorter = await new PorterModel().findByID(porterID);
+
+        if (!findMission || !findPorter) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
         } else {
-          findMission.porter = await new PorterModel().findByID(porterID);
-
           try {
+            // 指派任務給傳送員
+            findMission.porter = findPorter;
+            findMission.status = MISSION_STATUS.NOT_STATED;
             await this.mMissionRepo.save(findMission);
+            // 更新任務進度
+            await new MissionProcessModel().updateMissionProcess(missionID, MISSION_STATUS.NOT_STATED, findMission.startDepartment.id);
             resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
           } catch (err) {
             console.error(err);
