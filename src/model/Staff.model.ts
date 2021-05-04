@@ -2,10 +2,10 @@ import { Department } from './../entity/Department.entity';
 import { DepartmentModel } from './Department.model';
 import { Formatter } from './../core/Formatter';
 import { Staff } from './../entity/Staff.entity';
+import { SYSTEM_PERMISSION } from './../entity/SystemPermission.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 import { UserModel } from './User.model';
-import { SystemPermissionModel } from './System.model';
 
 @EntityRepository(Staff)
 export class StaffRepository extends Repository<Staff> {
@@ -78,7 +78,7 @@ export class StaffModel {
           const newStaffID = await this.generaterID();
 
           userModel.create(
-            newStaffID, account, password, await new SystemPermissionModel().find(2))
+            newStaffID, account, password, SYSTEM_PERMISSION.DEPARTMENT)
             .then(() => {
               // 新增帳號成功，新增員工
               newStaff.id = newStaffID;

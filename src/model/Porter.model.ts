@@ -1,9 +1,8 @@
-import { create } from './../../../EOSPDS-server/src/controllers/MissionLabel.controller';
 import { Formatter } from './../core/Formatter';
-import { SystemPermissionModel } from './System.model';
 import { UserModel } from './User.model';
 import { PorterType } from '../entity/PorterType.entity';
 import { Porter } from '../entity/porter.entity';
+import { SYSTEM_PERMISSION } from '../entity/SystemPermission.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
@@ -170,7 +169,7 @@ export class PorterModel {
       const newPorterID = await this.generatePorterID(type);
       
       userModel.create(
-        newPorterID, account, password, await new SystemPermissionModel().find(3))
+        newPorterID, account, password, SYSTEM_PERMISSION.PORTER)
         .then(() => {
           // 新增帳號成功，新增傳送員
           newPorter.id = newPorterID;
