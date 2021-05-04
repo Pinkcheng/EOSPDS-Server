@@ -638,7 +638,8 @@ export class MissionModel {
         return;
       }
       // 取得單個任務的所有任務狀態
-      missionList.forEach(async (mission, index) => {
+      for(let i = 0; i < missionList.length; i++) {
+        const mission = missionList[i];
         // 取得該任務，所有任務狀態加入
         const processList = await new MissionProcessModel().getMissionProcess(mission.id);
         // 刪除不要的物件參數
@@ -648,11 +649,9 @@ export class MissionModel {
         });
         // 將任務陣列丟到新的任務陣列
         mission.process = processList;
-        // 組合完畢回傳陣列
-        if (index === missionList.length - 1) {
-          resolve(missionList);
-        }
-      });
+      }
+      
+      resolve(missionList);
     });
   }
 
