@@ -470,7 +470,8 @@ export class MissionRepository extends Repository<Mission> {
       .leftJoinAndSelect('mission.label', 'label')
       .leftJoinAndSelect('mission.instrument', 'instrument')
       .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
-      .leftJoinAndSelect('mission.endDepartment', 'endDepartment');
+      .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
+      .leftJoinAndSelect('mission.porter', 'porter');
 
     if (days && !department) {
       missions.where(`mission.createTime >= '${days}'`);
@@ -490,6 +491,7 @@ export class MissionRepository extends Repository<Mission> {
       .leftJoinAndSelect('mission.instrument', 'instrument')
       .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
       .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
+      .leftJoinAndSelect('mission.porter', 'porter')
       .where({ id })
       .getOne();
 
