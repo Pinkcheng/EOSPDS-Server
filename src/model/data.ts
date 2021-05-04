@@ -1,9 +1,11 @@
+import { SYSTEM_PERMISSION } from '../entity/SystemPermission.entity';
+
 export const data = {
   systemPermission: [
-    ['0', '系統管理員'],
-    ['1', '傳送中心'],
-    ['2', '請求單位'],
-    ['3', '傳送員']
+    [SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR, '系統管理員'],
+    [SYSTEM_PERMISSION.PORTER_CENTER, '傳送中心'],
+    [SYSTEM_PERMISSION.DEPARTMENT, '請求單位'],
+    [SYSTEM_PERMISSION.PORTER, '傳送員']
   ],
   user: [ // id, permissionID, account, password
     ['-1', '0', process.env.ADMIN_ACCOUNT, process.env.ADMIN_ACCOUNT_PASSWORD]

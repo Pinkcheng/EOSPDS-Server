@@ -46,14 +46,12 @@ export class Initialize {
 
   // 新增系統管理員
   private installSystemUser() {
-    const userModel = new UserModel();
-    const systemPermissionModel = new SystemPermissionModel();
-
     return new Promise<void>(async (resolve, reject) => {
+      const userModel = new UserModel();
+      
       initData.user.forEach(async (item: string[], index: number) => {
-        const findSystemPermission = await systemPermissionModel.find(parseInt(item[1]));
         await userModel.create(
-          item[0], item[2], item[3], findSystemPermission).then(() => { }, () => { });
+          item[0], item[2], item[3], parseInt(item[1])).then(() => { }, () => { });
 
         if (index === initData.user.length - 1) {
           console.log('\n\t*** 安裝系統預設使用者 ***');

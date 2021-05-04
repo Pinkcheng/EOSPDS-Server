@@ -1,4 +1,5 @@
 import { whoCanDoIt } from './../core/middlerware/Validate.middlerware';
+import { SYSTEM_PERMISSION } from '../entity/SystemPermission.entity';
 import express from 'express';
 
 export const missionRouter = express.Router();
@@ -13,41 +14,41 @@ import * as missionInstrumentController from '../controllers/MissionInstrument.c
 
 // =================== mission ==================
 missionRouter.route('/')
-  .post(whoCanDoIt(1), missionController.create)
-  .get(whoCanDoIt(1), missionController.list);
+  .post(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionController.create)
+  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionController.list);
 
 missionRouter.route('/:missionID')
-  .get(whoCanDoIt(1), missionController.get);
+  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionController.get);
 
   missionRouter.route('/:missionID/dispatch')
-  .post(whoCanDoIt(1), missionController.dispatch);
+  .post(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionController.dispatch);
 
 // =================== mission type ==================
 missionTypeRouter.route('/')
-.post(whoCanDoIt(1), missionTypeController.create)
-.get(whoCanDoIt(1), missionTypeController.list);
+.post(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.create)
+.get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionTypeController.list);
 
 missionTypeRouter.route('/:missionTypeID')
-  .get(whoCanDoIt(1), missionTypeController.get)
-  .patch(whoCanDoIt(1), missionTypeController.update)
-  .delete(whoCanDoIt(1), missionTypeController.del);
+  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionTypeController.get)
+  .patch(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.update)
+  .delete(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.del);
 
 // =================== mission label ==================
 missionLabelRouter.route('/')
-.post(whoCanDoIt(1), missionLabelController.create)
-.get(whoCanDoIt(1), missionLabelController.list);
+.post(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.create)
+.get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.list);
 
 missionLabelRouter.route('/:missionLabelID')
-  .get(whoCanDoIt(1), missionLabelController.get)
-  .patch(whoCanDoIt(1), missionLabelController.update)
-  .delete(whoCanDoIt(1), missionLabelController.del);
+  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.get)
+  .patch(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.update)
+  .delete(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionLabelController.del);
 
 // =================== mission instrument ==================
 missionInstrumentRouter.route('/')
-.post(whoCanDoIt(1), missionInstrumentController.create)
-.get(whoCanDoIt(1), missionInstrumentController.list);
+.post(whoCanDoIt(SYSTEM_PERMISSION.PORTER_CENTER), missionInstrumentController.create)
+.get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionInstrumentController.list);
 
 missionInstrumentRouter.route('/:missionInstrumentID')
-  .get(whoCanDoIt(1), missionInstrumentController.get)
-  .patch(whoCanDoIt(1), missionInstrumentController.update)
-  .delete(whoCanDoIt(1), missionInstrumentController.del);
+  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionInstrumentController.get)
+  .patch(whoCanDoIt(SYSTEM_PERMISSION.PORTER_CENTER), missionInstrumentController.update)
+  .delete(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionInstrumentController.del);
