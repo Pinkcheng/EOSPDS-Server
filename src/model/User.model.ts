@@ -1,5 +1,7 @@
+import { SystemParameterModel, SystemPermissionModel } from './System.model';
+import { StaffModel } from './Staff.model';
 import { PorterModel } from './Porter.model';
-import { SystemPermission } from './../entity/SystemPermission.entity';
+import { SystemPermission, SYSTEM_PERMISSION } from './../entity/SystemPermission.entity';
 import { User } from '../entity/UserList.entity';
 import { sign } from 'jsonwebtoken';
 import { compare as comparePassword } from 'bcrypt';
@@ -51,9 +53,11 @@ export class UserModel {
     id: string,
     account: string,
     password: string,
-    permission: SystemPermission
+    permissionID: SYSTEM_PERMISSION
   ) {
     return new Promise<any>(async (resolve, reject) => {
+      const findPermission = await new SystemPermissionModel().find(permissionID);
+
       // 確認輸入的帳號是否為空值
       if (!account) {
         reject(RESPONSE_STATUS.USER_ACCOUNT_IS_EMPTY);
@@ -61,6 +65,9 @@ export class UserModel {
         // 確認輸入的密碼是否為空值
       } else if (!password) {
         reject(RESPONSE_STATUS.USER_PASSWORD_IS_EMPTY);
+        return;
+      } else if (!findPermission) {
+        reject(RESPONSE_STATUS.USER_UNKNOWN);
         return;
       }
 
@@ -82,7 +89,7 @@ export class UserModel {
       newUser.id = id;
       newUser.account = account;
       newUser.password = passwordHashSync(password, saltRounds);
-      newUser.permission = permission;
+      newUser.permission = findPermission;
 
       try {
         await this.mUserRepo.save(newUser);
@@ -115,23 +122,30 @@ export class UserModel {
         reject(RESPONSE_STATUS.AUTH_LOGIN_FAIL);
         return;
       } else {
-        const passwordCheck = this.comparePassword(password, findUser.password);
+        const passwordCheck = await this.comparePassword(password, findUser.password);
         if (!passwordCheck) {
           reject(RESPONSE_STATUS.AUTH_LOGIN_FAIL);
           return;
         } else {
           let userName = '', permissionID = 9999, permissionName = '';
           switch (findUser.permission.id) {
-            case 0:
+            case SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR:
               userName = findUser.permission.name;
-              permissionID = 0;
+              permissionID = SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR;
               permissionName = findUser.permission.name;
               break;
-            case 2:
+            case SYSTEM_PERMISSION.DEPARTMENT:
+              const staffModel = new StaffModel();
+              const findStaff = await staffModel.get(findUser.id);
+              userName = findStaff.name;
+              permissionID = SYSTEM_PERMISSION.DEPARTMENT;
+              permissionName = findUser.permission.name;
+              break;
+            case SYSTEM_PERMISSION.PORTER:
               const porterModel = new PorterModel();
               const porter = await porterModel.findByID(findUser.id);
               userName = porter.name;
-              permissionID = 1;
+              permissionID = SYSTEM_PERMISSION.PORTER;
               permissionName = findUser.permission.name;
               break;
             default:

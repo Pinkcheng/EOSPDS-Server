@@ -1,4 +1,4 @@
-import { MissionInstrumentModel } from '../model/Mission.model';
+import { StaffModel } from './../model/Staff.model';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
 import { Formatter } from '../core/Formatter';
@@ -6,10 +6,13 @@ import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const create = (req: Request, res: Response) => {
   const name = req.body.name;
-  const id = req.body.id;
+  const account = Formatter.formInput(req.body.account);
+  const password = Formatter.formInput(req.body.password);
+  const professional = req.body.professional;
+  const departmentID = req.body.department;
 
-  const missionInstrumentModel = new MissionInstrumentModel();
-  missionInstrumentModel.create(id, name)
+  const statffModel = new StaffModel();
+  statffModel.create(name, account, password, professional, departmentID)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {
@@ -20,10 +23,12 @@ export const create = (req: Request, res: Response) => {
 };
 
 export const list = (req: Request, res: Response) => {
-  const missionInstrumentModel = new MissionInstrumentModel();
-  missionInstrumentModel.getAll()
-    .then(missionInstrumentList => {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missionInstrumentList));
+  const departmentID = req.query.department as string;
+  
+  const statffModel = new StaffModel();
+  statffModel.list(departmentID)
+    .then(missionTypeList => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missionTypeList));
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
@@ -32,10 +37,12 @@ export const list = (req: Request, res: Response) => {
 };
 
 export const get = (req: Request, res: Response) => {
-  const missionInstrumentModel = new MissionInstrumentModel();
-  missionInstrumentModel.findByID(req.params.missionInstrumentID)
-    .then(missionInstrument => {
-      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missionInstrument));
+  const staffID = Formatter.formInput(req.params.staffID);
+
+  const statffModel = new StaffModel();
+  statffModel.get(staffID)
+    .then(missionType => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missionType));
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
@@ -44,11 +51,13 @@ export const get = (req: Request, res: Response) => {
 };
 
 export const update = (req: Request, res: Response) => {
-  const id = Formatter.formInput(req.params.missionInstrumentID);
+  const staffID = Formatter.formInput(req.params.staffID);
+  const professional = req.body.professional;
+  const departmentID = req.body.department;
   const name = req.body.name;
 
-  const missionInstrumentModel = new MissionInstrumentModel();
-  missionInstrumentModel.update(id, name)
+  const statffModel = new StaffModel();
+  statffModel.update(staffID, name, professional,departmentID)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
     }, errCode => {
@@ -59,8 +68,8 @@ export const update = (req: Request, res: Response) => {
 };
 
 export const del = (req: Request, res: Response) => {
-  const missionInstrumentModel = new MissionInstrumentModel();
-  missionInstrumentModel.del(req.params.missionInstrumentID)
+  const statffModel = new StaffModel();
+  statffModel.del(req.params.staffID)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_DELETE_SUCCESS));
     }, errCode => {

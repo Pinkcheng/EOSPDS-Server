@@ -3,6 +3,7 @@ import { ResponseHandler } from '../ResponseHandler';
 import { Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { RESPONSE_STATUS } from '../ResponseCode';
+import { SYSTEM_PERMISSION } from '../../entity/SystemPermission.entity';
 
 export const auth = async (req: Request, res: Response, next: any) => {
   try {
@@ -39,7 +40,7 @@ export const auth = async (req: Request, res: Response, next: any) => {
   }
 };
 
-export const whoCanDoIt = (minPermissionID: number) => {
+export const whoCanDoIt = (minPermissionID: SYSTEM_PERMISSION) => {
   return async (req: Request, res: Response, next: any) => {
     try {
       if (req.body.permission <= minPermissionID) {

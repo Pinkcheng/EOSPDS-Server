@@ -1,3 +1,4 @@
+import { SYSTEM_PERMISSION } from './../../../EOSPDS-server/src/entity/SystemPermission.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { SystemPermission } from '../entity/SystemPermission.entity';
 import { SystemParameter } from '../entity/SystemParameter.entity';
@@ -69,7 +70,7 @@ export class SystemPermissionModel {
     }
   }
 
-  async find(id: number) {
+  async find(id: SYSTEM_PERMISSION) {
     return this.mSystemPermissionRepo.findById(id);
   }
 }
