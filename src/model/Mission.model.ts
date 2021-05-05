@@ -637,19 +637,6 @@ export class MissionModel {
         resolve([]);
         return;
       }
-      // 取得單個任務的所有任務狀態
-      for(let i = 0; i < missionList.length; i++) {
-        const mission = missionList[i];
-        // 取得該任務，所有任務狀態加入
-        const processList = await new MissionProcessModel().getMissionProcess(mission.id);
-        // 刪除不要的物件參數
-        processList.forEach(process => {
-          delete process.id;
-          delete process.mid;
-        });
-        // 將任務陣列丟到新的任務陣列
-        mission.process = processList;
-      }
       
       resolve(missionList);
     });
