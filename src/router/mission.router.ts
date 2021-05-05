@@ -20,13 +20,16 @@ missionRouter.route('/')
 missionRouter.route('/:missionID')
   .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionController.get);
 
-  missionRouter.route('/:missionID/dispatch')
+missionRouter.route('/:missionID/dispatch')
   .post(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionController.dispatch);
+
+missionRouter.route('/:missionID/action')
+  .post(whoCanDoIt(SYSTEM_PERMISSION.PORTER), missionController.action);
 
 // =================== mission type ==================
 missionTypeRouter.route('/')
-.post(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.create)
-.get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionTypeController.list);
+  .post(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.create)
+  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionTypeController.list);
 
 missionTypeRouter.route('/:missionTypeID')
   .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionTypeController.get)
@@ -35,8 +38,8 @@ missionTypeRouter.route('/:missionTypeID')
 
 // =================== mission label ==================
 missionLabelRouter.route('/')
-.post(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.create)
-.get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.list);
+  .post(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.create)
+  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.list);
 
 missionLabelRouter.route('/:missionLabelID')
   .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.get)
@@ -45,8 +48,8 @@ missionLabelRouter.route('/:missionLabelID')
 
 // =================== mission instrument ==================
 missionInstrumentRouter.route('/')
-.post(whoCanDoIt(SYSTEM_PERMISSION.PORTER_CENTER), missionInstrumentController.create)
-.get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionInstrumentController.list);
+  .post(whoCanDoIt(SYSTEM_PERMISSION.PORTER_CENTER), missionInstrumentController.create)
+  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionInstrumentController.list);
 
 missionInstrumentRouter.route('/:missionInstrumentID')
   .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionInstrumentController.get)

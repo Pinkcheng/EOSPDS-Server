@@ -53,3 +53,5 @@ export const whoCanDoIt = (minPermissionID: SYSTEM_PERMISSION) => {
     }
   };
 };
+
+// TODO: 需要判斷是否能查詢自己以外的資料

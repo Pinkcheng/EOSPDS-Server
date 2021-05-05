@@ -1,3 +1,4 @@
+import { MISSION_STATUS } from './../entity/Mission.entity';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
 import { Formatter } from '../core/Formatter';
@@ -18,6 +19,7 @@ export const create = (req: Request, res: Response) => {
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
+      console.error(err);
       res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
     });
 };
@@ -33,6 +35,7 @@ export const list = (req: Request, res: Response) => {
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
+      console.error(err);
       res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
     });
 };
@@ -47,6 +50,7 @@ export const get = (req: Request, res: Response) => {
     }, errCode => {
       res.status(400).json(ResponseHandler.message(errCode));
     }).catch(err => {
+      console.error(err);
       res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
     });
 };
@@ -64,7 +68,39 @@ export const dispatch = (req: Request, res: Response) => {
       }, errCode => {
         res.status(400).json(ResponseHandler.message(errCode));
       }).catch(err => {
+        console.error(err);
         res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
       });
+  }
+};
+
+export const action = (req: Request, res: Response) => {
+  const missionID = req.params.missionID;
+  const action = req.body.action;
+  const handover = req.body.handover;
+
+  const missionModel = new MissionModel();
+  if (action === '1') {
+    missionModel.start(missionID, handover)
+      .then(() => {
+        res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
+      }, errCode => {
+        res.status(400).json(ResponseHandler.message(errCode));
+      }).catch(err => {
+        console.error(err);
+        res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+      });
+  } else if (action === '2') {
+    missionModel.finish(missionID, handover)
+      .then(() => {
+        res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
+      }, errCode => {
+        res.status(400).json(ResponseHandler.message(errCode));
+      }).catch(err => {
+        console.error(err);
+        res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+      });
+  } else {
+    res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
   }
 };
