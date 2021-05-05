@@ -1,4 +1,4 @@
-import { whoCanDoIt } from './../core/middlerware/Validate.middlerware';
+import { minAccessLevel } from './../core/middlerware/Validate.middlerware';
 import { SYSTEM_PERMISSION } from '../entity/SystemPermission.entity';
 import express from 'express';
 
@@ -14,44 +14,44 @@ import * as missionInstrumentController from '../controllers/MissionInstrument.c
 
 // =================== mission ==================
 missionRouter.route('/')
-  .post(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionController.create)
-  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionController.list);
+  .post(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionController.create)
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionController.list);
 
 missionRouter.route('/:missionID')
-  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionController.get);
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionController.get);
 
 missionRouter.route('/:missionID/dispatch')
-  .post(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionController.dispatch);
+  .post(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionController.dispatch);
 
 missionRouter.route('/:missionID/action')
-  .post(whoCanDoIt(SYSTEM_PERMISSION.PORTER), missionController.action);
+  .post(minAccessLevel(SYSTEM_PERMISSION.PORTER), missionController.action);
 
 // =================== mission type ==================
 missionTypeRouter.route('/')
-  .post(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.create)
-  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionTypeController.list);
+  .post(minAccessLevel(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.create)
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionTypeController.list);
 
 missionTypeRouter.route('/:missionTypeID')
-  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionTypeController.get)
-  .patch(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.update)
-  .delete(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.del);
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionTypeController.get)
+  .patch(minAccessLevel(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.update)
+  .delete(minAccessLevel(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionTypeController.del);
 
 // =================== mission label ==================
 missionLabelRouter.route('/')
-  .post(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.create)
-  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.list);
+  .post(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.create)
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.list);
 
 missionLabelRouter.route('/:missionLabelID')
-  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.get)
-  .patch(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.update)
-  .delete(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionLabelController.del);
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.get)
+  .patch(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionLabelController.update)
+  .delete(minAccessLevel(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionLabelController.del);
 
 // =================== mission instrument ==================
 missionInstrumentRouter.route('/')
-  .post(whoCanDoIt(SYSTEM_PERMISSION.PORTER_CENTER), missionInstrumentController.create)
-  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionInstrumentController.list);
+  .post(minAccessLevel(SYSTEM_PERMISSION.PORTER_CENTER), missionInstrumentController.create)
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionInstrumentController.list);
 
 missionInstrumentRouter.route('/:missionInstrumentID')
-  .get(whoCanDoIt(SYSTEM_PERMISSION.DEPARTMENT), missionInstrumentController.get)
-  .patch(whoCanDoIt(SYSTEM_PERMISSION.PORTER_CENTER), missionInstrumentController.update)
-  .delete(whoCanDoIt(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionInstrumentController.del);
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionInstrumentController.get)
+  .patch(minAccessLevel(SYSTEM_PERMISSION.PORTER_CENTER), missionInstrumentController.update)
+  .delete(minAccessLevel(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), missionInstrumentController.del);
