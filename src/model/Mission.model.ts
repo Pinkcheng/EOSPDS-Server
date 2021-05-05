@@ -637,7 +637,7 @@ export class MissionModel {
         resolve([]);
         return;
       }
-      
+
       resolve(missionList);
     });
   }
@@ -662,7 +662,7 @@ export class MissionModel {
     });
   }
 
-  async manualDispatch(missionID: string, porterID: string) {
+  manualDispatch(missionID: string, porterID: string) {
     return new Promise<any>(async (resolve, reject) => {
       if (!missionID || !porterID) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
@@ -692,8 +692,84 @@ export class MissionModel {
     });
   }
 
-  async autoDispathc() {
+  autoDispathc() {
 
+  }
+
+  start(
+    missionID: string,
+    handover: string
+  ) {
+    return new Promise<any>(async (resolve, reject) => {
+      this.updateMissionStatus(MISSION_STATUS.IN_PROGRESS, missionID, handover)
+        .then(code => {
+          resolve(code);
+        }, errCode => {
+          reject(errCode);
+        });
+    });
+  }
+
+  finish(
+    missionID: string,
+    handover: string
+  ) {
+    return new Promise<any>(async (resolve, reject) => {
+      this.updateMissionStatus(MISSION_STATUS.FINISH, missionID, handover)
+        .then(code => {
+          resolve(code);
+        }, errCode => {
+          reject(errCode);
+        });
+    });
+  }
+
+  // TODO: 員工交接次數次算
+  // TODO: 任務交接單位或是單位人員
+  private updateMissionStatus(
+    action: MISSION_STATUS,
+    missionID: string,
+    handover: string
+  ) {
+    return new Promise<any>(async (resolve, reject) => {
+      if (!action || !missionID || !handover) {
+        reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
+        return;
+      } else {
+        let staffOrDepartment;
+        if (handover.startsWith('D')) {
+          staffOrDepartment = await new DepartmentModel().findByID(handover);
+        } else {
+          staffOrDepartment = await new PorterModel().findByID(handover);
+        }
+
+        const findMission = await this.mMissionRepo.findByID(missionID);
+
+        if (!findMission || !staffOrDepartment) {
+          reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+          return;
+        } else {
+          if (action == MISSION_STATUS.NOT_DISPATCHED
+            || action == MISSION_STATUS.NOT_STATED) {
+            reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+            return;
+          } else {
+            try {
+              // 更新任務狀態
+              findMission.status = action;
+              await this.mMissionRepo.save(findMission);
+              // 更新任務進度
+              await new MissionProcessModel()
+                .updateMissionProcess(missionID, action, findMission.startDepartment.id);
+              resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
+            } catch (err) {
+              console.error(err);
+              reject(RESPONSE_STATUS.DATA_UNKNOWN);
+            }
+          }
+        }
+      }
+    });
   }
 
   async generaterID(missionType: string, missionLabel: string, date: string) {
