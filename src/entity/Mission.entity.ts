@@ -1,6 +1,6 @@
 import { MissionProcess } from './MissionProcess.entity';
 import { Department } from './Department.entity';
-import { Porter } from './porter.entity';
+import { Porter } from './Porter.entity';
 import { MissionInstrument } from './MissionInstrument.entity';
 import { MissionLabel } from './MissionLabel.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';

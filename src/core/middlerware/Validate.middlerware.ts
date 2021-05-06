@@ -40,7 +40,7 @@ export const auth = async (req: Request, res: Response, next: any) => {
   }
 };
 
-export const whoCanDoIt = (minPermissionID: SYSTEM_PERMISSION) => {
+export const minAccessLevel = (minPermissionID: SYSTEM_PERMISSION) => {
   return async (req: Request, res: Response, next: any) => {
     try {
       if (req.body.permission <= minPermissionID) {
