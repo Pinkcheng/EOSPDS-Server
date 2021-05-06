@@ -1,7 +1,7 @@
 import { Formatter } from './../core/Formatter';
 import { UserModel } from './User.model';
 import { PorterType } from '../entity/PorterType.entity';
-import { Porter } from '../entity/porter.entity';
+import { Porter } from '../entity/Porter.entity';
 import { SYSTEM_PERMISSION } from '../entity/SystemPermission.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
