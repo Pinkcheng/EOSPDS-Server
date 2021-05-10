@@ -22,6 +22,7 @@ export class StaffRepository extends Repository<Staff> {
     const staffs = this.createQueryBuilder('staff')
       .leftJoinAndSelect('staff.type', 'type')
       .where({ type: department })
+      .orderBy('porter.id', 'ASC')
       .getMany();
 
     return staffs;

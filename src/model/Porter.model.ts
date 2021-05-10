@@ -93,6 +93,7 @@ export class PorterRepository extends Repository<Porter> {
     const porters = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
       .leftJoinAndSelect('porter.department', 'department')
+      .orderBy('porter.id', 'ASC')
       .getMany();
 
     return porters;

@@ -19,6 +19,7 @@ export class MissionTypegRepository extends Repository<MissionType> {
 
   getAll() {
     const missionTypeList = this.createQueryBuilder('missionType')
+      .orderBy('missionType.id', 'ASC')
       .getMany();
 
     return missionTypeList;
@@ -151,6 +152,7 @@ export class MissionLabelRepository extends Repository<MissionLabel> {
   getAll() {
     const labels = this.createQueryBuilder('label')
       .leftJoinAndSelect('label.type', 'type')
+      .orderBy('label.id', 'ASC')
       .getMany();
 
     return labels;
@@ -160,6 +162,7 @@ export class MissionLabelRepository extends Repository<MissionLabel> {
     const labels = this.createQueryBuilder('label')
       .leftJoinAndSelect('label.type', 'type')
       .where({ type })
+      .orderBy('label.id', 'ASC')
       .getMany();
 
     return labels;
@@ -299,23 +302,24 @@ export class MissionInstrumentRepository extends Repository<MissionInstrument> {
   }
 
   getAll() {
-    const instrumentList = this.createQueryBuilder('missionInstrument')
+    const instrumentList = this.createQueryBuilder('instrument')
+      .orderBy('instrument.id', 'ASC')
       .getMany();
 
     return instrumentList;
   }
 
   del(id: string) {
-    this.createQueryBuilder('missionInstrument')
+    this.createQueryBuilder('instrument')
       .delete()
       .where({ id })
       .execute();
   }
 
   findByNameWithoutMyself(searchName: string, myselfID: string) {
-    const list = this.createQueryBuilder('missionInstrument')
-      .where(`missionInstrument.name = '${searchName}'`)
-      .andWhere(`missionInstrument.id != '${myselfID}'`)
+    const list = this.createQueryBuilder('instrument')
+      .where(`instrument.name = '${searchName}'`)
+      .andWhere(`instrument.id != '${myselfID}'`)
       .getOne();
 
     return list;
@@ -421,6 +425,7 @@ export class MissionProcessRepository extends Repository<MissionProcess> {
     const missionProcess = this.createQueryBuilder('process')
       .leftJoinAndSelect('process.department', 'department')
       .where(`process.mid = '${missionID}'`)
+      .orderBy('process.id', 'ASC')
       .getMany();
 
     return missionProcess;
@@ -532,7 +537,8 @@ export class MissionRepository extends Repository<Mission> {
       .leftJoinAndSelect('mission.instrument', 'instrument')
       .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
       .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
-      .leftJoinAndSelect('mission.porter', 'porter');
+      .leftJoinAndSelect('mission.porter', 'porter')
+      .orderBy('mission.id', 'ASC');
 
     if (days && !department) {
       missions.where(`mission.createTime >= '${days}'`);
@@ -575,8 +581,8 @@ export class MissionModel {
     labelID: string,
     startDepartmentID: string,
     endDepartmentID: string,
+    instrumentID: string = 'I0000',
     content?: string,
-    instrumentID?: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
       if (!labelID) {
@@ -586,7 +592,7 @@ export class MissionModel {
         const findMissionLabel = await new MissionLabelModel().findByID(labelID);
         const findStartDepartment = await new DepartmentModel().findByID(startDepartmentID);
         const findEndDepartment = await new DepartmentModel().findByID(endDepartmentID);
-        const findMissionInstrument = instrumentID ? await new MissionInstrumentModel().findByID(instrumentID) : null;
+        const findMissionInstrument = await new MissionInstrumentModel().findByID(instrumentID);
 
         if (instrumentID) {
           if (!findMissionInstrument) {

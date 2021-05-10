@@ -6,6 +6,7 @@ import { RESPONSE_STATUS } from '../core/ResponseCode';
 export class BuildingRepository extends Repository<Building> {
   getAll() {
     const buildingList = this.createQueryBuilder('building')
+      .orderBy('building.id', 'ASC')
       .getMany();
 
     return buildingList;

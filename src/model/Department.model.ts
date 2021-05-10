@@ -10,6 +10,7 @@ export class DepartmentRepository extends Repository<Department> {
 
   getAll() {
     const departmentList = this.createQueryBuilder('department')
+      .orderBy('department.id', 'ASC')
       .getMany();
 
     return departmentList;
