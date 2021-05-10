@@ -143,7 +143,7 @@ export class UserModel {
               userName = findStaff.name;
               permissionID = SYSTEM_PERMISSION.DEPARTMENT;
               permissionName = findUser.permission.name;
-              departmentName = findStaff.type.name;
+              departmentName = findStaff.department.name;
               break;
             case SYSTEM_PERMISSION.PORTER:
               const porterModel = new PorterModel();

@@ -31,5 +31,5 @@ export class Staff {
     () => Department,
     department => department.id
   )
-  type: Department;
+  department: Department;
 }

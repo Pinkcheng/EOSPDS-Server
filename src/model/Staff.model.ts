@@ -11,7 +11,7 @@ import { UserModel } from './User.model';
 export class StaffRepository extends Repository<Staff> {
   findByID(id: string) {
     const staff = this.createQueryBuilder('staff')
-      .leftJoinAndSelect('staff.type', 'type')
+      .leftJoinAndSelect('staff.department', 'department')
       .where({ id })
       .getOne();
 
@@ -20,7 +20,7 @@ export class StaffRepository extends Repository<Staff> {
 
   findStaffList(department: Department): Promise<Staff[]> {
     const staffs = this.createQueryBuilder('staff')
-      .leftJoinAndSelect('staff.type', 'type')
+      .leftJoinAndSelect('staff.department', 'department')
       .where({ type: department })
       .orderBy('porter.id', 'ASC')
       .getMany();
@@ -85,7 +85,7 @@ export class StaffModel {
               newStaff.id = newStaffID;
               newStaff.name = name;
               newStaff.professional = professional;
-              newStaff.type = findDepartmentByID;
+              newStaff.department = findDepartmentByID;
 
               return this.mStaffRepo.save(newStaff);
             }, responseCode => {
@@ -154,7 +154,7 @@ export class StaffModel {
         } else {
           findStaffByID.name = name;
           findStaffByID.professional = professional;
-          findStaffByID.type = findDepartment;
+          findStaffByID.department = findDepartment;
 
           try {
             await this.mStaffRepo.save(findStaffByID);
