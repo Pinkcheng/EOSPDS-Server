@@ -55,11 +55,19 @@ export const list = async (req: Request, res: Response) => {
     });
 };
 
-export const get = (req: Request, res: Response) => {
+export const get = async (req: Request, res: Response) => {
   const missionID = req.params.missionID as string;
 
+  let myselfDepartment = '';
+  if (req.body.userPermission < SYSTEM_PERMISSION.DEPARTMENT) {
+    myselfDepartment = 'D0000';
+  } else {
+    const findStaff = await new StaffModel().get(req.body.userID);
+    myselfDepartment = findStaff.department.id;
+  }
+
   const missionModel = new MissionModel();
-  missionModel.get(missionID)
+  missionModel.get(missionID, req.body.userPermission, myselfDepartment)
     .then(missions => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missions));
     }, errCode => {

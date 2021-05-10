@@ -652,7 +652,8 @@ export class MissionModel {
       }
       // 進行查詢天數計算
       const selectDate = date.addDays(new Date(), -(days));
-      
+
+      // ========= 確認茲了存取的權限 ===============
       // 使用者權限為單位
       if (myselfPermissionID === SYSTEM_PERMISSION.DEPARTMENT) {
         if (selectDepartment) {
@@ -679,13 +680,25 @@ export class MissionModel {
     });
   }
 
-  get(missionID: string) {
+  get(
+    missionID: string,
+    myselfPermissionID: SYSTEM_PERMISSION,
+    myselfDepartmentID: string
+  ) {
     return new Promise<any>(async (resolve, reject) => {
       const mission = await this.mMissionRepo.findByID(missionID);
       if (!mission) {
         reject(RESPONSE_STATUS.DATA_UNKNOWN);
         return;
       } else {
+        // ========= 確認茲了存取的權限 ===============
+        // 使用者權限為單位，查詢了非自己單位的任務則拒絕
+        if (myselfPermissionID === SYSTEM_PERMISSION.DEPARTMENT
+          && mission.startDepartment.id !== myselfDepartmentID) {
+          reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
+          return;
+        }
+
         const processList = await new MissionProcessModel().getMissionProcess(mission.id);
         // 刪除不要的物件參數
         processList.forEach(process => {

@@ -67,7 +67,7 @@ export class ResponseHandler {
         message = '【錯誤：身份驗證失敗】您沒有訪問的權限';
         break;
       case AUTH_ACCESS_DATA_FAIL:
-        message = '【錯誤：身份驗證失敗】您沒有查詢該指定資料的權限';
+        message = '【錯誤：身份驗證失敗】您沒有查詢該資料的權限';
         break;
       case AUTH_UNKNOWN:
         message = '【錯誤：身份驗證錯誤】發生非預期的錯誤';
