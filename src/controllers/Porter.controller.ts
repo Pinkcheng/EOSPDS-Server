@@ -15,8 +15,7 @@ export const create = (req: Request, res: Response) => {
 
   const porterModel = new PorterModel();
   porterModel.create(
-    name, account, password, type, tagNumber, birthday,
-    gender === '1' ? true : false)
+    name, account, password, type, tagNumber, birthday, gender === '1' ? 1 : 2)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.USER_SUCCESS));
     }, responseCode => {

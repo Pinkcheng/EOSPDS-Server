@@ -128,7 +128,7 @@ export class PorterModel {
     type: number,
     tagNumber: string = null,
     birthday: string = null,
-    gender: boolean = null,
+    gender: number = null,
   ) {
     return new Promise<RESPONSE_STATUS>(async (resolve, reject) => {
       // 確認表單中必要的欄位，是否有空值
