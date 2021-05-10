@@ -1,3 +1,4 @@
+import { Department } from './Department.entity';
 import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 import { PorterType } from './PorterType.entity';
 
@@ -35,11 +36,17 @@ export class Porter {
   birthday: string;
 
   // 傳送員性別
-  @Column('boolean', {
+  @Column('int', {
     name: 'porter_gender',
     default: null
   })
-  gender: boolean;
+  gender: number;
+
+  @ManyToOne(
+    () => Department,
+    deparmtnet => deparmtnet.id
+  )
+  department: Department;
 
   // 傳送員類型編號
   @ManyToOne(

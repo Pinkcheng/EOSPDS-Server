@@ -7,6 +7,7 @@ import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 import dotenv from 'dotenv';
+import { DepartmentModel } from './Department.model';
 // Read .env files settings
 dotenv.config();
 
@@ -61,6 +62,7 @@ export class PorterRepository extends Repository<Porter> {
   findByID(id: string) {
     const porter = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
+      .leftJoinAndSelect('porter.department', 'department')
       .where({ id })
       .getOne();
 
@@ -70,6 +72,7 @@ export class PorterRepository extends Repository<Porter> {
   findByName(name: string) {
     const porter = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
+      .leftJoinAndSelect('porter.department', 'department')
       .where({ name })
       .getOne();
 
@@ -79,6 +82,7 @@ export class PorterRepository extends Repository<Porter> {
   findByTagNumber(tagNumber: string) {
     const porter = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
+      .leftJoinAndSelect('porter.department', 'department')
       .where({ tagNumber })
       .getOne();
 
@@ -88,6 +92,7 @@ export class PorterRepository extends Repository<Porter> {
   getAll() {
     const porters = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
+      .leftJoinAndSelect('porter.department', 'department')
       .getMany();
 
     return porters;
@@ -129,6 +134,7 @@ export class PorterModel {
     tagNumber: string = null,
     birthday: string = null,
     gender: number = null,
+    departmentID: string = 'D1001',
   ) {
     return new Promise<RESPONSE_STATUS>(async (resolve, reject) => {
       // 確認表單中必要的欄位，是否有空值
@@ -162,6 +168,12 @@ export class PorterModel {
         reject(RESPONSE_STATUS.USER_PORTER_TYPE_NOT_FOUND);
         return;
       }
+      // 是否有該單位
+      const findDepartment = await new DepartmentModel().findByID(departmentID);
+      if (!findDepartment) {
+        reject(RESPONSE_STATUS.USER_UNKNOWN);
+        return;
+      }
 
       // 新增帳號
       const userModel = new UserModel();
@@ -178,6 +190,7 @@ export class PorterModel {
           newPorter.type = findType;
           newPorter.birthday = birthday;
           newPorter.gender = gender;
+          newPorter.department = findDepartment;
 
           return this.mPorterRepo.save(newPorter);
         }, responseCode => {
