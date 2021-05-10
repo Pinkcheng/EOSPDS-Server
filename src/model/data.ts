@@ -4,7 +4,7 @@ export const data = {
   systemPermission: [
     [SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR, '系統管理員'],
     [SYSTEM_PERMISSION.PORTER_CENTER, '傳送中心'],
-    [SYSTEM_PERMISSION.DEPARTMENT, '請求單位'],
+    [SYSTEM_PERMISSION.DEPARTMENT, '單位'],
     [SYSTEM_PERMISSION.PORTER, '傳送員']
   ],
   user: [ // id, permissionID, account, password
