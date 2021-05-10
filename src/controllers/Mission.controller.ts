@@ -1,3 +1,4 @@
+import { User } from './../entity/UserList.entity';
 import { SYSTEM_PERMISSION } from './../entity/SystemPermission.entity';
 import { StaffModel } from './../model/Staff.model';
 import { ResponseHandler } from '../core/ResponseHandler';
@@ -28,23 +29,11 @@ export const create = (req: Request, res: Response) => {
 export const list = async (req: Request, res: Response) => {
   const days = parseInt(Formatter.formInput(req.query.days as string));
   const selectDepartment = Formatter.formInput(req.query.department as string);
-  const status = Formatter.formInput(req.query.status as string);
-
-  let myselfDepartment = '';
-  if (req.body.userPermission < SYSTEM_PERMISSION.DEPARTMENT) {
-    myselfDepartment = 'D0000';
-  } else {
-    const findStaff = await new StaffModel().get(req.body.userID);
-    myselfDepartment = findStaff.department.id;
-  }
+  const status = parseInt(Formatter.formInput(req.query.status as string));
+  const __SESSION = req.body.__SESSION as User;
 
   const missionModel = new MissionModel();
-  missionModel.list(
-    req.body.userPermission,
-    myselfDepartment,
-    selectDepartment,
-    days, parseInt(status)
-  )
+  missionModel.list(__SESSION, selectDepartment, days, status)
     .then(missions => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missions));
     }, errCode => {
@@ -57,17 +46,10 @@ export const list = async (req: Request, res: Response) => {
 
 export const get = async (req: Request, res: Response) => {
   const missionID = req.params.missionID as string;
-
-  let myselfDepartment = '';
-  if (req.body.userPermission < SYSTEM_PERMISSION.DEPARTMENT) {
-    myselfDepartment = 'D0000';
-  } else {
-    const findStaff = await new StaffModel().get(req.body.userID);
-    myselfDepartment = findStaff.department.id;
-  }
+  const __SESSION = req.body.__SESSION as User;
 
   const missionModel = new MissionModel();
-  missionModel.get(missionID, req.body.userPermission, myselfDepartment)
+  missionModel.get(__SESSION, missionID)
     .then(missions => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missions));
     }, errCode => {

@@ -22,10 +22,8 @@ export const auth = async (req: Request, res: Response, next: any) => {
     if (!findUser) {
       res.status(401).json(ResponseHandler.message(RESPONSE_STATUS.AUTH_INVALID_TOKEN));
     } else {
-      // 記錄使用者的權限
-      req.body.userPermission = findUser.permission.id;
-      // 記錄使用者編號
-      req.body.userID = findUser.id;
+      // 記錄使用者資料
+      req.body.__SESSION = findUser;
       next();
     }
   } catch (err) {
@@ -45,7 +43,7 @@ export const auth = async (req: Request, res: Response, next: any) => {
 export const minAccessLevel = (minPermissionID: SYSTEM_PERMISSION) => {
   return async (req: Request, res: Response, next: any) => {
     try {
-      if (req.body.userPermission <= minPermissionID) {
+      if (req.body.__SESSION.permission.id <= minPermissionID) {
         next();
       } else {
         res.status(401).json(ResponseHandler.message(RESPONSE_STATUS.AUTH_ACCESS_FAIL));

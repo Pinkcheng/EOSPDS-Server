@@ -1,4 +1,4 @@
-import { action } from './../controllers/Mission.controller';
+import { User } from './../entity/UserList.entity';
 import { PorterModel } from './Porter.model';
 import { Mission, MISSION_STATUS } from './../entity/Mission.entity';
 import { MissionProcess, MISSION_PROCESS_STATUS } from './../entity/MissionProcess.entity';
@@ -12,6 +12,7 @@ import date from 'date-and-time';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 import { DepartmentModel } from './Department.model';
 import { SYSTEM_PERMISSION } from '../entity/SystemPermission.entity';
+import { StaffModel } from './Staff.model';
 
 @EntityRepository(MissionType)
 export class MissionTypegRepository extends Repository<MissionType> {
@@ -639,8 +640,7 @@ export class MissionModel {
 
   // TODO: 自己的單位才能查自己的，系統管理員可以查全部的
   list(
-    myselfPermissionID: SYSTEM_PERMISSION,
-    myselfDepartmentID: string,
+    selectDataUser: User,
     selectDepartment?: string,
     days?: number,
     status: number = null
@@ -653,18 +653,25 @@ export class MissionModel {
       // 進行查詢天數計算
       const selectDate = date.addDays(new Date(), -(days));
 
-      // ========= 確認茲了存取的權限 ===============
+      // ========= 確認資料存取的權限 ===============
+      // 取得查詢使用者的使用者權限
+      const selectDataUserPermissionID = selectDataUser.permission.id;
+      // 取得查詢使用者單位編號
+      let selectDataUserDepartmentID = null;
       // 使用者權限為單位
-      if (myselfPermissionID === SYSTEM_PERMISSION.DEPARTMENT) {
+      if (selectDataUserPermissionID === SYSTEM_PERMISSION.DEPARTMENT) {
+        const findStaff = await new StaffModel().get(selectDataUser.id);
+        selectDataUserDepartmentID = findStaff.department.id;
+        // 如果使用者權限為單位，又有指定查詢資料
         if (selectDepartment) {
           // 查詢非自己單位的資料，則拒絕
-          if (myselfDepartmentID !== selectDepartment) {
+          if (selectDataUserDepartmentID !== selectDepartment) {
             reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
             return;
           }
         } else {
           // 查詢自己的單位
-          selectDepartment = myselfDepartmentID;
+          selectDepartment = selectDataUserDepartmentID;
         }
       }
 
@@ -681,33 +688,39 @@ export class MissionModel {
   }
 
   get(
-    missionID: string,
-    myselfPermissionID: SYSTEM_PERMISSION,
-    myselfDepartmentID: string
+    selectDataUser: User,
+    missionID: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      const mission = await this.mMissionRepo.findByID(missionID);
-      if (!mission) {
+      const findMission = await this.mMissionRepo.findByID(missionID);
+      if (!findMission) {
         reject(RESPONSE_STATUS.DATA_UNKNOWN);
         return;
       } else {
-        // ========= 確認茲了存取的權限 ===============
-        // 使用者權限為單位，查詢了非自己單位的任務則拒絕
-        if (myselfPermissionID === SYSTEM_PERMISSION.DEPARTMENT
-          && mission.startDepartment.id !== myselfDepartmentID) {
-          reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
-          return;
+        // ========= 確認資料存取的權限 ===============
+        // 取得查詢使用者的使用者權限
+        const selectDataUserPermissionID = selectDataUser.permission.id;
+        // 使用者權限為單位
+        if (selectDataUserPermissionID === SYSTEM_PERMISSION.DEPARTMENT) {
+          // 取得查詢使用者單位編號
+          const selectDataUserDepartmentID = await (await new StaffModel()
+            .get(selectDataUser.id)).department.id;
+          // 查詢不是自己單位的任務
+          if (findMission.startDepartment.id !== selectDataUserDepartmentID) {
+            reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
+            return;
+          }
         }
 
-        const processList = await new MissionProcessModel().getMissionProcess(mission.id);
+        const processList = await new MissionProcessModel().getMissionProcess(findMission.id);
         // 刪除不要的物件參數
         processList.forEach(process => {
           delete process.id;
           delete process.mid;
         });
         // 將任務陣列丟到新的任務陣列
-        mission.process = processList;
-        resolve(mission);
+        findMission.process = processList;
+        resolve(findMission);
       }
     });
   }
