@@ -522,7 +522,11 @@ export class MissionProcessModel {
 
 @EntityRepository(Mission)
 export class MissionRepository extends Repository<Mission> {
-  findMissionList(days: string, department: string): Promise<Mission[]> {
+  findMissionList(
+    days: string,
+    department: string,
+    status: MISSION_STATUS
+  ): Promise<Mission[]> {
     const missions = this.createQueryBuilder('mission')
       .leftJoinAndSelect('mission.label', 'label')
       .leftJoinAndSelect('mission.instrument', 'instrument')
@@ -537,6 +541,10 @@ export class MissionRepository extends Repository<Mission> {
     } else if (days && department) {
       missions.where({ startDepartment: department });
       missions.andWhere(`mission.createTime >= '${days}'`);
+    }
+
+    if (status) {
+      missions.andWhere(`mission.status = '${status}'`);
     }
 
     return missions.getMany();
@@ -622,7 +630,7 @@ export class MissionModel {
   }
 
   // TODO: 自己的單位才能查自己的，系統管理員可以查全部的
-  list(days?: number, department?: string) {
+  list(days?: number, department?: string, status: number = null) {
     return new Promise<any>(async (resolve, reject) => {
       // 若沒有指定查詢天數，則使用預設天數
       if (!days) {
@@ -631,7 +639,7 @@ export class MissionModel {
       // 進行查詢天數計算
       const selectDate = date.addDays(new Date(), -(days));
       const missionList = await this.mMissionRepo.findMissionList(
-        date.format(selectDate, process.env.DATE_FORMAT), department);
+        date.format(selectDate, process.env.DATE_FORMAT), department, status);
       // 若任務數量為0，回傳空陣列
       if (missionList.length === 0) {
         resolve([]);

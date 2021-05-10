@@ -26,9 +26,10 @@ export const create = (req: Request, res: Response) => {
 export const list = (req: Request, res: Response) => {
   const days = parseInt(Formatter.formInput(req.query.days as string));
   const department = Formatter.formInput(req.query.department as string);
+  const status = Formatter.formInput(req.query.status as string);
 
   const missionModel = new MissionModel();
-  missionModel.list(days, department)
+  missionModel.list(days, department, parseInt(status))
     .then(missions => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missions));
     }, errCode => {
