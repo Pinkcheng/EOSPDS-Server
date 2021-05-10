@@ -42,6 +42,12 @@ export class Porter {
   })
   gender: number;
 
+  @Column('int', {
+    name: 'status',
+    default: 2
+  })
+  status: number;
+
   @ManyToOne(
     () => Department,
     deparmtnet => deparmtnet.id
