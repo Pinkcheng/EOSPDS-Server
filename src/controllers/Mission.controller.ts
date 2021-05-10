@@ -15,7 +15,7 @@ export const create = (req: Request, res: Response) => {
   const instrumnetID = Formatter.formInput(req.body.instrument);
 
   const missionModel = new MissionModel();
-  missionModel.create(labelID, startDepartmentID, endDepartmentID, content, instrumnetID)
+  missionModel.create(labelID, startDepartmentID, endDepartmentID, instrumnetID, content)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {
@@ -66,6 +66,7 @@ export const dispatch = (req: Request, res: Response) => {
   const porterID = req.body.porter;
 
   const missionModel = new MissionModel();
+  // 手動派遣
   if (dispatch === '1') {
     missionModel.manualDispatch(missionID, porterID)
       .then(() => {
@@ -76,6 +77,8 @@ export const dispatch = (req: Request, res: Response) => {
         console.error(err);
         res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
       });
+  } else if (dispatch === '2') {
+    missionModel.autoDispathc();
   }
 };
 
@@ -83,10 +86,11 @@ export const action = (req: Request, res: Response) => {
   const missionID = req.params.missionID;
   const action = req.body.action;
   const handover = req.body.handover;
+  const __SESSION = req.body.__SESSION as User;
 
   const missionModel = new MissionModel();
   if (action === '1') {
-    missionModel.start(missionID, handover)
+    missionModel.start(__SESSION, missionID, handover)
       .then(() => {
         res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
       }, errCode => {
@@ -96,7 +100,7 @@ export const action = (req: Request, res: Response) => {
         res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
       });
   } else if (action === '2') {
-    missionModel.finish(missionID, handover)
+    missionModel.finish(__SESSION, missionID, handover)
       .then(() => {
         res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
       }, errCode => {

@@ -710,6 +710,19 @@ export class MissionModel {
             reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
             return;
           }
+        } else if (selectDataUserPermissionID === SYSTEM_PERMISSION.PORTER) {
+          // 如果查詢者為傳送員
+          // 該任務尚未指派傳送員，則沒有訪問任務的權限
+          if (!findMission.porter) {
+            reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
+            return;
+          } else {
+            // 如果傳送員查詢不是自己的任務，則拒絕
+            if (findMission.porter.id !== selectDataUser.id) {
+              reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
+              return;
+            }
+          }
         }
 
         const processList = await new MissionProcessModel().getMissionProcess(findMission.id);
@@ -760,11 +773,12 @@ export class MissionModel {
   }
 
   start(
+    selectDataUser: User,
     missionID: string,
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      this.updateMissionStatus(MISSION_STATUS.IN_PROGRESS, missionID, handover)
+      this.updateMissionStatus(selectDataUser, MISSION_STATUS.IN_PROGRESS, missionID, handover)
         .then(code => {
           resolve(code);
         }, errCode => {
@@ -774,11 +788,12 @@ export class MissionModel {
   }
 
   finish(
+    selectDataUser: User,
     missionID: string,
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      this.updateMissionStatus(MISSION_STATUS.FINISH, missionID, handover)
+      this.updateMissionStatus(selectDataUser, MISSION_STATUS.FINISH, missionID, handover)
         .then(code => {
           resolve(code);
         }, errCode => {
@@ -790,6 +805,7 @@ export class MissionModel {
   // TODO: 員工交接次數次算
   // TODO: 任務交接單位或是單位人員
   private updateMissionStatus(
+    selectDataUser: User,
     action: MISSION_STATUS,
     missionID: string,
     handover: string
@@ -799,14 +815,37 @@ export class MissionModel {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
+        const selectDataUserPermissinoID = selectDataUser.permission.id;
+        // 如果使用者權限非系統管理員、傳送中心或是傳送員，則不能進行任務狀態更新
+        if (selectDataUserPermissinoID !== SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR
+          && selectDataUserPermissinoID !== SYSTEM_PERMISSION.PORTER_CENTER
+          && selectDataUserPermissinoID !== SYSTEM_PERMISSION.PORTER) {
+          reject(RESPONSE_STATUS.AUTH_ACCESS_FAIL);
+          return;
+        }
+
+        const findMission = await this.mMissionRepo.findByID(missionID);
+        // 任務尚未指派給任何人員，無法進行任務狀態更新
+        if (!findMission.porter) {
+          reject(RESPONSE_STATUS.MISSION_NOT_DISPATCH);
+          return;
+        }
+
+        // 如果使用者權限為傳送員，則不能更新不是自己的任務
+        if (selectDataUserPermissinoID === SYSTEM_PERMISSION.PORTER) {
+          const findPorter = await new PorterModel().findByID(selectDataUser.id);
+          if (findMission.porter.id !== findPorter.id) {
+            reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
+            return;
+          }
+        }
+
         let staffOrDepartment;
         if (handover.startsWith('D')) {
           staffOrDepartment = await new DepartmentModel().findByID(handover);
         } else {
           staffOrDepartment = await new PorterModel().findByID(handover);
         }
-
-        const findMission = await this.mMissionRepo.findByID(missionID);
 
         if (!findMission || !staffOrDepartment) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
