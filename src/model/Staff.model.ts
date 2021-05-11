@@ -74,25 +74,18 @@ export class StaffModel {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else {
-          const userModel = new UserModel();
           const newStaff = new Staff();
-          const newStaffID = await this.generaterID();
+          // 新增員工
+          newStaff.name = name;
+          newStaff.professional = professional;
+          newStaff.department = findDepartmentByID;
 
-          userModel.create(
-            newStaffID, account, password, SYSTEM_PERMISSION.DEPARTMENT)
+          await this.mStaffRepo.save(newStaff);
+
+          const userModel = new UserModel();
+          // // 新增帳號
+          userModel.create(newStaff.id, account, password, SYSTEM_PERMISSION.DEPARTMENT)
             .then(() => {
-              // 新增帳號成功，新增員工
-              newStaff.id = newStaffID;
-              newStaff.name = name;
-              newStaff.professional = professional;
-              newStaff.department = findDepartmentByID;
-
-              return this.mStaffRepo.save(newStaff);
-            }, responseCode => {
-              // 新增帳號失敗
-              reject(responseCode);
-              return;
-            }).then(() => {
               resolve(RESPONSE_STATUS.USER_SUCCESS);
             }).catch(err => {
               console.error(err);
@@ -170,16 +163,4 @@ export class StaffModel {
 
   //TODO: 增加交接次數統計
 
-  // 產生編號
-  async generaterID() {
-    const ID = 'S';
-    // 取得目前數量
-    let count = await this.mStaffRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.STAFF_ID_LENGTH));
-
-    return (ID + id);
-  }
 }

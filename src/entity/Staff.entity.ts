@@ -1,5 +1,10 @@
-import { Column, Entity, Index, ManyToOne, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, getCustomRepository, Index, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Department } from './Department.entity';
+import { Formatter } from '../core/Formatter';
+import dotenv from 'dotenv';
+import { StaffRepository } from '../model/Staff.model';
+// Read .env files settings
+dotenv.config();
 
 @Entity('staff_list')
 export class Staff {
@@ -8,6 +13,18 @@ export class Staff {
     name: 'sid'
   })
   id: string;
+
+  @BeforeInsert()
+  private async beforeInsert() {
+    let lastID = await getCustomRepository(StaffRepository).count();
+    // 數量+1
+    lastID++;
+    // 補0
+    const id = Formatter
+      .paddingLeftZero(lastID + '', parseInt(process.env.STAFF_ID_LENGTH));
+
+    this.id = 'S' + id;
+  }
 
   @Column('varchar', {
     length: 20,
