@@ -5,8 +5,8 @@ import { Formatter } from '../core/Formatter';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const create = (req: Request, res: Response) => {
-  const name = Formatter.formInput(req.body.name);
-  const account = Formatter.formInput(req.body.account);
+  const name = req.body.name;
+  const mobile = Formatter.formInput(req.body.mobile);
   const password = Formatter.formInput(req.body.password);
   const tagNumber = Formatter.formInput(req.body.tag);
   const type = parseInt(Formatter.formInput(req.body.type));
@@ -16,7 +16,7 @@ export const create = (req: Request, res: Response) => {
 
   const porterModel = new PorterModel();
   porterModel.create(
-    name, account, password, type, tagNumber, birthday, gender === '1' ? 1 : 2, department)
+    name, mobile, password, type, tagNumber, birthday, gender === '1' ? 1 : 2, department)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.USER_SUCCESS));
     }, responseCode => {
@@ -29,7 +29,7 @@ export const create = (req: Request, res: Response) => {
 
 export const list = (req: Request, res: Response) => {
   const porterModel = new PorterModel();
-  porterModel.allAll()
+  porterModel.getAll()
     .then(porterList => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, porterList));
     }).catch(err => {

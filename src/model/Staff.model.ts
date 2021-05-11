@@ -1,11 +1,8 @@
 import { Department } from './../entity/Department.entity';
 import { DepartmentModel } from './Department.model';
-import { Formatter } from './../core/Formatter';
 import { Staff } from './../entity/Staff.entity';
-import { SYSTEM_PERMISSION } from './../entity/SystemPermission.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
-import { UserModel } from './User.model';
 
 @EntityRepository(Staff)
 export class StaffRepository extends Repository<Staff> {
@@ -21,8 +18,8 @@ export class StaffRepository extends Repository<Staff> {
   findStaffList(department: Department): Promise<Staff[]> {
     const staffs = this.createQueryBuilder('staff')
       .leftJoinAndSelect('staff.department', 'department')
-      .where({ type: department })
-      .orderBy('porter.id', 'ASC')
+      .where({ department })
+      .orderBy('staff.id', 'ASC')
       .getMany();
 
     return staffs;
@@ -54,8 +51,6 @@ export class StaffModel {
 
   create(
     name: string,
-    account: string,
-    password: string,
     professional: string,
     departmentID: string
   ) {
@@ -66,15 +61,11 @@ export class StaffModel {
       } else {
         const findDepartmentByID = await new DepartmentModel().findByID(departmentID);
         const findStaffByName = await this.mStaffRepo.findOne({ name });
-        const findUser = await new UserModel().findByAccount(account);
 
         if (!findDepartmentByID) {
           reject(RESPONSE_STATUS.DATA_CREATE_FAIL);
           return;
         } else if (findStaffByName) {
-          reject(RESPONSE_STATUS.DATA_REPEAT);
-          return;
-        } else if (findUser) {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else {
@@ -84,17 +75,13 @@ export class StaffModel {
           newStaff.professional = professional;
           newStaff.department = findDepartmentByID;
 
-          await this.mStaffRepo.save(newStaff);
-
-          const userModel = new UserModel();
-          // // 新增帳號
-          userModel.create(newStaff.id, account, password, SYSTEM_PERMISSION.DEPARTMENT)
-            .then(() => {
-              resolve(RESPONSE_STATUS.USER_SUCCESS);
-            }).catch(err => {
-              console.error(err);
-              reject(RESPONSE_STATUS.USER_UNKNOWN);
-            });
+          try {
+            await this.mStaffRepo.save(newStaff);
+            resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
+          } catch (err) {
+            console.error(err);
+            reject(RESPONSE_STATUS.USER_UNKNOWN);
+          }
         }
       }
     });

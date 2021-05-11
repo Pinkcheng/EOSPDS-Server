@@ -1,4 +1,3 @@
-import { Formatter } from './../core/Formatter';
 import { UserModel } from './User.model';
 import { PorterType } from '../entity/PorterType.entity';
 import { Porter } from '../entity/Porter.entity';
@@ -116,7 +115,7 @@ export class PorterModel {
 
   async create(
     name: string,
-    account: string,
+    mobile: string,
     password: string,
     type: number,
     tagNumber: string = null,
@@ -129,8 +128,8 @@ export class PorterModel {
       if (!name) {
         reject(RESPONSE_STATUS.USER_NAME_IS_EMPTY);
         return;
-      } else if (!account) {
-        reject(RESPONSE_STATUS.USER_ACCOUNT_IS_EMPTY);
+      } else if (!mobile) {
+        reject(RESPONSE_STATUS.USER_MOBILE_IS_EMPTY);
         return;
       } else if (!password) {
         reject(RESPONSE_STATUS.USER_PASSWORD_IS_EMPTY);
@@ -163,7 +162,7 @@ export class PorterModel {
         return;
       }
       // 是否有重複帳號
-      const findUser = await new UserModel().findByAccount(account);
+      const findUser = await new UserModel().findByAccount(mobile);
       if (findUser) {
         reject(RESPONSE_STATUS.USER_REPEAT_ACCOUNT);
         return;
@@ -182,7 +181,7 @@ export class PorterModel {
       // 新增帳號
       const userModel = new UserModel();
       userModel.create(
-        newPorter.id, account, password, SYSTEM_PERMISSION.PORTER
+        newPorter.id, mobile, password, SYSTEM_PERMISSION.PORTER
       ).then(() => {
         resolve(RESPONSE_STATUS.USER_SUCCESS);
       }).catch(err => {
@@ -214,8 +213,14 @@ export class PorterModel {
     return porter;
   }
 
-  async allAll() {
+  async getAll() {
     const porterList = await this.mPorterRepo.getAll();
+    // 替換department物件
+    for (let i = 0; i < porterList.length; i++) {
+      const findDepartment = await new DepartmentModel().findByID(porterList[i].department.id);
+      porterList[i].department = findDepartment;
+    }
+
     return porterList;
   }
 

@@ -6,13 +6,11 @@ import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const create = (req: Request, res: Response) => {
   const name = req.body.name;
-  const account = Formatter.formInput(req.body.account);
-  const password = Formatter.formInput(req.body.password);
   const professional = req.body.professional;
   const departmentID = req.body.department;
 
   const statffModel = new StaffModel();
-  statffModel.create(name, account, password, professional, departmentID)
+  statffModel.create(name, professional, departmentID)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {
