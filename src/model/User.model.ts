@@ -1,7 +1,7 @@
+import { DepartmentModel } from '../model/Department.model';
 import { SystemParameterModel, SystemPermissionModel } from './System.model';
-import { StaffModel } from './Staff.model';
 import { PorterModel } from './Porter.model';
-import { SystemPermission, SYSTEM_PERMISSION } from './../entity/SystemPermission.entity';
+import { SYSTEM_PERMISSION } from './../entity/SystemPermission.entity';
 import { User } from '../entity/UserList.entity';
 import { sign } from 'jsonwebtoken';
 import { compare as comparePassword } from 'bcrypt';
@@ -143,12 +143,12 @@ export class UserModel {
               departmentName = '系統';
               break;
             case SYSTEM_PERMISSION.DEPARTMENT:
-              const staffModel = new StaffModel();
-              const findStaff = await staffModel.get(findUser.id);
-              userName = findStaff.name;
+              const departmentModel = new DepartmentModel();
+              const department = await departmentModel.findByID(findUser.id);
+              userName = department.name;
               permissionID = SYSTEM_PERMISSION.DEPARTMENT;
               permissionName = findUser.permission.name;
-              departmentName = findStaff.department.name;
+              departmentName = department.name;
               break;
             case SYSTEM_PERMISSION.PORTER:
               const porterModel = new PorterModel();

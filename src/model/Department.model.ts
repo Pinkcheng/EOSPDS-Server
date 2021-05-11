@@ -1,9 +1,11 @@
+import { UserModel } from './User.model';
 import { BuildingModel } from './Building.model';
 import { Department } from './../entity/Department.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 import dotenv from 'dotenv';
+import { SYSTEM_PERMISSION } from '../entity/SystemPermission.entity';
 // Read .env files settings
 dotenv.config();
 
@@ -58,7 +60,8 @@ export class DepartmentModel {
   create(
     buildingID: string,
     floor: string,
-    name: string
+    name: string,
+    password: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
       if (!name) {
@@ -74,7 +77,7 @@ export class DepartmentModel {
         } else if (!findBuilding) {
           reject(RESPONSE_STATUS.DATA_CREATE_FAIL);
           return;
-        } else { 
+        } else {
           const newDepartment = new Department(buildingID, floor);
           newDepartment.name = name;
           newDepartment.building = findBuilding;
@@ -85,8 +88,18 @@ export class DepartmentModel {
           }
 
           try {
+            // 新增單位
             await this.mDepartmentRepo.save(newDepartment);
-            resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
+            // 新增單位的登入帳號
+            const userModel = new UserModel();
+            userModel.create(newDepartment.id,
+              newDepartment.id, password, SYSTEM_PERMISSION.DEPARTMENT)
+              .then(() => {
+                resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
+              }, err => {
+                reject(err);
+                return;
+              });
           } catch (err) {
             console.error(err);
             reject(RESPONSE_STATUS.DATA_UNKNOWN);

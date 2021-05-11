@@ -124,7 +124,7 @@ export class Initialize {
     return new Promise<void>(async (resolve, reject) => {
       for (let i = 0; i < initData.department.length; i++) {
         const data = initData.department[i];
-        await departmentModel.create(data[0], data[1], data[2]).then(() => { }, () => { });
+        await departmentModel.create(data[0], data[1], data[2], '00000').then(() => { }, () => { });
 
         if (i === initData.department.length - 1) {
           console.log('\n\t*** 安裝系統預設單位 ***');
