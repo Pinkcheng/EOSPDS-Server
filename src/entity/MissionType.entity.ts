@@ -1,6 +1,9 @@
 import { MissionTypegRepository } from '../model/Mission.model';
 import { BeforeInsert, Column, Entity, Index, PrimaryColumn, getCustomRepository } from 'typeorm';
 import { Formatter } from '../core/Formatter';
+import dotenv from 'dotenv';
+// Read .env files settings
+dotenv.config();
 
 @Entity('mission_type')
 export class MissionType {

@@ -198,7 +198,6 @@ export class MissionLabelModel {
           return;
         } else {
           const newMissionLabel = new MissionLabel();
-          newMissionLabel.id = await this.generaterID();
           newMissionLabel.name = name;
           newMissionLabel.type = findMissionType;
 
@@ -268,19 +267,6 @@ export class MissionLabelModel {
   async findByID(id: string) {
     const label = await this.mMissionLabelRepo.findByID(id);
     return label;
-  }
-
-  // 產生編號
-  async generaterID() {
-    const ID = 'L';
-    // 取得目前數量
-    let count = await this.mMissionLabelRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.MISSION_LABEL_ID_LENGTH));
-
-    return (ID + id);
   }
 }
 
