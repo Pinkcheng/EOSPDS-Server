@@ -21,8 +21,8 @@ export class BuildingRepository extends Repository<Building> {
 
   findByNameWithoutMyself(searchName: string, myselfID: string) {
     const list = this.createQueryBuilder('building')
-      .where(`building.name = '${ searchName }'`)
-      .andWhere(`building.id != '${ myselfID }'`)
+      .where(`building.name = '${searchName}'`)
+      .andWhere(`building.id != '${myselfID}'`)
       .getOne();
 
     return list;
@@ -50,7 +50,7 @@ export class BuildingModel {
           const newBuilding = new Building();
           newBuilding.id = id;
           newBuilding.name = name;
-    
+
           try {
             await this.mBuildingRepo.save(newBuilding);
             resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
@@ -61,6 +61,11 @@ export class BuildingModel {
         }
       }
     });
+  }
+
+  async get(id: string) {
+    const building = await this.mBuildingRepo.findOne({ id });
+    return building;
   }
 
   async getAll() {
@@ -85,13 +90,13 @@ export class BuildingModel {
         if (!findBuildingByID) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
-        } else if(findBuildingByName) {
+        } else if (findBuildingByName) {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else {
           findBuildingByID.id = id;
           findBuildingByID.name = name;
-    
+
           try {
             await this.mBuildingRepo.save(findBuildingByID);
             resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);

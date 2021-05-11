@@ -90,7 +90,7 @@ export class Initialize {
     return new Promise<void>(async (resolve, reject) => {
       for (let i = 0; i < initData.building.length; i++) {
         const data = initData.building[i];
-        await buildingModel.create(data[0], data[2]).then(() => { }, () => { });
+        await buildingModel.create(data[0], data[1]).then(() => { }, () => { });
 
         if (i === initData.building.length - 1) {
           console.log('\n\t*** 安裝系統預設建築物 ***');

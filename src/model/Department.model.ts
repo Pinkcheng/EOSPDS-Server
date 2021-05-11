@@ -1,3 +1,4 @@
+import { BuildingModel } from './Building.model';
 import { Department } from './../entity/Department.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
@@ -12,12 +13,15 @@ export class DepartmentRepository extends Repository<Department> {
     return this.findOne({ id });
   }
 
-  getAll() {
+  getAll(building: string) {
     const departmentList = this.createQueryBuilder('department')
-      .orderBy('department.id', 'ASC')
-      .getMany();
+      .orderBy('department.id', 'ASC');
 
-    return departmentList;
+    if (building) {
+      departmentList.where(`department.building = '${building}'`);
+    }
+
+    return departmentList.getMany();
   }
 
   del(id: string) {
@@ -55,13 +59,18 @@ export class DepartmentModel {
         return;
       } else {
         const findDepartment = await this.mDepartmentRepo.findOne({ name });
+        const findBuilding = await new BuildingModel().get(buildingID);
+
         if (findDepartment) {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
+        } else if (!findBuilding) {
+          reject(RESPONSE_STATUS.DATA_CREATE_FAIL);
+          return;
         } else {
           const newDepartment = new Department(buildingID, floor);
-          // newDepartment.id = await this.generaterID(buildingID, floor);
           newDepartment.name = name;
+          newDepartment.building = findBuilding;
 
           try {
             await this.mDepartmentRepo.save(newDepartment);
@@ -75,8 +84,8 @@ export class DepartmentModel {
     });
   }
 
-  async getAll() {
-    const departmentList = await this.mDepartmentRepo.getAll();
+  async getAll(building: string) {
+    const departmentList = await this.mDepartmentRepo.getAll(building);
     return departmentList;
   }
 

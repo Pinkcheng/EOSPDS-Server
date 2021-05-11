@@ -22,8 +22,10 @@ export const create = (req: Request, res: Response) => {
 };
 
 export const list = (req: Request, res: Response) => {
+  const buildingID = req.query.building as string;
+
   const departmentModel = new DepartmentModel();
-  departmentModel.getAll()
+  departmentModel.getAll(buildingID)
     .then(departmentList => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, departmentList));
     }, errCode => {

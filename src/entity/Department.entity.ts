@@ -1,5 +1,6 @@
+import { Building } from './Building.entity';
 import { DepartmentRepository } from './../model/Department.model';
-import { BeforeInsert, Column, Entity, getCustomRepository, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, getCustomRepository, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Formatter } from '../core/Formatter';
 
 import dotenv from 'dotenv';
@@ -42,6 +43,12 @@ export class Department {
     name: 'name'
   })
   name: string;
+
+  @ManyToOne(
+    () => Building,
+    building => building.id
+  )
+  building: Building;
 
   constructor(buildingID?: string, floor?: string) {
     this.mBuildingID = buildingID;
