@@ -609,10 +609,10 @@ export class MissionModel {
           return;
         } else {
           try {
-            const newMisionID = await this.generaterID(findMissionLabel.type.id, findMissionLabel.id, date.format(new Date(), 'YYYYMMDD'));
 
-            const newMission = new Mission();
-            newMission.id = newMisionID;
+            const newMission = new Mission(
+              findMissionLabel.type.transport, findMissionLabel.type.id, findMissionLabel.id, 
+              date.format(new Date(), 'YYYYMMDD'));
             newMission.content = content;
             newMission.label = findMissionLabel;
             newMission.instrument = findMissionInstrument;
@@ -622,11 +622,11 @@ export class MissionModel {
             // 新增任務進度
             const missionProcessModel = new MissionProcessModel();
 
-            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.ADD,
+            await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.ADD,
               startDepartmentID, date.format(new Date(), process.env.DATE_FORMAT));
-            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.START, null);
-            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.IN_PROGRESS, null);
-            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.FINISH, endDepartmentID);
+            await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.START, null);
+            await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.IN_PROGRESS, null);
+            await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.FINISH, endDepartmentID);
 
             resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
           } catch (err) {
@@ -872,24 +872,5 @@ export class MissionModel {
         }
       }
     });
-  }
-
-  async generaterID(missionType: string, missionLabel: string, date: string) {
-    const type = parseInt(missionType.split('T')[1]);
-    const label = parseInt(missionLabel.split('L')[1]);
-
-    missionLabel = Formatter.paddingLeftZero(label + '',
-      parseInt(process.env.MISSION_LABEL_ID_LENGTH));
-
-    const ID = `M${type}${missionLabel}${date}`;
-
-    // 取得目前數量
-    let count = await this.mMissionRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.MISSION_ID_LENGTH));
-
-    return (ID + id);
   }
 }
