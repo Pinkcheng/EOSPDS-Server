@@ -44,6 +44,11 @@ export class Department {
   })
   name: string;
 
+  @Column('varchar', {
+    name: 'floor'
+  }) 
+  floor: string;
+
   @ManyToOne(
     () => Building,
     building => building.id

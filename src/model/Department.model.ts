@@ -10,12 +10,19 @@ dotenv.config();
 @EntityRepository(Department)
 export class DepartmentRepository extends Repository<Department> {
   findByID(id: string) {
-    return this.findOne({ id });
+    const department = this.createQueryBuilder('department')
+      .orderBy('department.id', 'ASC')
+      .leftJoinAndSelect('department.building', 'building')
+      .where({ id })
+      .getOne();
+
+    return department;
   }
 
   getAll(building: string) {
     const departmentList = this.createQueryBuilder('department')
-      .orderBy('department.id', 'ASC');
+      .orderBy('department.id', 'ASC')
+      .leftJoinAndSelect('department.building', 'building');
 
     if (building) {
       departmentList.where(`department.building = '${building}'`);
@@ -71,6 +78,11 @@ export class DepartmentModel {
           const newDepartment = new Department(buildingID, floor);
           newDepartment.name = name;
           newDepartment.building = findBuilding;
+          if (floor === '0') {
+            newDepartment.floor = 'B1';
+          } else {
+            newDepartment.floor = floor + 'F';
+          }
 
           try {
             await this.mDepartmentRepo.save(newDepartment);
