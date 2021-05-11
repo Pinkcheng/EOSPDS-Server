@@ -214,8 +214,14 @@ export class PorterModel {
     return porter;
   }
 
-  async allAll() {
+  async getAll() {
     const porterList = await this.mPorterRepo.getAll();
+    // 替換department物件
+    for (let i = 0; i < porterList.length; i++) {
+      const findDepartment = await new DepartmentModel().findByID(porterList[i].department.id);
+      porterList[i].department = findDepartment;
+    }
+
     return porterList;
   }
 

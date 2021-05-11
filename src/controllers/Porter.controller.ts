@@ -29,7 +29,7 @@ export const create = (req: Request, res: Response) => {
 
 export const list = (req: Request, res: Response) => {
   const porterModel = new PorterModel();
-  porterModel.allAll()
+  porterModel.getAll()
     .then(porterList => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, porterList));
     }).catch(err => {

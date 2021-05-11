@@ -6,7 +6,6 @@ import { MissionInstrument } from './../entity/MissionInstrument.entity';
 import { MissionType } from '../entity/MissionType.entity';
 import { MissionLabel } from './../entity/MissionLabel.entity';
 
-import { Formatter } from './../core/Formatter';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import date from 'date-and-time';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
@@ -570,7 +569,7 @@ export class MissionModel {
           try {
 
             const newMission = new Mission(
-              findMissionLabel.type.transport, findMissionLabel.type.id, findMissionLabel.id, 
+              findMissionLabel.type.transport, findMissionLabel.type.id, findMissionLabel.id,
               date.format(new Date(), 'YYYYMMDD'));
             newMission.content = content;
             newMission.label = findMissionLabel;
@@ -640,6 +639,15 @@ export class MissionModel {
       if (missionList.length === 0) {
         resolve([]);
         return;
+      } else {
+        // 替換department物件
+        for (let i = 0; i < missionList.length; i++) {
+          const findStartDepartment = await new DepartmentModel().findByID(missionList[i].startDepartment.id);
+          const findEndDepartment = await new DepartmentModel().findByID(missionList[i].endDepartment.id);
+
+          missionList[i].startDepartment = findStartDepartment;
+          missionList[i].endDepartment = findEndDepartment;
+        }
       }
 
       resolve(missionList);
@@ -692,6 +700,12 @@ export class MissionModel {
         });
         // 將任務陣列丟到新的任務陣列
         findMission.process = processList;
+        // 替換department物件
+        const findStartDepartment = await new DepartmentModel().findByID(findMission.startDepartment.id);
+        const findEndDepartment = await new DepartmentModel().findByID(findMission.endDepartment.id);
+        findMission.startDepartment = findStartDepartment;
+        findMission.endDepartment = findEndDepartment;
+        
         resolve(findMission);
       }
     });

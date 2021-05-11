@@ -74,7 +74,7 @@ export class DepartmentModel {
         } else if (!findBuilding) {
           reject(RESPONSE_STATUS.DATA_CREATE_FAIL);
           return;
-        } else {
+        } else { 
           const newDepartment = new Department(buildingID, floor);
           newDepartment.name = name;
           newDepartment.building = findBuilding;
