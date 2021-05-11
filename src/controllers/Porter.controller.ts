@@ -5,7 +5,7 @@ import { Formatter } from '../core/Formatter';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const create = (req: Request, res: Response) => {
-  const name = Formatter.formInput(req.body.name);
+  const name = req.body.name;
   const account = Formatter.formInput(req.body.account);
   const password = Formatter.formInput(req.body.password);
   const tagNumber = Formatter.formInput(req.body.tag);

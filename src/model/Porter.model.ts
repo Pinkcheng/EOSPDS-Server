@@ -1,4 +1,3 @@
-import { Formatter } from './../core/Formatter';
 import { UserModel } from './User.model';
 import { PorterType } from '../entity/PorterType.entity';
 import { Porter } from '../entity/Porter.entity';
