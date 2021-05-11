@@ -1,3 +1,4 @@
+import { User } from './../entity/UserList.entity';
 import { PorterModel } from './Porter.model';
 import { Mission, MISSION_STATUS } from './../entity/Mission.entity';
 import { MissionProcess, MISSION_PROCESS_STATUS } from './../entity/MissionProcess.entity';
@@ -10,6 +11,8 @@ import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import date from 'date-and-time';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 import { DepartmentModel } from './Department.model';
+import { SYSTEM_PERMISSION } from '../entity/SystemPermission.entity';
+import { StaffModel } from './Staff.model';
 
 @EntityRepository(MissionType)
 export class MissionTypegRepository extends Repository<MissionType> {
@@ -19,6 +22,7 @@ export class MissionTypegRepository extends Repository<MissionType> {
 
   getAll() {
     const missionTypeList = this.createQueryBuilder('missionType')
+      .orderBy('missionType.id', 'ASC')
       .getMany();
 
     return missionTypeList;
@@ -61,7 +65,6 @@ export class MissionTypeModel {
           return;
         } else {
           const newMissionType = new MissionType();
-          newMissionType.id = await this.generaterID();
           newMissionType.name = name;
           newMissionType.transport = transport;
 
@@ -122,19 +125,6 @@ export class MissionTypeModel {
     const type = await this.mMissionTypeRepo.findByID(id);
     return type;
   }
-
-  // 產生編號
-  async generaterID() {
-    const ID = 'T';
-    // 取得目前數量
-    let count = await this.mMissionTypeRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.MISSION_TYPE_ID_LENGTH));
-
-    return (ID + id);
-  }
 }
 
 @EntityRepository(MissionLabel)
@@ -151,6 +141,7 @@ export class MissionLabelRepository extends Repository<MissionLabel> {
   getAll() {
     const labels = this.createQueryBuilder('label')
       .leftJoinAndSelect('label.type', 'type')
+      .orderBy('label.id', 'ASC')
       .getMany();
 
     return labels;
@@ -160,6 +151,7 @@ export class MissionLabelRepository extends Repository<MissionLabel> {
     const labels = this.createQueryBuilder('label')
       .leftJoinAndSelect('label.type', 'type')
       .where({ type })
+      .orderBy('label.id', 'ASC')
       .getMany();
 
     return labels;
@@ -206,7 +198,6 @@ export class MissionLabelModel {
           return;
         } else {
           const newMissionLabel = new MissionLabel();
-          newMissionLabel.id = await this.generaterID();
           newMissionLabel.name = name;
           newMissionLabel.type = findMissionType;
 
@@ -277,19 +268,6 @@ export class MissionLabelModel {
     const label = await this.mMissionLabelRepo.findByID(id);
     return label;
   }
-
-  // 產生編號
-  async generaterID() {
-    const ID = 'L';
-    // 取得目前數量
-    let count = await this.mMissionLabelRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.MISSION_LABEL_ID_LENGTH));
-
-    return (ID + id);
-  }
 }
 
 @EntityRepository(MissionInstrument)
@@ -299,23 +277,24 @@ export class MissionInstrumentRepository extends Repository<MissionInstrument> {
   }
 
   getAll() {
-    const instrumentList = this.createQueryBuilder('missionInstrument')
+    const instrumentList = this.createQueryBuilder('instrument')
+      .orderBy('instrument.id', 'ASC')
       .getMany();
 
     return instrumentList;
   }
 
   del(id: string) {
-    this.createQueryBuilder('missionInstrument')
+    this.createQueryBuilder('instrument')
       .delete()
       .where({ id })
       .execute();
   }
 
   findByNameWithoutMyself(searchName: string, myselfID: string) {
-    const list = this.createQueryBuilder('missionInstrument')
-      .where(`missionInstrument.name = '${searchName}'`)
-      .andWhere(`missionInstrument.id != '${myselfID}'`)
+    const list = this.createQueryBuilder('instrument')
+      .where(`instrument.name = '${searchName}'`)
+      .andWhere(`instrument.id != '${myselfID}'`)
       .getOne();
 
     return list;
@@ -401,19 +380,6 @@ export class MissionInstrumentModel {
     const instrument = await this.mMisionInstrumentRepo.findByID(id);
     return instrument;
   }
-
-  // 產生編號
-  async generaterID() {
-    const ID = 'I';
-    // 取得目前數量
-    let count = await this.mMisionInstrumentRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.MISSION_INSTRUMENT_ID_LENGTH));
-
-    return (ID + id);
-  }
 }
 @EntityRepository(MissionProcess)
 export class MissionProcessRepository extends Repository<MissionProcess> {
@@ -421,6 +387,7 @@ export class MissionProcessRepository extends Repository<MissionProcess> {
     const missionProcess = this.createQueryBuilder('process')
       .leftJoinAndSelect('process.department', 'department')
       .where(`process.mid = '${missionID}'`)
+      .orderBy('process.id', 'ASC')
       .getMany();
 
     return missionProcess;
@@ -522,21 +489,30 @@ export class MissionProcessModel {
 
 @EntityRepository(Mission)
 export class MissionRepository extends Repository<Mission> {
-  findMissionList(days: string, department: string): Promise<Mission[]> {
+  findMissionList(
+    days: string,
+    selectDepartment: string,
+    status: MISSION_STATUS
+  ): Promise<Mission[]> {
     const missions = this.createQueryBuilder('mission')
       .leftJoinAndSelect('mission.label', 'label')
       .leftJoinAndSelect('mission.instrument', 'instrument')
       .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
       .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
-      .leftJoinAndSelect('mission.porter', 'porter');
+      .leftJoinAndSelect('mission.porter', 'porter')
+      .orderBy('mission.id', 'ASC');
 
-    if (days && !department) {
+    if (days && !selectDepartment) {
       missions.where(`mission.createTime >= '${days}'`);
-    } else if (!days && department) {
-      missions.where({ startDepartment: department });
-    } else if (days && department) {
-      missions.where({ startDepartment: department });
+    } else if (!days && selectDepartment) {
+      missions.where({ startDepartment: selectDepartment });
+    } else if (days && selectDepartment) {
+      missions.where({ startDepartment: selectDepartment });
       missions.andWhere(`mission.createTime >= '${days}'`);
+    }
+
+    if (status) {
+      missions.andWhere(`mission.status = '${status}'`);
     }
 
     return missions.getMany();
@@ -567,8 +543,8 @@ export class MissionModel {
     labelID: string,
     startDepartmentID: string,
     endDepartmentID: string,
+    instrumentID: string = 'I0000',
     content?: string,
-    instrumentID?: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
       if (!labelID) {
@@ -578,7 +554,7 @@ export class MissionModel {
         const findMissionLabel = await new MissionLabelModel().findByID(labelID);
         const findStartDepartment = await new DepartmentModel().findByID(startDepartmentID);
         const findEndDepartment = await new DepartmentModel().findByID(endDepartmentID);
-        const findMissionInstrument = instrumentID ? await new MissionInstrumentModel().findByID(instrumentID) : null;
+        const findMissionInstrument = await new MissionInstrumentModel().findByID(instrumentID);
 
         if (instrumentID) {
           if (!findMissionInstrument) {
@@ -592,10 +568,10 @@ export class MissionModel {
           return;
         } else {
           try {
-            const newMisionID = await this.generaterID(findMissionLabel.type.id, findMissionLabel.id, date.format(new Date(), 'YYYYMMDD'));
 
-            const newMission = new Mission();
-            newMission.id = newMisionID;
+            const newMission = new Mission(
+              findMissionLabel.type.transport, findMissionLabel.type.id, findMissionLabel.id, 
+              date.format(new Date(), 'YYYYMMDD'));
             newMission.content = content;
             newMission.label = findMissionLabel;
             newMission.instrument = findMissionInstrument;
@@ -605,11 +581,11 @@ export class MissionModel {
             // 新增任務進度
             const missionProcessModel = new MissionProcessModel();
 
-            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.ADD,
+            await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.ADD,
               startDepartmentID, date.format(new Date(), process.env.DATE_FORMAT));
-            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.START, null);
-            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.IN_PROGRESS, null);
-            await missionProcessModel.insert(newMisionID, MISSION_PROCESS_STATUS.FINISH, endDepartmentID);
+            await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.START, null);
+            await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.IN_PROGRESS, null);
+            await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.FINISH, endDepartmentID);
 
             resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
           } catch (err) {
@@ -622,7 +598,12 @@ export class MissionModel {
   }
 
   // TODO: 自己的單位才能查自己的，系統管理員可以查全部的
-  list(days?: number, department?: string) {
+  list(
+    selectDataUser: User,
+    selectDepartment?: string,
+    days?: number,
+    status: number = null
+  ) {
     return new Promise<any>(async (resolve, reject) => {
       // 若沒有指定查詢天數，則使用預設天數
       if (!days) {
@@ -630,8 +611,31 @@ export class MissionModel {
       }
       // 進行查詢天數計算
       const selectDate = date.addDays(new Date(), -(days));
+
+      // ========= 確認資料存取的權限 ===============
+      // 取得查詢使用者的使用者權限
+      const selectDataUserPermissionID = selectDataUser.permission.id;
+      // 取得查詢使用者單位編號
+      let selectDataUserDepartmentID = null;
+      // 使用者權限為單位
+      if (selectDataUserPermissionID === SYSTEM_PERMISSION.DEPARTMENT) {
+        const findStaff = await new StaffModel().get(selectDataUser.id);
+        selectDataUserDepartmentID = findStaff.department.id;
+        // 如果使用者權限為單位，又有指定查詢資料
+        if (selectDepartment) {
+          // 查詢非自己單位的資料，則拒絕
+          if (selectDataUserDepartmentID !== selectDepartment) {
+            reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
+            return;
+          }
+        } else {
+          // 查詢自己的單位
+          selectDepartment = selectDataUserDepartmentID;
+        }
+      }
+
       const missionList = await this.mMissionRepo.findMissionList(
-        date.format(selectDate, process.env.DATE_FORMAT), department);
+        date.format(selectDate, process.env.DATE_FORMAT), selectDepartment, status);
       // 若任務數量為0，回傳空陣列
       if (missionList.length === 0) {
         resolve([]);
@@ -642,22 +646,53 @@ export class MissionModel {
     });
   }
 
-  get(missionID: string) {
+  get(
+    selectDataUser: User,
+    missionID: string
+  ) {
     return new Promise<any>(async (resolve, reject) => {
-      const mission = await this.mMissionRepo.findByID(missionID);
-      if (!mission) {
+      const findMission = await this.mMissionRepo.findByID(missionID);
+      if (!findMission) {
         reject(RESPONSE_STATUS.DATA_UNKNOWN);
         return;
       } else {
-        const processList = await new MissionProcessModel().getMissionProcess(mission.id);
+        // ========= 確認資料存取的權限 ===============
+        // 取得查詢使用者的使用者權限
+        const selectDataUserPermissionID = selectDataUser.permission.id;
+        // 使用者權限為單位
+        if (selectDataUserPermissionID === SYSTEM_PERMISSION.DEPARTMENT) {
+          // 取得查詢使用者單位編號
+          const selectDataUserDepartmentID = await (await new StaffModel()
+            .get(selectDataUser.id)).department.id;
+          // 查詢不是自己單位的任務
+          if (findMission.startDepartment.id !== selectDataUserDepartmentID) {
+            reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
+            return;
+          }
+        } else if (selectDataUserPermissionID === SYSTEM_PERMISSION.PORTER) {
+          // 如果查詢者為傳送員
+          // 該任務尚未指派傳送員，則沒有訪問任務的權限
+          if (!findMission.porter) {
+            reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
+            return;
+          } else {
+            // 如果傳送員查詢不是自己的任務，則拒絕
+            if (findMission.porter.id !== selectDataUser.id) {
+              reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
+              return;
+            }
+          }
+        }
+
+        const processList = await new MissionProcessModel().getMissionProcess(findMission.id);
         // 刪除不要的物件參數
         processList.forEach(process => {
           delete process.id;
           delete process.mid;
         });
         // 將任務陣列丟到新的任務陣列
-        mission.process = processList;
-        resolve(mission);
+        findMission.process = processList;
+        resolve(findMission);
       }
     });
   }
@@ -697,11 +732,12 @@ export class MissionModel {
   }
 
   start(
+    selectDataUser: User,
     missionID: string,
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      this.updateMissionStatus(MISSION_STATUS.IN_PROGRESS, missionID, handover)
+      this.updateMissionStatus(selectDataUser, MISSION_STATUS.IN_PROGRESS, missionID, handover)
         .then(code => {
           resolve(code);
         }, errCode => {
@@ -711,11 +747,12 @@ export class MissionModel {
   }
 
   finish(
+    selectDataUser: User,
     missionID: string,
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      this.updateMissionStatus(MISSION_STATUS.FINISH, missionID, handover)
+      this.updateMissionStatus(selectDataUser, MISSION_STATUS.FINISH, missionID, handover)
         .then(code => {
           resolve(code);
         }, errCode => {
@@ -727,6 +764,7 @@ export class MissionModel {
   // TODO: 員工交接次數次算
   // TODO: 任務交接單位或是單位人員
   private updateMissionStatus(
+    selectDataUser: User,
     action: MISSION_STATUS,
     missionID: string,
     handover: string
@@ -736,14 +774,37 @@ export class MissionModel {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
+        const selectDataUserPermissinoID = selectDataUser.permission.id;
+        // 如果使用者權限非系統管理員、傳送中心或是傳送員，則不能進行任務狀態更新
+        if (selectDataUserPermissinoID !== SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR
+          && selectDataUserPermissinoID !== SYSTEM_PERMISSION.PORTER_CENTER
+          && selectDataUserPermissinoID !== SYSTEM_PERMISSION.PORTER) {
+          reject(RESPONSE_STATUS.AUTH_ACCESS_FAIL);
+          return;
+        }
+
+        const findMission = await this.mMissionRepo.findByID(missionID);
+        // 任務尚未指派給任何人員，無法進行任務狀態更新
+        if (!findMission.porter) {
+          reject(RESPONSE_STATUS.MISSION_NOT_DISPATCH);
+          return;
+        }
+
+        // 如果使用者權限為傳送員，則不能更新不是自己的任務
+        if (selectDataUserPermissinoID === SYSTEM_PERMISSION.PORTER) {
+          const findPorter = await new PorterModel().findByID(selectDataUser.id);
+          if (findMission.porter.id !== findPorter.id) {
+            reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
+            return;
+          }
+        }
+
         let staffOrDepartment;
         if (handover.startsWith('D')) {
           staffOrDepartment = await new DepartmentModel().findByID(handover);
         } else {
           staffOrDepartment = await new PorterModel().findByID(handover);
         }
-
-        const findMission = await this.mMissionRepo.findByID(missionID);
 
         if (!findMission || !staffOrDepartment) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
@@ -770,24 +831,5 @@ export class MissionModel {
         }
       }
     });
-  }
-
-  async generaterID(missionType: string, missionLabel: string, date: string) {
-    const type = parseInt(missionType.split('T')[1]);
-    const label = parseInt(missionLabel.split('L')[1]);
-
-    missionLabel = Formatter.paddingLeftZero(label + '',
-      parseInt(process.env.MISSION_LABEL_ID_LENGTH));
-
-    const ID = `M${type}${missionLabel}${date}`;
-
-    // 取得目前數量
-    let count = await this.mMissionRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.MISSION_ID_LENGTH));
-
-    return (ID + id);
   }
 }

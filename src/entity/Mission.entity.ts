@@ -1,9 +1,14 @@
+import { MissionRepository } from '../model/Mission.model';
 import { MissionProcess } from './MissionProcess.entity';
 import { Department } from './Department.entity';
 import { Porter } from './Porter.entity';
 import { MissionInstrument } from './MissionInstrument.entity';
 import { MissionLabel } from './MissionLabel.entity';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, getCustomRepository, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Formatter } from '../core/Formatter';
+import dotenv from 'dotenv';
+// Read .env files settings
+dotenv.config();
 
 export enum MISSION_STATUS {
   'NOT_DISPATCHED' = 1,
@@ -14,12 +19,39 @@ export enum MISSION_STATUS {
 
 @Entity('mission_list')
 export class Mission {
+  private mTransport: string;
+  private mMissionType: string;
+  private mMissionLabel: string;
+  private mDate: string;
+
   // 任務編號
   @PrimaryColumn('varchar', {
     length: 50,
     name: 'mid'
   })
   id: string;
+
+  @BeforeInsert()
+  private async beforeInsert() {
+    this.mMissionType = parseInt(this.mMissionType.split('T')[1]) + '';
+    this.mMissionType = Formatter
+      .paddingLeftZero(this.mMissionType, parseInt(process.env.MISSION_TYPE_ID_LENGTH));
+    this.mMissionLabel = parseInt(this.mMissionLabel.split('L')[1]) + '';
+    this.mMissionLabel = Formatter
+      .paddingLeftZero(this.mMissionLabel, parseInt(process.env.MISSION_LABEL_ID_LENGTH));
+
+    const generaterID = `M${this.mTransport}${this.mMissionType}${this.mMissionLabel}${this.mDate}`;
+    let lastID = await getCustomRepository(MissionRepository).count();
+
+    // 數量+1
+    lastID++;
+    // 補0
+    const id = Formatter
+      .paddingLeftZero(lastID + '', parseInt(process.env.MISSION_ID_LENGTH));
+
+    this.id = generaterID + id;
+  }
+  
   // 任務型態
   @ManyToOne(
     () => MissionLabel,
@@ -70,4 +102,11 @@ export class Mission {
   endDepartment: Department;
 
   process: MissionProcess[];
+
+  constructor(transport?: string, missionType?: string, missionLabel?: string, date?: string) {
+    this.mTransport = transport;
+    this.mMissionType = missionType;
+    this.mMissionLabel = missionLabel;
+    this.mDate = date;
+  }
 }

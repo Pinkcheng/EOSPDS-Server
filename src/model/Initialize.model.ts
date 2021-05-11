@@ -1,3 +1,4 @@
+import { DepartmentModel } from './Department.model';
 import { PorterTypeModel } from './Porter.model';
 import { MissionInstrumentModel } from './Mission.model';
 import { BuildingModel } from '../model/Building.model';
@@ -22,6 +23,8 @@ export class Initialize {
         }).then(() => {
           return this.installPorterType();
         }).then(() => {
+          return this.installDepartment();
+        }).then(() => {
           resolve();
         });
     });
@@ -32,15 +35,16 @@ export class Initialize {
     const systemPermissionModel = new SystemPermissionModel();
 
     return new Promise<void>(async (resolve, reject) => {
-      initData.systemPermission.forEach(async (item: string[], index: number) => {
+      for (let i = 0; i < initData.systemPermission.length; i++) {
+        const data = initData.systemPermission[i];
         await systemPermissionModel.create(
-          parseInt(item[0]), item[1]).then(() => { }, () => { });
+          parseInt(data[0] + ''), data[1] + '').then(() => { }, () => { });
 
-        if (index === initData.systemPermission.length - 1) {
+        if (i === initData.systemPermission.length - 1) {
           console.log('\n\t*** 安裝系統預設權限 ***');
           resolve();
         }
-      });
+      }
     });
   }
 
@@ -48,16 +52,17 @@ export class Initialize {
   private installSystemUser() {
     return new Promise<void>(async (resolve, reject) => {
       const userModel = new UserModel();
-      
-      initData.user.forEach(async (item: string[], index: number) => {
-        await userModel.create(
-          item[0], item[2], item[3], parseInt(item[1])).then(() => { }, () => { });
 
-        if (index === initData.user.length - 1) {
+      for (let i = 0; i < initData.user.length; i++) {
+        const data = initData.user[i];
+        await userModel.create(
+          data[0], data[2], data[3], parseInt(data[1])).then(() => { }, () => { });
+
+        if (i === initData.user.length - 1) {
           console.log('\n\t*** 安裝系統預設使用者 ***');
           resolve();
         }
-      });
+      }
     });
   }
 
@@ -66,14 +71,15 @@ export class Initialize {
     const instrumentModel = new MissionInstrumentModel();
 
     return new Promise<void>(async (resolve, reject) => {
-      initData.instrument.forEach(async (item: string[], index: number) => {
-        await instrumentModel.create(item[0], item[1]).then(() => { }, () => { });
+      for (let i = 0; i < initData.instrument.length; i++) {
+        const data = initData.instrument[i];
+        await instrumentModel.create(data[0], data[1]).then(() => { }, () => { });
 
-        if (index === initData.instrument.length - 1) {
-          console.log('\n\t*** 安裝系統預設任務傳送工具 ***');
+        if (i === initData.instrument.length - 1) {
+          console.log('\n\t*** 安裝系統預設任務工具 ***');
           resolve();
         }
-      });
+      }
     });
   }
 
@@ -82,14 +88,15 @@ export class Initialize {
     const buildingModel = new BuildingModel();
 
     return new Promise<void>(async (resolve, reject) => {
-      initData.building.forEach(async (item: string[], index: number) => {
-        await buildingModel.create(item[0], item[1]).then(() => { }, () => { });
+      for (let i = 0; i < initData.building.length; i++) {
+        const data = initData.building[i];
+        await buildingModel.create(data[0], data[1]).then(() => { }, () => { });
 
-        if (index === initData.building.length - 1) {
+        if (i === initData.building.length - 1) {
           console.log('\n\t*** 安裝系統預設建築物 ***');
           resolve();
         }
-      });
+      }
     });
   }
 
@@ -98,14 +105,32 @@ export class Initialize {
     const porterTypeModel = new PorterTypeModel();
 
     return new Promise<void>(async (resolve, reject) => {
-      initData.porterType.forEach(async (item: string[], index: number) => {
-        await porterTypeModel.create(item[0]).then(() => { }, () => { });
+      for (let i = 0; i < initData.porterType.length; i++) {
+        const data = initData.porterType[i];
+        await porterTypeModel.create(data[0]).then(() => { }, () => { });
 
-        if (index === initData.porterType.length - 1) {
+        if (i === initData.porterType.length - 1) {
           console.log('\n\t*** 安裝系統預設傳送員類型 ***');
           resolve();
         }
-      });
+      }
+    });
+  }
+
+  // 新增單位
+  private installDepartment() {
+    const departmentModel = new DepartmentModel();
+
+    return new Promise<void>(async (resolve, reject) => {
+      for (let i = 0; i < initData.department.length; i++) {
+        const data = initData.department[i];
+        await departmentModel.create(data[0], data[1], data[2]).then(() => { }, () => { });
+
+        if (i === initData.department.length - 1) {
+          console.log('\n\t*** 安裝系統預設單位 ***');
+          resolve();
+        }
+      }
     });
   }
 }

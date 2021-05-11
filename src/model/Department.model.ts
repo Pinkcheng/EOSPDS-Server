@@ -1,18 +1,34 @@
+import { BuildingModel } from './Building.model';
 import { Department } from './../entity/Department.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
+import dotenv from 'dotenv';
+// Read .env files settings
+dotenv.config();
+
 @EntityRepository(Department)
 export class DepartmentRepository extends Repository<Department> {
   findByID(id: string) {
-    return this.findOne({ id });
+    const department = this.createQueryBuilder('department')
+      .orderBy('department.id', 'ASC')
+      .leftJoinAndSelect('department.building', 'building')
+      .where({ id })
+      .getOne();
+
+    return department;
   }
 
-  getAll() {
+  getAll(building: string) {
     const departmentList = this.createQueryBuilder('department')
-      .getMany();
+      .orderBy('department.id', 'ASC')
+      .leftJoinAndSelect('department.building', 'building');
 
-    return departmentList;
+    if (building) {
+      departmentList.where(`department.building = '${building}'`);
+    }
+
+    return departmentList.getMany();
   }
 
   del(id: string) {
@@ -24,8 +40,8 @@ export class DepartmentRepository extends Repository<Department> {
 
   findByNameWithoutMyself(searchName: string, myselfID: string) {
     const list = this.createQueryBuilder('department')
-      .where(`department.name = '${ searchName }'`)
-      .andWhere(`department.id != '${ myselfID }'`)
+      .where(`department.name = '${searchName}'`)
+      .andWhere(`department.id != '${myselfID}'`)
       .getOne();
 
     return list;
@@ -39,21 +55,35 @@ export class DepartmentModel {
     this.mDepartmentRepo = getCustomRepository(DepartmentRepository);
   }
 
-  create(id: string, name: string) {
+  create(
+    buildingID: string,
+    floor: string,
+    name: string
+  ) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!id || !name) {
+      if (!name) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
-        const findDepartment = await this.mDepartmentRepo.findOne({ id });
+        const findDepartment = await this.mDepartmentRepo.findOne({ name });
+        const findBuilding = await new BuildingModel().get(buildingID);
+
         if (findDepartment) {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
+        } else if (!findBuilding) {
+          reject(RESPONSE_STATUS.DATA_CREATE_FAIL);
+          return;
         } else {
-          const newDepartment = new Department();
-          newDepartment.id = id;
+          const newDepartment = new Department(buildingID, floor);
           newDepartment.name = name;
-    
+          newDepartment.building = findBuilding;
+          if (floor === '0') {
+            newDepartment.floor = 'B1';
+          } else {
+            newDepartment.floor = floor + 'F';
+          }
+
           try {
             await this.mDepartmentRepo.save(newDepartment);
             resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
@@ -66,8 +96,8 @@ export class DepartmentModel {
     });
   }
 
-  async getAll() {
-    const departmentList = await this.mDepartmentRepo.getAll();
+  async getAll(building: string) {
+    const departmentList = await this.mDepartmentRepo.getAll(building);
     return departmentList;
   }
 
@@ -92,9 +122,8 @@ export class DepartmentModel {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else {
-          findDepartmentByID.id = id;
           findDepartmentByID.name = name;
-    
+
           try {
             await this.mDepartmentRepo.save(findDepartmentByID);
             resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);

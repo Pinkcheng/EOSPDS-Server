@@ -7,6 +7,7 @@ import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 import dotenv from 'dotenv';
+import { DepartmentModel } from './Department.model';
 // Read .env files settings
 dotenv.config();
 
@@ -61,6 +62,7 @@ export class PorterRepository extends Repository<Porter> {
   findByID(id: string) {
     const porter = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
+      .leftJoinAndSelect('porter.department', 'department')
       .where({ id })
       .getOne();
 
@@ -70,6 +72,7 @@ export class PorterRepository extends Repository<Porter> {
   findByName(name: string) {
     const porter = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
+      .leftJoinAndSelect('porter.department', 'department')
       .where({ name })
       .getOne();
 
@@ -79,6 +82,7 @@ export class PorterRepository extends Repository<Porter> {
   findByTagNumber(tagNumber: string) {
     const porter = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
+      .leftJoinAndSelect('porter.department', 'department')
       .where({ tagNumber })
       .getOne();
 
@@ -88,6 +92,8 @@ export class PorterRepository extends Repository<Porter> {
   getAll() {
     const porters = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
+      .leftJoinAndSelect('porter.department', 'department')
+      .orderBy('porter.id', 'ASC')
       .getMany();
 
     return porters;
@@ -108,19 +114,6 @@ export class PorterModel {
     this.mPorterRepo = getCustomRepository(PorterRepository);
   }
 
-  // 產生傳送員編號
-  async generatePorterID(porterType: number) {
-    const porterID = 'P' + porterType;
-    // 取得目前傳送員的數量
-    let count = await this.mPorterRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.PORTER_ID_LENGTH));
-
-    return (porterID + id);
-  }
-
   async create(
     name: string,
     account: string,
@@ -128,7 +121,8 @@ export class PorterModel {
     type: number,
     tagNumber: string = null,
     birthday: string = null,
-    gender: boolean = null,
+    gender: number = null,
+    departmentID: string = 'D1000001',
   ) {
     return new Promise<RESPONSE_STATUS>(async (resolve, reject) => {
       // 確認表單中必要的欄位，是否有空值
@@ -162,34 +156,39 @@ export class PorterModel {
         reject(RESPONSE_STATUS.USER_PORTER_TYPE_NOT_FOUND);
         return;
       }
+      // 是否有該單位
+      const findDepartment = await new DepartmentModel().findByID(departmentID);
+      if (!findDepartment) {
+        reject(RESPONSE_STATUS.USER_UNKNOWN);
+        return;
+      }
+      // 是否有重複帳號
+      const findUser = await new UserModel().findByAccount(account);
+      if (findUser) {
+        reject(RESPONSE_STATUS.USER_REPEAT_ACCOUNT);
+        return;
+      }
+
+      const newPorter = new Porter(type + '');
+      // 新增傳送員
+      newPorter.name = name;
+      newPorter.tagNumber = tagNumber;
+      newPorter.type = findType;
+      newPorter.birthday = birthday;
+      newPorter.gender = gender;
+      newPorter.department = findDepartment;
+      await this.mPorterRepo.save(newPorter);
 
       // 新增帳號
       const userModel = new UserModel();
-      const newPorter = new Porter();
-      const newPorterID = await this.generatePorterID(type);
-      
       userModel.create(
-        newPorterID, account, password, SYSTEM_PERMISSION.PORTER)
-        .then(() => {
-          // 新增帳號成功，新增傳送員
-          newPorter.id = newPorterID;
-          newPorter.name = name;
-          newPorter.tagNumber = tagNumber;
-          newPorter.type = findType;
-          newPorter.birthday = birthday;
-          newPorter.gender = gender;
-
-          return this.mPorterRepo.save(newPorter);
-        }, responseCode => {
-          // 新增帳號失敗
-          reject(responseCode);
-          return;
-        }).then(() => {
-          resolve(RESPONSE_STATUS.USER_SUCCESS);
-        }).catch(err => {
-          console.error(err);
-          reject(RESPONSE_STATUS.USER_UNKNOWN);
-        });
+        newPorter.id, account, password, SYSTEM_PERMISSION.PORTER
+      ).then(() => {
+        resolve(RESPONSE_STATUS.USER_SUCCESS);
+      }).catch(err => {
+        console.error(err);
+        reject(RESPONSE_STATUS.USER_UNKNOWN);
+      });
     });
   }
 

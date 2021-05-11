@@ -7,12 +7,12 @@ import * as departmentController from '../controllers/Department.controller';
 
 departmentRouter.route('/')
   .post(minAccessLevel(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), departmentController.create)
-  .get(minAccessLevel(SYSTEM_PERMISSION.PORTER_CENTER), departmentController.list);
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), departmentController.list);
 
 departmentRouter.route('/:departmentID')
-  .get(minAccessLevel(SYSTEM_PERMISSION.PORTER_CENTER), departmentController.get)
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), departmentController.get)
   .patch(minAccessLevel(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), departmentController.update)
   .delete(minAccessLevel(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), departmentController.del);
 
 buildingRouter.route('/')
-  .get(minAccessLevel(SYSTEM_PERMISSION.PORTER_CENTER), departmentController.buildingList);
+  .get(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), departmentController.buildingList);

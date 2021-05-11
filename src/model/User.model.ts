@@ -107,6 +107,11 @@ export class UserModel {
     return user;
   }
 
+  async findByAccount(account: string) {
+    const user = await this.mUserRepo.findOne({ account  });
+    return user;
+  }
+
   async updateToken(ID: string, token: string) {
     // 分割token，取第三個，才存入資料庫
     token = token.split('.')[2];
@@ -128,11 +133,14 @@ export class UserModel {
           return;
         } else {
           let userName = '', permissionID = 9999, permissionName = '';
+          let departmentName = '';
+
           switch (findUser.permission.id) {
             case SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR:
               userName = findUser.permission.name;
               permissionID = SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR;
               permissionName = findUser.permission.name;
+              departmentName = '系統';
               break;
             case SYSTEM_PERMISSION.DEPARTMENT:
               const staffModel = new StaffModel();
@@ -140,13 +148,15 @@ export class UserModel {
               userName = findStaff.name;
               permissionID = SYSTEM_PERMISSION.DEPARTMENT;
               permissionName = findUser.permission.name;
+              departmentName = findStaff.department.name;
               break;
             case SYSTEM_PERMISSION.PORTER:
               const porterModel = new PorterModel();
-              const porter = await porterModel.findByID(findUser.id);
-              userName = porter.name;
+              const findPorter = await porterModel.findByID(findUser.id);
+              userName = findPorter.name;
               permissionID = SYSTEM_PERMISSION.PORTER;
               permissionName = findUser.permission.name;
+              departmentName = findPorter.department.name;
               break;
             default:
               reject(RESPONSE_STATUS.AUTH_UNKNOWN);
@@ -154,7 +164,7 @@ export class UserModel {
           }
 
           const accessToken = this.generateAccessToken(
-            findUser.id, userName, permissionID, permissionName);
+            findUser.id, userName, permissionID, permissionName, departmentName);
           await this.updateToken(findUser.id, accessToken);
           resolve(accessToken);
         }
@@ -171,13 +181,15 @@ export class UserModel {
     name: string,
     permissionID: number,
     permissionName: string,
+    departmentName: string,
     expires: string = process.env.ACCESS_TOKEN_DEFAULT_TIMEOUT
   ) {
     return sign({
       id: id,
       name: name,
       permission: permissionID,
-      permissionName: permissionName
+      permissionName: permissionName,
+      department: departmentName
     }, process.env.JWT_SECRET,
       { expiresIn: expires });
   }

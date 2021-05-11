@@ -1,4 +1,9 @@
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
+import { MissionTypegRepository } from '../model/Mission.model';
+import { BeforeInsert, Column, Entity, Index, PrimaryColumn, getCustomRepository } from 'typeorm';
+import { Formatter } from '../core/Formatter';
+import dotenv from 'dotenv';
+// Read .env files settings
+dotenv.config();
 
 @Entity('mission_type')
 export class MissionType {
@@ -8,6 +13,18 @@ export class MissionType {
     name: 'tid'
   })
   id: string;
+
+  @BeforeInsert()
+  private async beforeInsert() {
+    let lastID = await getCustomRepository(MissionTypegRepository).count();
+    // 數量+1
+    lastID++;
+    // 補0
+    const id = Formatter
+      .paddingLeftZero(lastID + '', parseInt(process.env.MISSION_TYPE_ID_LENGTH));
+
+    this.id = 'T' + id;
+  }
   
   @Index()
   @Column('varchar', {

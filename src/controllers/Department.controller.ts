@@ -6,11 +6,12 @@ import { Formatter } from '../core/Formatter';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 export const create = (req: Request, res: Response) => {
-  const id = Formatter.formInput(req.body.id);
+  const building = req.body.building;
+  const floor = req.body.floor;
   const name = req.body.name;
 
   const departmentModel = new DepartmentModel();
-  departmentModel.create(id, name)
+  departmentModel.create(building, floor, name)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {
@@ -21,8 +22,10 @@ export const create = (req: Request, res: Response) => {
 };
 
 export const list = (req: Request, res: Response) => {
+  const buildingID = req.query.building as string;
+
   const departmentModel = new DepartmentModel();
-  departmentModel.getAll()
+  departmentModel.getAll(buildingID)
     .then(departmentList => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, departmentList));
     }, errCode => {

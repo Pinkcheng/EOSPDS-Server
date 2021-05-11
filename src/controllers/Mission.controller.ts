@@ -1,3 +1,6 @@
+import { User } from './../entity/UserList.entity';
+import { SYSTEM_PERMISSION } from './../entity/SystemPermission.entity';
+import { StaffModel } from './../model/Staff.model';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
 import { Formatter } from '../core/Formatter';
@@ -12,7 +15,7 @@ export const create = (req: Request, res: Response) => {
   const instrumnetID = Formatter.formInput(req.body.instrument);
 
   const missionModel = new MissionModel();
-  missionModel.create(labelID, startDepartmentID, endDepartmentID, content, instrumnetID)
+  missionModel.create(labelID, startDepartmentID, endDepartmentID, instrumnetID, content)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {
@@ -23,12 +26,14 @@ export const create = (req: Request, res: Response) => {
     });
 };
 
-export const list = (req: Request, res: Response) => {
+export const list = async (req: Request, res: Response) => {
   const days = parseInt(Formatter.formInput(req.query.days as string));
-  const department = Formatter.formInput(req.query.department as string);
+  const selectDepartment = Formatter.formInput(req.query.department as string);
+  const status = parseInt(Formatter.formInput(req.query.status as string));
+  const __SESSION = req.body.__SESSION as User;
 
   const missionModel = new MissionModel();
-  missionModel.list(days, department)
+  missionModel.list(__SESSION, selectDepartment, days, status)
     .then(missions => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missions));
     }, errCode => {
@@ -39,11 +44,12 @@ export const list = (req: Request, res: Response) => {
     });
 };
 
-export const get = (req: Request, res: Response) => {
+export const get = async (req: Request, res: Response) => {
   const missionID = req.params.missionID as string;
+  const __SESSION = req.body.__SESSION as User;
 
   const missionModel = new MissionModel();
-  missionModel.get(missionID)
+  missionModel.get(__SESSION, missionID)
     .then(missions => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, missions));
     }, errCode => {
@@ -60,6 +66,7 @@ export const dispatch = (req: Request, res: Response) => {
   const porterID = req.body.porter;
 
   const missionModel = new MissionModel();
+  // 手動派遣
   if (dispatch === '1') {
     missionModel.manualDispatch(missionID, porterID)
       .then(() => {
@@ -70,6 +77,8 @@ export const dispatch = (req: Request, res: Response) => {
         console.error(err);
         res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
       });
+  } else if (dispatch === '2') {
+    missionModel.autoDispathc();
   }
 };
 
@@ -77,10 +86,11 @@ export const action = (req: Request, res: Response) => {
   const missionID = req.params.missionID;
   const action = req.body.action;
   const handover = req.body.handover;
+  const __SESSION = req.body.__SESSION as User;
 
   const missionModel = new MissionModel();
   if (action === '1') {
-    missionModel.start(missionID, handover)
+    missionModel.start(__SESSION, missionID, handover)
       .then(() => {
         res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
       }, errCode => {
@@ -90,7 +100,7 @@ export const action = (req: Request, res: Response) => {
         res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
       });
   } else if (action === '2') {
-    missionModel.finish(missionID, handover)
+    missionModel.finish(__SESSION, missionID, handover)
       .then(() => {
         res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
       }, errCode => {
