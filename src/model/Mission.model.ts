@@ -380,19 +380,6 @@ export class MissionInstrumentModel {
     const instrument = await this.mMisionInstrumentRepo.findByID(id);
     return instrument;
   }
-
-  // 產生編號
-  async generaterID() {
-    const ID = 'I';
-    // 取得目前數量
-    let count = await this.mMisionInstrumentRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.MISSION_INSTRUMENT_ID_LENGTH));
-
-    return (ID + id);
-  }
 }
 @EntityRepository(MissionProcess)
 export class MissionProcessRepository extends Repository<MissionProcess> {

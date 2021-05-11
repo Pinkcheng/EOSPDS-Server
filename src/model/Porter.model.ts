@@ -114,19 +114,6 @@ export class PorterModel {
     this.mPorterRepo = getCustomRepository(PorterRepository);
   }
 
-  // 產生傳送員編號
-  async generatePorterID(porterType: number) {
-    const porterID = 'P' + porterType;
-    // 取得目前傳送員的數量
-    let count = await this.mPorterRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.PORTER_ID_LENGTH));
-
-    return (porterID + id);
-  }
-
   async create(
     name: string,
     account: string,
@@ -176,34 +163,26 @@ export class PorterModel {
         return;
       }
 
+      const newPorter = new Porter(type + '');
+      // 新增傳送員
+      newPorter.name = name;
+      newPorter.tagNumber = tagNumber;
+      newPorter.type = findType;
+      newPorter.birthday = birthday;
+      newPorter.gender = gender;
+      newPorter.department = findDepartment;
+      await this.mPorterRepo.save(newPorter);
+
       // 新增帳號
       const userModel = new UserModel();
-      const newPorter = new Porter();
-      const newPorterID = await this.generatePorterID(type);
-      
       userModel.create(
-        newPorterID, account, password, SYSTEM_PERMISSION.PORTER)
-        .then(() => {
-          // 新增帳號成功，新增傳送員
-          newPorter.id = newPorterID;
-          newPorter.name = name;
-          newPorter.tagNumber = tagNumber;
-          newPorter.type = findType;
-          newPorter.birthday = birthday;
-          newPorter.gender = gender;
-          newPorter.department = findDepartment;
-
-          return this.mPorterRepo.save(newPorter);
-        }, responseCode => {
-          // 新增帳號失敗
-          reject(responseCode);
-          return;
-        }).then(() => {
-          resolve(RESPONSE_STATUS.USER_SUCCESS);
-        }).catch(err => {
-          console.error(err);
-          reject(RESPONSE_STATUS.USER_UNKNOWN);
-        });
+        newPorter.id, account, password, SYSTEM_PERMISSION.PORTER
+      ).then(() => {
+        resolve(RESPONSE_STATUS.USER_SUCCESS);
+      }).catch(err => {
+        console.error(err);
+        reject(RESPONSE_STATUS.USER_UNKNOWN);
+      });
     });
   }
 
