@@ -1,7 +1,6 @@
 import { Department } from './../entity/Department.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
-import { Formatter } from '../core/Formatter';
 
 import dotenv from 'dotenv';
 // Read .env files settings

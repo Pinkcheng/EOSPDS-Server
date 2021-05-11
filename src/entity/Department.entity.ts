@@ -19,6 +19,7 @@ export class Department {
 
   @BeforeInsert()
   private async beforeInsert() {
+    this.mBuildingID = parseInt(this.mBuildingID.split('B')[1]) + '';
     this.mBuildingID = Formatter
       .paddingLeftZero(this.mBuildingID, parseInt(process.env.DEPARTMENT_ID_BUDING_LENGTH));
     this.mFloor = Formatter
