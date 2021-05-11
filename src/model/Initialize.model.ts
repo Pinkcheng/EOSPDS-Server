@@ -73,7 +73,7 @@ export class Initialize {
     return new Promise<void>(async (resolve, reject) => {
       for (let i = 0; i < initData.instrument.length; i++) {
         const data = initData.instrument[i];
-        await instrumentModel.create(data[0], data[2]).then(() => { }, () => { });
+        await instrumentModel.create(data[0], data[1]).then(() => { }, () => { });
 
         if (i === initData.instrument.length - 1) {
           console.log('\n\t*** 安裝系統預設任務工具 ***');
