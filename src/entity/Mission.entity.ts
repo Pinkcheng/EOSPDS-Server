@@ -51,6 +51,7 @@ export class Mission {
 
     this.id = generaterID + id;
   }
+  
   // 任務型態
   @ManyToOne(
     () => MissionLabel,

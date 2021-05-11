@@ -65,7 +65,6 @@ export class MissionTypeModel {
           return;
         } else {
           const newMissionType = new MissionType();
-          newMissionType.id = await this.generaterID();
           newMissionType.name = name;
           newMissionType.transport = transport;
 
@@ -125,19 +124,6 @@ export class MissionTypeModel {
   async findByID(id: string) {
     const type = await this.mMissionTypeRepo.findByID(id);
     return type;
-  }
-
-  // 產生編號
-  async generaterID() {
-    const ID = 'T';
-    // 取得目前數量
-    let count = await this.mMissionTypeRepo.count();
-    // 數量+1
-    count++;
-    // 補0
-    const id = Formatter.paddingLeftZero(count + '', parseInt(process.env.MISSION_TYPE_ID_LENGTH));
-
-    return (ID + id);
   }
 }
 
