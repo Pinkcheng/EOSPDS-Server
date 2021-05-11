@@ -107,6 +107,11 @@ export class UserModel {
     return user;
   }
 
+  async findByAccount(account: string) {
+    const user = await this.mUserRepo.findOne({ account  });
+    return user;
+  }
+
   async updateToken(ID: string, token: string) {
     // 分割token，取第三個，才存入資料庫
     token = token.split('.')[2];

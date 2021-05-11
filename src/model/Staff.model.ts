@@ -66,11 +66,15 @@ export class StaffModel {
       } else {
         const findDepartmentByID = await new DepartmentModel().findByID(departmentID);
         const findStaffByName = await this.mStaffRepo.findOne({ name });
+        const findUser = await new UserModel().findByAccount(account);
 
         if (!findDepartmentByID) {
           reject(RESPONSE_STATUS.DATA_CREATE_FAIL);
           return;
         } else if (findStaffByName) {
+          reject(RESPONSE_STATUS.DATA_REPEAT);
+          return;
+        } else if (findUser) {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else {

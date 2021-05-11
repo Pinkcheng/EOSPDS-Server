@@ -162,6 +162,12 @@ export class PorterModel {
         reject(RESPONSE_STATUS.USER_UNKNOWN);
         return;
       }
+      // 是否有重複帳號
+      const findUser = await new UserModel().findByAccount(account);
+      if (findUser) {
+        reject(RESPONSE_STATUS.USER_REPEAT_ACCOUNT);
+        return;
+      }
 
       const newPorter = new Porter(type + '');
       // 新增傳送員
