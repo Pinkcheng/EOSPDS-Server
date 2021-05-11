@@ -1,6 +1,11 @@
 import { Department } from './../entity/Department.entity';
 import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
+import { Formatter } from '../core/Formatter';
+
+import dotenv from 'dotenv';
+// Read .env files settings
+dotenv.config();
 
 @EntityRepository(Department)
 export class DepartmentRepository extends Repository<Department> {
@@ -25,8 +30,8 @@ export class DepartmentRepository extends Repository<Department> {
 
   findByNameWithoutMyself(searchName: string, myselfID: string) {
     const list = this.createQueryBuilder('department')
-      .where(`department.name = '${ searchName }'`)
-      .andWhere(`department.id != '${ myselfID }'`)
+      .where(`department.name = '${searchName}'`)
+      .andWhere(`department.id != '${myselfID}'`)
       .getOne();
 
     return list;
@@ -40,21 +45,25 @@ export class DepartmentModel {
     this.mDepartmentRepo = getCustomRepository(DepartmentRepository);
   }
 
-  create(id: string, name: string) {
+  create(
+    buildingID: string,
+    floor: string,
+    name: string
+  ) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!id || !name) {
+      if (!name) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
-        const findDepartment = await this.mDepartmentRepo.findOne({ id });
+        const findDepartment = await this.mDepartmentRepo.findOne({ name });
         if (findDepartment) {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else {
-          const newDepartment = new Department();
-          newDepartment.id = id;
+          const newDepartment = new Department(buildingID, floor);
+          // newDepartment.id = await this.generaterID(buildingID, floor);
           newDepartment.name = name;
-    
+
           try {
             await this.mDepartmentRepo.save(newDepartment);
             resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
@@ -93,9 +102,8 @@ export class DepartmentModel {
           reject(RESPONSE_STATUS.DATA_REPEAT);
           return;
         } else {
-          findDepartmentByID.id = id;
           findDepartmentByID.name = name;
-    
+
           try {
             await this.mDepartmentRepo.save(findDepartmentByID);
             resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
