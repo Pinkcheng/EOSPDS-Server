@@ -60,7 +60,7 @@ export class UserModel {
 
       // 確認輸入的帳號是否為空值
       if (!account) {
-        reject(RESPONSE_STATUS.USER_ACCOUNT_IS_EMPTY);
+        reject(RESPONSE_STATUS.USER_MOBILE_IS_EMPTY);
         return;
         // 確認輸入的密碼是否為空值
       } else if (!password) {
