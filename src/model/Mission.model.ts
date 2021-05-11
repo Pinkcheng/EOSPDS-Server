@@ -488,7 +488,7 @@ export class MissionProcessModel {
 
 @EntityRepository(Mission)
 export class MissionRepository extends Repository<Mission> {
-  findMissionList(
+  findMissionListByDepartment(
     days: string,
     selectDepartment: string,
     status: MISSION_STATUS
@@ -514,6 +514,31 @@ export class MissionRepository extends Repository<Mission> {
       missions.andWhere(`mission.status = '${status}'`);
     }
 
+    return missions.getMany();
+  }
+
+  findMissionListByPorter(
+    days: string,
+    selectPorter: string,
+    status: MISSION_STATUS
+  ): Promise<Mission[]> {
+    const missions = this.createQueryBuilder('mission')
+      .leftJoinAndSelect('mission.label', 'label')
+      .leftJoinAndSelect('mission.instrument', 'instrument')
+      .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
+      .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
+      .leftJoinAndSelect('mission.porter', 'porter')
+      .where(`mission.porter >= '${selectPorter}'`);
+
+    if (days) {
+      missions.andWhere(`mission.createTime >= '${days}'`);
+    }
+
+    if (status) {
+      missions.andWhere(`mission.status = '${status}'`);
+    }
+
+    missions.orderBy('mission.id', 'ASC');
     return missions.getMany();
   }
 
@@ -596,7 +621,6 @@ export class MissionModel {
     });
   }
 
-  // TODO: 自己的單位才能查自己的，系統管理員可以查全部的
   list(
     selectDataUser: User,
     selectDepartment?: string,
@@ -616,6 +640,8 @@ export class MissionModel {
       const selectDataUserPermissionID = selectDataUser.permission.id;
       // 取得查詢使用者單位編號
       let selectDataUserDepartmentID = null;
+      let missionList: Mission[];
+
       // 使用者權限為單位
       if (selectDataUserPermissionID === SYSTEM_PERMISSION.DEPARTMENT) {
         const findStaff = await new StaffModel().get(selectDataUser.id);
@@ -631,10 +657,17 @@ export class MissionModel {
           // 查詢自己的單位
           selectDepartment = selectDataUserDepartmentID;
         }
+
+        missionList = await this.mMissionRepo.findMissionListByDepartment(
+          date.format(selectDate, process.env.DATE_FORMAT), selectDepartment, status);
+      } else if (selectDataUserPermissionID === SYSTEM_PERMISSION.PORTER) {
+        missionList = await this.mMissionRepo.findMissionListByPorter(
+          date.format(selectDate, process.env.DATE_FORMAT), selectDataUser.id, status);
+      } else {
+        missionList = await this.mMissionRepo.findMissionListByDepartment(
+          date.format(selectDate, process.env.DATE_FORMAT), selectDepartment, status);
       }
 
-      const missionList = await this.mMissionRepo.findMissionList(
-        date.format(selectDate, process.env.DATE_FORMAT), selectDepartment, status);
       // 若任務數量為0，回傳空陣列
       if (missionList.length === 0) {
         resolve([]);
@@ -705,7 +738,7 @@ export class MissionModel {
         const findEndDepartment = await new DepartmentModel().findByID(findMission.endDepartment.id);
         findMission.startDepartment = findStartDepartment;
         findMission.endDepartment = findEndDepartment;
-        
+
         resolve(findMission);
       }
     });
