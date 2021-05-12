@@ -92,6 +92,18 @@ export class PorterPunchLogModel {
       }
     });
   }
+
+  list(porterID: string) {
+    return new Promise<any>(async (resolve, reject) => {
+      if (!porterID) {
+        reject(RESPONSE_STATUS.DATA_SUCCESS);
+        return;
+      }
+
+      const logs = await this.mPorterPunchLogRepo.find({ porter: porterID });
+      resolve(logs);
+    });
+  }
 }
 
 @EntityRepository(Porter)

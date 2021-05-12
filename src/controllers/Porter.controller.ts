@@ -1,4 +1,4 @@
-import { PorterModel } from './../model/Porter.model';
+import { PorterModel, PorterPunchLogModel } from './../model/Porter.model';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
 import { Formatter } from '../core/Formatter';
@@ -83,6 +83,19 @@ export const del = (req: Request, res: Response) => {
   porterModel.del(req.params.porterID)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_DELETE_SUCCESS));
+    }).catch(err => {
+      console.error(err);
+      res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+    });
+};
+
+export const punchList = (req: Request, res: Response) => {
+  const porterID = req.params.porterID;
+
+  const porterPunchLogModel = new PorterPunchLogModel();
+  porterPunchLogModel.list(porterID)
+    .then(logs => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, logs));
     }).catch(err => {
       console.error(err);
       res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));

@@ -15,6 +15,7 @@ porterRouter.route('/:porterID')
 
 // =========== 傳送員打卡 ===========
 porterRouter.route('/:porterID/punch')
-  .post(minAccessLevel(SYSTEM_PERMISSION.PORTER), porterController.punch);
+  .post(minAccessLevel(SYSTEM_PERMISSION.PORTER), porterController.punch)
+  .get(minAccessLevel(SYSTEM_PERMISSION.PORTER_CENTER), porterController.punchList);
 
 export default porterRouter; 
