@@ -82,7 +82,7 @@ export class PorterPunchLogModel {
       const porterLog = new PorterPunchLog();
       porterLog.porter = porterID;
       porterLog.status = status;
-      
+
       try {
         await this.mPorterPunchLogRepo.save(porterLog);
         resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
@@ -138,14 +138,16 @@ export class PorterRepository extends Repository<Porter> {
     return porter;
   }
 
-  getAll() {
+  getAll(status: PORTER_STATUS) {
     const porters = this.createQueryBuilder('porter')
       .leftJoinAndSelect('porter.type', 'type')
       .leftJoinAndSelect('porter.department', 'department')
-      .orderBy('porter.id', 'ASC')
-      .getMany();
+      .orderBy('porter.id', 'ASC');
 
-    return porters;
+    if (status) {
+      porters.where(`porter.status = '${status}'`);
+    }
+    return porters.getMany();
   }
 
   del(id: string) {
@@ -263,8 +265,8 @@ export class PorterModel {
     return porter;
   }
 
-  async getAll() {
-    const porterList = await this.mPorterRepo.getAll();
+  async getAll(status?: PORTER_STATUS) {
+    const porterList = await this.mPorterRepo.getAll(status);
     // 替換department物件
     for (let i = 0; i < porterList.length; i++) {
       const findDepartment = await new DepartmentModel().findByID(porterList[i].department.id);
@@ -293,7 +295,7 @@ export class PorterModel {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
         }
-        
+
         try {
           findPorter.status = status;
           await this.mPorterRepo.save(findPorter);

@@ -1,3 +1,4 @@
+import { PORTER_STATUS } from './../entity/Porter.entity';
 import { PorterModel, PorterPunchLogModel } from './../model/Porter.model';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
@@ -28,8 +29,16 @@ export const create = (req: Request, res: Response) => {
 };
 
 export const list = (req: Request, res: Response) => {
+  const status = parseInt(req.query.status as string);
+  let porterStatus;
+  if (status === PORTER_STATUS.START_TO_WORK) {
+    porterStatus = PORTER_STATUS.START_TO_WORK;
+  } else {
+    porterStatus = PORTER_STATUS.FINISH_WORK;
+  }
+
   const porterModel = new PorterModel();
-  porterModel.getAll()
+  porterModel.getAll(porterStatus)
     .then(porterList => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_SUCCESS, porterList));
     }).catch(err => {
