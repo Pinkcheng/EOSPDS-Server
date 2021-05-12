@@ -1,6 +1,6 @@
 import { DepartmentModel } from './Department.model';
 import { PorterTypeModel } from './Porter.model';
-import { MissionInstrumentModel } from './Mission.model';
+import { MissionInstrumentModel, MissionTypeModel, MissionLabelModel } from './Mission.model';
 import { BuildingModel } from '../model/Building.model';
 import { UserModel } from '../model/User.model';
 import { SystemPermissionModel } from './System.model';
@@ -24,6 +24,10 @@ export class Initialize {
           return this.installPorterType();
         }).then(() => {
           return this.installDepartment();
+        }).then(() => {
+          return this.installMissionType();
+        }).then(() => {
+          return this.installMissionLabel();
         }).then(() => {
           resolve();
         });
@@ -128,6 +132,40 @@ export class Initialize {
 
         if (i === initData.department.length - 1) {
           console.log('\n\t*** 安裝系統預設單位 ***');
+          resolve();
+        }
+      }
+    });
+  }
+
+  // 新增任務類型
+  private installMissionType() {
+    const missionTypeModel = new MissionTypeModel();
+
+    return new Promise<void>(async (resolve, reject) => {
+      for (let i = 0; i < initData.missionType.length; i++) {
+        const data = initData.missionType[i];
+        await missionTypeModel.create(data[0], data[1]).then(() => { }, () => { });
+
+        if (i === initData.missionType.length - 1) {
+          console.log('\n\t*** 安裝系統任務類型 ***');
+          resolve();
+        }
+      }
+    });
+  }
+
+  // 新增任務標籤
+  private installMissionLabel() {
+    const missionLabelModel = new MissionLabelModel();
+
+    return new Promise<void>(async (resolve, reject) => {
+      for (let i = 0; i < initData.missionLabel.length; i++) {
+        const data = initData.missionLabel[i];
+        await missionLabelModel.create(data[0], data[1]).then(() => { }, () => { });
+ 
+        if (i === initData.missionLabel.length - 1) {
+          console.log('\n\t*** 安裝系統任務標籤 ***');
           resolve();
         }
       }
