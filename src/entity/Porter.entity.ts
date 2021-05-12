@@ -9,7 +9,7 @@ dotenv.config();
 
 export enum PORTER_STATUS {
   'START_TO_WORK' = 1,
-  'FINISH_WORK' = 1
+  'FINISH_WORK' = 2
 }
 
 @Entity('porter_list')
@@ -70,7 +70,7 @@ export class Porter {
     name: 'status',
     default: PORTER_STATUS.FINISH_WORK
   })
-  status: number;
+  status: PORTER_STATUS;
 
   @ManyToOne(
     () => Department,

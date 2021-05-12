@@ -8,6 +8,7 @@ import { RESPONSE_STATUS } from '../core/ResponseCode';
 
 import dotenv from 'dotenv';
 import { DepartmentModel } from './Department.model';
+import { PorterPunchLog } from '../entity/PorterPunchLog.entity';
 // Read .env files settings
 dotenv.config();
 
@@ -54,6 +55,42 @@ export class PorterTypeModel {
 
   async findByTypeID(id: number) {
     return await this.mPorterTypeRepo.findByID(id);
+  }
+}
+
+@EntityRepository(PorterPunchLog)
+export class PorterPunchLogRepository extends Repository<PorterPunchLog> {
+  findByID(id: number) {
+    return this.findOne({ id });
+  }
+}
+
+export class PorterPunchLogModel {
+  private mPorterPunchLogRepo: PorterPunchLogRepository;
+
+  constructor() {
+    this.mPorterPunchLogRepo = getCustomRepository(PorterPunchLogRepository);
+  }
+
+  create(porterID: string, status: PORTER_STATUS) {
+    return new Promise<any>(async (resolve, reject) => {
+      if (!porterID || !status) {
+        reject(RESPONSE_STATUS.DATA_CREATE_FAIL);
+        return;
+      }
+
+      const porterLog = new PorterPunchLog();
+      porterLog.porter = porterID;
+      porterLog.status = status;
+      
+      try {
+        await this.mPorterPunchLogRepo.save(porterLog);
+        resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
+      } catch (err) {
+        console.log(err);
+        reject(RESPONSE_STATUS.DATA_UNKNOWN);
+      }
+    });
   }
 }
 
@@ -244,11 +281,13 @@ export class PorterModel {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
         }
-
-        findPorter.status = status;
-
+        
         try {
+          findPorter.status = status;
           await this.mPorterRepo.save(findPorter);
+          // 新增打卡紀錄
+          await new PorterPunchLogModel().create(porterID, status);
+
           resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
         } catch (err) {
           console.error(err);
