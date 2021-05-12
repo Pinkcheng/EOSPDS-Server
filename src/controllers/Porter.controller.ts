@@ -53,6 +53,31 @@ export const update = (req: Request, res: Response) => {
 
 };
 
+export const punch = (req: Request, res: Response) => {
+  const porterID = req.params.porterID;
+  const punch = req.body.punch;
+
+  const porterModel = new PorterModel();
+
+  if (punch === '1') {
+    porterModel.startWork(porterID)
+    .then(() => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
+    }).catch(err => {
+      console.error(err);
+      res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+    });
+  } else if (punch === '2')  {
+    porterModel.finishWork(porterID)
+    .then(() => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_UPDATE_SUCCESS));
+    }).catch(err => {
+      console.error(err);
+      res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+    });
+  }
+};
+
 export const del = (req: Request, res: Response) => {
   const porterModel = new PorterModel();
   porterModel.del(req.params.porterID)

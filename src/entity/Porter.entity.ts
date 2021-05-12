@@ -7,6 +7,11 @@ import dotenv from 'dotenv';
 // Read .env files settings
 dotenv.config();
 
+export enum PORTER_STATUS {
+  'START_TO_WORK' = 1,
+  'FINISH_WORK' = 1
+}
+
 @Entity('porter_list')
 export class Porter {
   private mPorterType: string;
@@ -63,7 +68,7 @@ export class Porter {
 
   @Column('int', {
     name: 'status',
-    default: 2
+    default: PORTER_STATUS.FINISH_WORK
   })
   status: number;
 

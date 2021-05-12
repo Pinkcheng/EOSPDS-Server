@@ -1,3 +1,4 @@
+import { PORTER_STATUS } from './../entity/Porter.entity';
 import { UserModel } from './User.model';
 import { PorterType } from '../entity/PorterType.entity';
 import { Porter } from '../entity/Porter.entity';
@@ -222,6 +223,39 @@ export class PorterModel {
     }
 
     return porterList;
+  }
+
+  async startWork(porterID: string) {
+    return this.update(porterID, PORTER_STATUS.START_TO_WORK);
+  }
+
+  async finishWork(porterID: string) {
+    return this.update(porterID, PORTER_STATUS.FINISH_WORK);
+  }
+
+  async update(porterID: string, status: PORTER_STATUS) {
+    return new Promise<any>(async (resolve, reject) => {
+      if (!porterID || !status) {
+        reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+        return;
+      } else {
+        const findPorter = await this.mPorterRepo.findByID(porterID);
+        if (!findPorter) {
+          reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+          return;
+        }
+
+        findPorter.status = status;
+
+        try {
+          await this.mPorterRepo.save(findPorter);
+          resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
+        } catch (err) {
+          console.error(err);
+          reject(RESPONSE_STATUS.DATA_UNKNOWN);
+        }
+      }
+    });
   }
 
   async del(id: string) {

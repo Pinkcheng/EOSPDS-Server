@@ -13,4 +13,8 @@ porterRouter.route('/:porterID')
   .patch(minAccessLevel(SYSTEM_PERMISSION.PORTER), porterController.update)
   .delete(minAccessLevel(SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR), porterController.del);
 
-export default porterRouter;
+// =========== 傳送員打卡 ===========
+porterRouter.route('/:porterID/punch')
+  .post(minAccessLevel(SYSTEM_PERMISSION.PORTER), porterController.punch);
+
+export default porterRouter; 
