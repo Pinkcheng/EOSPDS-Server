@@ -677,9 +677,11 @@ export class MissionModel {
         for (let i = 0; i < missionList.length; i++) {
           const findStartDepartment = await new DepartmentModel().findByID(missionList[i].startDepartment.id);
           const findEndDepartment = await new DepartmentModel().findByID(missionList[i].endDepartment.id);
+          const findLabel = await new MissionLabelModel().findByID(missionList[i].label.id);
 
           missionList[i].startDepartment = findStartDepartment;
           missionList[i].endDepartment = findEndDepartment;
+          missionList[i].label = findLabel;
         }
       }
 
@@ -739,6 +741,9 @@ export class MissionModel {
         const findEndDepartment = await new DepartmentModel().findByID(findMission.endDepartment.id);
         findMission.startDepartment = findStartDepartment;
         findMission.endDepartment = findEndDepartment;
+
+        const findLabel = await new MissionLabelModel().findByID(findMission.label.id);
+        findMission.label = findLabel;
 
         resolve(findMission);
       }
