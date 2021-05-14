@@ -108,7 +108,7 @@ export class UserModel {
   }
 
   async findByAccount(account: string) {
-    const user = await this.mUserRepo.findOne({ account  });
+    const user = await this.mUserRepo.findOne({ account });
     return user;
   }
 
@@ -140,7 +140,13 @@ export class UserModel {
               userName = findUser.permission.name;
               permissionID = SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR;
               permissionName = findUser.permission.name;
-              departmentName = '系統';
+              departmentName = '系統管理員';
+              break;
+            case SYSTEM_PERMISSION.PORTER_CENTER:
+              userName = findUser.permission.name;
+              permissionID = SYSTEM_PERMISSION.PORTER_CENTER;
+              permissionName = findUser.permission.name;
+              departmentName = '傳送中心';
               break;
             case SYSTEM_PERMISSION.DEPARTMENT:
               const departmentModel = new DepartmentModel();

@@ -12,7 +12,7 @@ dotenv.config();
 
 export enum MISSION_STATUS {
   'NOT_DISPATCHED' = 1,
-  'NOT_STATED' = 2,
+  'NOT_STARTED' = 2,
   'IN_PROGRESS' = 3,
   'FINISH' = 4
 }
