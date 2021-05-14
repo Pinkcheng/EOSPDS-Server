@@ -644,8 +644,8 @@ export class MissionModel {
 
       // 使用者權限為單位
       if (selectDataUserPermissionID === SYSTEM_PERMISSION.DEPARTMENT) {
-        const findStaff = await new StaffModel().get(selectDataUser.id);
-        selectDataUserDepartmentID = findStaff.department.id;
+        const findDeaprtment = await new DepartmentModel().findByID(selectDataUser.id);
+        selectDataUserDepartmentID = findDeaprtment.id;
         // 如果使用者權限為單位，又有指定查詢資料
         if (selectDepartment) {
           // 查詢非自己單位的資料，則拒絕
