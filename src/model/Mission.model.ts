@@ -499,7 +499,7 @@ export class MissionRepository extends Repository<Mission> {
       .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
       .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
       .leftJoinAndSelect('mission.porter', 'porter')
-      .orderBy('mission.id', 'ASC');
+      .orderBy('mission.createTime', 'ASC');
 
     if (days && !selectDepartment) {
       missions.where(`mission.createTime >= '${days}'`);
@@ -538,7 +538,7 @@ export class MissionRepository extends Repository<Mission> {
       missions.andWhere(`mission.status = '${status}'`);
     }
 
-    missions.orderBy('mission.id', 'ASC');
+    missions.orderBy('mission.createTime', 'ASC');
     return missions.getMany();
   }
 
@@ -733,7 +733,7 @@ export class MissionModel {
         });
         // 將任務陣列丟到新的任務陣列
         findMission.process = processList;
-        
+
         // 替換department物件
         const findStartDepartment = await new DepartmentModel().findByID(findMission.startDepartment.id);
         const findEndDepartment = await new DepartmentModel().findByID(findMission.endDepartment.id);
