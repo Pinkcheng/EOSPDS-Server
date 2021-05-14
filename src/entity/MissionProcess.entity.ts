@@ -32,12 +32,11 @@ export class MissionProcess {
   })
   time: string;
 
-  @ManyToOne(
-    () => Department,
-    department => department.id
-  )
-  department: Department;
-
-  // TODO: 加上department和(handover)交接班單位人員欄位
+  @Column('varchar', {
+    name: 'handover',
+    length: 10,
+    default: null
+  })
+  handover: string;
 
 }

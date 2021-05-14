@@ -384,7 +384,6 @@ export class MissionInstrumentModel {
 export class MissionProcessRepository extends Repository<MissionProcess> {
   findMissionProcessByID(missionID: string) {
     const missionProcess = this.createQueryBuilder('process')
-      .leftJoinAndSelect('process.department', 'department')
       .where(`process.mid = '${missionID}'`)
       .orderBy('process.id', 'ASC')
       .getMany();
@@ -394,7 +393,6 @@ export class MissionProcessRepository extends Repository<MissionProcess> {
 
   findMissionProcessByIDAndStatus(missionID: string, status: MISSION_PROCESS_STATUS) {
     const missionProcess = this.createQueryBuilder('process')
-      .leftJoinAndSelect('process.department', 'department')
       .where(`process.mid = '${missionID}'`)
       .andWhere(`process.status = '${status}'`)
       .getOne();
@@ -420,7 +418,7 @@ export class MissionProcessModel {
     const newMissionProcess = new MissionProcess();
     newMissionProcess.status = status;
     newMissionProcess.mid = missoinID;
-    newMissionProcess.department = await new DepartmentModel().findByID(departmentID);
+    newMissionProcess.handover = departmentID;
     if (time) {
       newMissionProcess.time = time;
     }
@@ -465,16 +463,15 @@ export class MissionProcessModel {
 
       const findMissionProcess = await this.mMissionProcessRepo
         .findMissionProcessByIDAndStatus(missionID, missionProcessStatus);
-      const findDepartment = await new DepartmentModel().findByID(departmentID);
 
-      if (!findMissionProcess || !findDepartment) {
+      if (!findMissionProcess) {
         reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
         return;
       } else {
         try {
           // 更新任務狀態
           findMissionProcess.time = time;
-          findMissionProcess.department = findDepartment;
+          findMissionProcess.handover = departmentID;
           await this.mMissionProcessRepo.save(findMissionProcess);
           resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
         } catch (err) {
@@ -609,7 +606,7 @@ export class MissionModel {
               startDepartmentID, date.format(new Date(), process.env.DATE_FORMAT));
             await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.START, null);
             await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.IN_PROGRESS, null);
-            await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.FINISH, endDepartmentID);
+            await missionProcessModel.insert(newMission.id, MISSION_PROCESS_STATUS.FINISH, null);
 
             resolve(RESPONSE_STATUS.DATA_CREATE_SUCCESS);
           } catch (err) {
