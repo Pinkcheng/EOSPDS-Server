@@ -1,3 +1,4 @@
+import { MissionModel } from './Mission.model';
 import { PORTER_STATUS } from './../entity/Porter.entity';
 import { UserModel } from './User.model';
 import { PorterType } from '../entity/PorterType.entity';
@@ -228,6 +229,7 @@ export class PorterModel {
       newPorter.birthday = birthday;
       newPorter.gender = gender;
       newPorter.department = findDepartment;
+      newPorter.mobile = mobile;
       await this.mPorterRepo.save(newPorter);
 
       // 新增帳號
@@ -267,8 +269,8 @@ export class PorterModel {
 
   async getAll(status?: PORTER_STATUS) {
     const porterList = await this.mPorterRepo.getAll(status);
-    // 替換department物件
     for (let i = 0; i < porterList.length; i++) {
+      // 替換department物件
       const findDepartment = await new DepartmentModel().findByID(porterList[i].department.id);
       porterList[i].department = findDepartment;
     }
@@ -306,6 +308,44 @@ export class PorterModel {
         } catch (err) {
           console.error(err);
           reject(RESPONSE_STATUS.DATA_UNKNOWN);
+        }
+      }
+    });
+  }
+
+  async addPorterMissionCount(porterID: string) {
+    return new Promise<RESPONSE_STATUS>(async (resolve, reject) => {
+      if (!porterID) {
+        reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+        return;
+      } else {
+        const findPorter = await this.mPorterRepo.findByID(porterID);
+        if (!findPorter) {
+          reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+          return;
+        } else {
+          findPorter.count++;
+          await this.mPorterRepo.save(findPorter);
+          resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
+        }
+      }
+    });
+  }
+
+  async subPorterMissionCount(porterID: string) {
+    return new Promise<RESPONSE_STATUS>(async (resolve, reject) => {
+      if (!porterID) {
+        reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+        return;
+      } else {
+        const findPorter = await this.mPorterRepo.findByID(porterID);
+        if (!findPorter) {
+          reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+          return;
+        } else {
+          findPorter.count--;
+          await this.mPorterRepo.save(findPorter);
+          resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
         }
       }
     });

@@ -449,7 +449,7 @@ export class MissionProcessModel {
         case MISSION_STATUS.NOT_DISPATCHED:
           missionProcessStatus = MISSION_PROCESS_STATUS.ADD;
           break;
-        case MISSION_STATUS.NOT_STATED:
+        case MISSION_STATUS.NOT_STARTED:
           missionProcessStatus = MISSION_PROCESS_STATUS.START;
           break;
         case MISSION_STATUS.IN_PROGRESS:
@@ -733,6 +733,7 @@ export class MissionModel {
         });
         // 將任務陣列丟到新的任務陣列
         findMission.process = processList;
+        
         // 替換department物件
         const findStartDepartment = await new DepartmentModel().findByID(findMission.startDepartment.id);
         const findEndDepartment = await new DepartmentModel().findByID(findMission.endDepartment.id);
@@ -756,14 +757,21 @@ export class MissionModel {
         if (!findMission || !findPorter) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
+        } else if (findMission.porter) {
+          reject(RESPONSE_STATUS.MISSION_ALREADY_DISPATH);
+          return;
         } else {
           try {
             // 指派任務給傳送員
             findMission.porter = findPorter;
-            findMission.status = MISSION_STATUS.NOT_STATED;
+            findMission.status = MISSION_STATUS.NOT_STARTED;
             await this.mMissionRepo.save(findMission);
+
+            // 傳送員任務數量更新
+            await new PorterModel().addPorterMissionCount(porterID);
+
             // 更新任務進度
-            await new MissionProcessModel().updateMissionProcess(missionID, MISSION_STATUS.NOT_STATED, findMission.startDepartment.id);
+            await new MissionProcessModel().updateMissionProcess(missionID, MISSION_STATUS.NOT_STARTED, findMission.startDepartment.id);
             resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
           } catch (err) {
             console.error(err);
@@ -784,8 +792,28 @@ export class MissionModel {
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      this.updateMissionStatus(selectDataUser, MISSION_STATUS.IN_PROGRESS, missionID, handover)
-        .then(code => {
+      if (!missionID) {
+        reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+        return;
+      }
+
+      const findMission = await this.mMissionRepo.findByID(missionID);
+      if (!findMission) {
+        reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+        return;
+      } else if (findMission.status === MISSION_STATUS.NOT_DISPATCHED) {
+        reject(RESPONSE_STATUS.MISSION_NOT_DISPATCH);
+        return;
+      } else if (findMission.status === MISSION_STATUS.IN_PROGRESS) {
+        reject(RESPONSE_STATUS.MISSION_ALREADY_STARTED);
+        return;
+      } else if (findMission.status === MISSION_STATUS.FINISH) {
+        reject(RESPONSE_STATUS.MISSION_ALREADY_FINISH);
+        return;
+      }
+
+      this.updateMissionStatus(selectDataUser, MISSION_STATUS.IN_PROGRESS, findMission, handover)
+        .then(async code => {
           resolve(code);
         }, errCode => {
           reject(errCode);
@@ -799,8 +827,28 @@ export class MissionModel {
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      this.updateMissionStatus(selectDataUser, MISSION_STATUS.FINISH, missionID, handover)
-        .then(code => {
+      if (!missionID) {
+        reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+        return;
+      }
+
+      const findMission = await this.mMissionRepo.findByID(missionID);
+      if (!findMission) {
+        reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
+        return;
+      } else if (findMission.status === MISSION_STATUS.NOT_DISPATCHED) {
+        reject(RESPONSE_STATUS.MISSION_NOT_DISPATCH);
+        return;
+      } else if (findMission.status === MISSION_STATUS.NOT_STARTED) {
+        reject(RESPONSE_STATUS.MISSION_NOT_STARTED);
+        return;
+      } else if (findMission.status === MISSION_STATUS.FINISH) {
+        reject(RESPONSE_STATUS.MISSION_ALREADY_FINISH);
+        return;
+      }
+
+      this.updateMissionStatus(selectDataUser, MISSION_STATUS.FINISH, findMission, handover)
+        .then(async code => {
           resolve(code);
         }, errCode => {
           reject(errCode);
@@ -813,11 +861,11 @@ export class MissionModel {
   private updateMissionStatus(
     selectDataUser: User,
     action: MISSION_STATUS,
-    missionID: string,
+    mission: Mission,
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!action || !missionID || !handover) {
+      if (!action || !mission || !handover) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
@@ -830,9 +878,8 @@ export class MissionModel {
           return;
         }
 
-        const findMission = await this.mMissionRepo.findByID(missionID);
         // 任務尚未指派給任何人員，無法進行任務狀態更新
-        if (!findMission.porter) {
+        if (!mission.porter) {
           reject(RESPONSE_STATUS.MISSION_NOT_DISPATCH);
           return;
         }
@@ -840,7 +887,7 @@ export class MissionModel {
         // 如果使用者權限為傳送員，則不能更新不是自己的任務
         if (selectDataUserPermissinoID === SYSTEM_PERMISSION.PORTER) {
           const findPorter = await new PorterModel().findByID(selectDataUser.id);
-          if (findMission.porter.id !== findPorter.id) {
+          if (mission.porter.id !== findPorter.id) {
             reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
             return;
           }
@@ -853,22 +900,27 @@ export class MissionModel {
           staffOrDepartment = await new PorterModel().findByID(handover);
         }
 
-        if (!findMission || !staffOrDepartment) {
+        if (!mission || !staffOrDepartment) {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
         } else {
           if (action == MISSION_STATUS.NOT_DISPATCHED
-            || action == MISSION_STATUS.NOT_STATED) {
+            || action == MISSION_STATUS.NOT_STARTED) {
             reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
             return;
           } else {
             try {
               // 更新任務狀態
-              findMission.status = action;
-              await this.mMissionRepo.save(findMission);
+              mission.status = action;
+              await this.mMissionRepo.save(mission);
+
               // 更新任務進度
               await new MissionProcessModel()
-                .updateMissionProcess(missionID, action, findMission.startDepartment.id);
+                .updateMissionProcess(mission.id, action, mission.startDepartment.id);
+
+              // 傳送員任務數量更新
+              await new PorterModel().subPorterMissionCount(mission.porter.id);
+
               resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
             } catch (err) {
               console.error(err);

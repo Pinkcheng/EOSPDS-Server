@@ -66,11 +66,24 @@ export class Porter {
   })
   gender: number;
 
+  // 傳送員手機號碼
+  @Column('varchar', {
+    name: 'mobile',
+    length: 20
+  })
+  mobile: string;
+
   @Column('int', {
     name: 'status',
     default: PORTER_STATUS.FINISH_WORK
   })
   status: PORTER_STATUS;
+
+  @Column('int', {
+    name: 'count',
+    default: 0
+  })
+  count: number;
 
   @ManyToOne(
     () => Department,
