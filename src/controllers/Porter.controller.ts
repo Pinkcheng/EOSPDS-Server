@@ -1,4 +1,4 @@
-import { PORTER_STATUS } from './../entity/Porter.entity';
+import { PORTER_STATUS } from '../entity/Porter.entity';
 import { PorterModel, PorterPunchLogModel } from './../model/Porter.model';
 import { ResponseHandler } from '../core/ResponseHandler';
 import { Request, Response } from 'express';
