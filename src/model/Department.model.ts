@@ -64,7 +64,7 @@ export class DepartmentModel {
     password: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!name) {
+      if (!buildingID || !floor || !name || !password) {
         reject(RESPONSE_STATUS.DATA_REQUIRED_FIELD_IS_EMPTY);
         return;
       } else {
