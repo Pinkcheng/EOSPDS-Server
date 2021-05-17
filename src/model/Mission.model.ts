@@ -921,7 +921,9 @@ export class MissionModel {
                 .updateMissionProcess(mission.id, action, mission.startDepartment.id);
 
               // 傳送員任務數量更新
-              await new PorterModel().subPorterMissionCount(mission.porter.id);
+              if (action === MISSION_STATUS.FINISH) {
+                await new PorterModel().subPorterMissionCount(mission.porter.id);
+              }
 
               resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
             } catch (err) {
