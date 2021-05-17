@@ -247,6 +247,9 @@ export class PorterModel {
 
   async findByID(id: string) {
     const porter = await this.mPorterRepo.findByID(id);
+    // 替換department物件
+    const findDepartment = await new DepartmentModel().findByID(porter.department.id);
+    porter.department = findDepartment;
     return porter;
   }
 
