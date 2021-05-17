@@ -327,7 +327,7 @@ export class PorterModel {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
         } else {
-          findPorter.count++;
+          findPorter.mission++;
           await this.mPorterRepo.save(findPorter);
           resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
         }
@@ -346,7 +346,7 @@ export class PorterModel {
           reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
           return;
         } else {
-          findPorter.count--;
+          findPorter.mission--;
           await this.mPorterRepo.save(findPorter);
           resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
         }

@@ -80,10 +80,10 @@ export class Porter {
   status: PORTER_STATUS;
 
   @Column('int', {
-    name: 'count',
+    name: 'mission',
     default: 0
   })
-  count: number;
+  mission: number;
 
   @ManyToOne(
     () => Department,
