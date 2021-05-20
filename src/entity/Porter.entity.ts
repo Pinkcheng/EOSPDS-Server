@@ -73,6 +73,18 @@ export class Porter {
   })
   mobile: string;
 
+  @Column('varchar', {
+    name: 'location',
+    length: 50
+  })
+  location: string;
+
+  @Column('timestamp', {
+    name: 'location_time',
+    default: () => 'CURRENT_TIMESTAMP'
+  })
+  locationTime: string;
+
   @Column('int', {
     name: 'status',
     default: PORTER_STATUS.FINISH_WORK
