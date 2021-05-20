@@ -89,11 +89,18 @@ export class StaffModel {
 
   // TODO: 權限不足不能查詢別人的資料
   async get(id: string) {
-    const staff = await this.mStaffRepo.findByID(id);
-    // 替換department物件
-    const findDepartment = await new DepartmentModel().findByID(staff.department.id);
-    staff.department = findDepartment;
-    return staff;
+    return new Promise<any>(async (resolve, reject) => {
+      const staff = await this.mStaffRepo.findByID(id);
+
+      if (!staff) {
+        reject(RESPONSE_STATUS.DATA_UNKNOWN);
+      }
+
+      // 替換department物件
+      const findDepartment = await new DepartmentModel().findByID(staff.department.id);
+      staff.department = findDepartment;
+      resolve(staff);
+    });
   }
 
   // TODO: 權限不足不能查詢別的單位的員工資料

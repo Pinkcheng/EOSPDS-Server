@@ -772,7 +772,7 @@ export class MissionModel {
             await new PorterModel().addPorterMissionCount(porterID);
 
             // 更新任務進度
-            await new MissionProcessModel().updateMissionProcess(missionID, MISSION_STATUS.NOT_STARTED, findMission.startDepartment.id);
+            await new MissionProcessModel().updateMissionProcess(missionID, MISSION_STATUS.NOT_STARTED, 'D1000001');
             resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
           } catch (err) {
             console.error(err);
@@ -793,7 +793,7 @@ export class MissionModel {
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!missionID) {
+      if (!missionID || !handover) {
         reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
         return;
       }
@@ -828,7 +828,7 @@ export class MissionModel {
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!missionID) {
+      if (!missionID || !handover) {
         reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
         return;
       }
@@ -898,7 +898,7 @@ export class MissionModel {
         if (handover.startsWith('D')) {
           staffOrDepartment = await new DepartmentModel().findByID(handover);
         } else {
-          staffOrDepartment = await new PorterModel().findByID(handover);
+          staffOrDepartment = await new StaffModel().get(handover);
         }
 
         if (!mission || !staffOrDepartment) {
@@ -917,7 +917,7 @@ export class MissionModel {
 
               // 更新任務進度
               await new MissionProcessModel()
-                .updateMissionProcess(mission.id, action, mission.startDepartment.id);
+                .updateMissionProcess(mission.id, action, staffOrDepartment.id);
 
               // 傳送員任務數量更新
               if (action === MISSION_STATUS.FINISH) {
