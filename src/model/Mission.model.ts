@@ -514,7 +514,7 @@ export class MissionRepository extends Repository<Mission> {
       missions.andWhere(`mission.status = '${status}'`);
     }
 
-    const sql = missions.getSql(); 
+    const sql = missions.getSql();
     return missions.getMany();
   }
 
@@ -731,34 +731,42 @@ export class MissionModel {
         const processList = await new MissionProcessModel().getMissionProcess(findMission.id);
         // 替換handover物件
         let staffOrDepartment;
-        if (processList.add.handover.startsWith('D')) {
-          staffOrDepartment = await new DepartmentModel().findByID(processList.add.handover);
-        } else {
-          staffOrDepartment = await new StaffModel().get(processList.add.handover);
+        if (processList.add.handover) {
+          if (processList.add.handover.startsWith('D')) {
+            staffOrDepartment = await new DepartmentModel().findByID(processList.add.handover);
+          } else {
+            staffOrDepartment = await new StaffModel().get(processList.add.handover);
+          }
+          processList.add.handover = staffOrDepartment;
         }
-        processList.add.handover = staffOrDepartment;
 
-        if (processList.start.handover.startsWith('D')) {
-          staffOrDepartment = await new DepartmentModel().findByID(processList.start.handover);
-        } else {
-          staffOrDepartment = await new StaffModel().get(processList.start.handover);
+        if (processList.start.handover) {
+          if (processList.start.handover.startsWith('D')) {
+            staffOrDepartment = await new DepartmentModel().findByID(processList.start.handover);
+          } else {
+            staffOrDepartment = await new StaffModel().get(processList.start.handover);
+          }
+          processList.start.handover = staffOrDepartment;
         }
-        processList.start.handover = staffOrDepartment;
 
-        if (processList.in_process.handover.startsWith('D')) {
-          staffOrDepartment = await new DepartmentModel().findByID(processList.in_process.handover);
-        } else {
-          staffOrDepartment = await new StaffModel().get(processList.in_process.handover);
+        if (processList.in_process.handover) {
+          if (processList.in_process.handover.startsWith('D')) {
+            staffOrDepartment = await new DepartmentModel().findByID(processList.in_process.handover);
+          } else {
+            staffOrDepartment = await new StaffModel().get(processList.in_process.handover);
+          }
+          processList.in_process.handover = staffOrDepartment;
         }
-        processList.in_process.handover = staffOrDepartment;
 
-        if (processList.finish.handover.startsWith('D')) {
-          staffOrDepartment = await new DepartmentModel().findByID(processList.finish.handover);
-        } else {
-          staffOrDepartment = await new StaffModel().get(processList.finish.handover);
+        if (processList.finish.handover) {
+          if (processList.finish.handover.startsWith('D')) {
+            staffOrDepartment = await new DepartmentModel().findByID(processList.finish.handover);
+          } else {
+            staffOrDepartment = await new StaffModel().get(processList.finish.handover);
+          }
+          processList.finish.handover = staffOrDepartment;
         }
-        processList.finish.handover = staffOrDepartment;
-        
+
         // 將任務陣列丟到新的任務陣列
         findMission.process = processList;
 
