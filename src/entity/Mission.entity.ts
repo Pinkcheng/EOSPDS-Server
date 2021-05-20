@@ -101,7 +101,7 @@ export class Mission {
   )
   endDepartment: Department;
 
-  process: MissionProcess[];
+  process: {};
 
   constructor(transport?: string, missionType?: string, missionLabel?: string, date?: string) {
     this.mTransport = transport;

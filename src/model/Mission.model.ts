@@ -431,7 +431,13 @@ export class MissionProcessModel {
   }
 
   async getMissionProcess(missionID: string) {
-    return await this.mMissionProcessRepo.findMissionProcessByID(missionID);
+    const processList = await this.mMissionProcessRepo.findMissionProcessByID(missionID);
+    return {
+      'add': { 'time': processList[0].time, 'handover': processList[0].handover},
+      'start': { 'time': processList[1].time, 'handover': processList[1].handover},
+      'in_process': { 'time': processList[2].time, 'handover': processList[2].handover},
+      'finish': { 'time': processList[3].time, 'handover': processList[3].handover},
+    };
   }
 
   async updateMissionProcess(
@@ -725,11 +731,6 @@ export class MissionModel {
         }
 
         const processList = await new MissionProcessModel().getMissionProcess(findMission.id);
-        // 刪除不要的物件參數
-        processList.forEach(process => {
-          delete process.id;
-          delete process.mid;
-        });
         // 將任務陣列丟到新的任務陣列
         findMission.process = processList;
 
