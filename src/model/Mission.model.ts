@@ -6,7 +6,7 @@ import { MissionInstrument } from './../entity/MissionInstrument.entity';
 import { MissionType } from '../entity/MissionType.entity';
 import { MissionLabel } from './../entity/MissionLabel.entity';
 
-import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
+import { Brackets, EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import date from 'date-and-time';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 import { DepartmentModel } from './Department.model';
@@ -433,10 +433,10 @@ export class MissionProcessModel {
   async getMissionProcess(missionID: string) {
     const processList = await this.mMissionProcessRepo.findMissionProcessByID(missionID);
     return {
-      'add': { 'time': processList[0].time, 'handover': processList[0].handover},
-      'start': { 'time': processList[1].time, 'handover': processList[1].handover},
-      'in_process': { 'time': processList[2].time, 'handover': processList[2].handover},
-      'finish': { 'time': processList[3].time, 'handover': processList[3].handover},
+      'add': { 'time': processList[0].time, 'handover': processList[0].handover },
+      'start': { 'time': processList[1].time, 'handover': processList[1].handover },
+      'in_process': { 'time': processList[2].time, 'handover': processList[2].handover },
+      'finish': { 'time': processList[3].time, 'handover': processList[3].handover },
     };
   }
 
@@ -502,21 +502,19 @@ export class MissionRepository extends Repository<Mission> {
       .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
       .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
       .leftJoinAndSelect('mission.porter', 'porter')
-      .orderBy('mission.createTime', 'ASC');
+      .orderBy('mission.createTime', 'ASC')
+      .where(`mission.createTime >= '${days}'`);
 
-    if (days && !selectDepartment) {
-      missions.where(`mission.createTime >= '${days}'`);
-    } else if (!days && selectDepartment) {
-      missions.where({ startDepartment: selectDepartment });
-    } else if (days && selectDepartment) {
-      missions.where({ startDepartment: selectDepartment });
-      missions.andWhere(`mission.createTime >= '${days}'`);
+    if (selectDepartment) {
+      missions.andWhere(`(mission.startDepartment = '${selectDepartment}'
+        or mission.endDepartment = '${selectDepartment}')`);
     }
 
     if (status) {
       missions.andWhere(`mission.status = '${status}'`);
     }
 
+    const sql = missions.getSql(); 
     return missions.getMany();
   }
 
