@@ -75,7 +75,8 @@ export class Porter {
 
   @Column('varchar', {
     name: 'location',
-    length: 50
+    length: 50,
+    default: null
   })
   location: string;
 
