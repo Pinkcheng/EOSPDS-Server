@@ -7,6 +7,7 @@ import { SystemPermissionModel } from './System.model';
 import { data as initData } from './data';
 
 import dotenv from 'dotenv';
+import { SYSTEM_PERMISSION } from '../entity/SystemPermission.entity';
 // Read .env files settings
 dotenv.config();
 
@@ -60,7 +61,7 @@ export class Initialize {
       for (let i = 0; i < initData.user.length; i++) {
         const data = initData.user[i];
         await userModel.create(
-          data[0], data[2], data[3], parseInt(data[1])).then(() => { }, () => { });
+          data[0] +'', data[2] + '', data[3] +'', data[1] as SYSTEM_PERMISSION).then(() => { }, () => { });
 
         if (i === initData.user.length - 1) {
           console.log('\n\t*** 安裝系統預設使用者 ***');

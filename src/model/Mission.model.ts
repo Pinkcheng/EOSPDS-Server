@@ -6,7 +6,7 @@ import { MissionInstrument } from './../entity/MissionInstrument.entity';
 import { MissionType } from '../entity/MissionType.entity';
 import { MissionLabel } from './../entity/MissionLabel.entity';
 
-import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
+import { Brackets, EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import date from 'date-and-time';
 import { RESPONSE_STATUS } from '../core/ResponseCode';
 import { DepartmentModel } from './Department.model';
@@ -431,7 +431,13 @@ export class MissionProcessModel {
   }
 
   async getMissionProcess(missionID: string) {
-    return await this.mMissionProcessRepo.findMissionProcessByID(missionID);
+    const processList = await this.mMissionProcessRepo.findMissionProcessByID(missionID);
+    return {
+      'add': { 'time': processList[0].time, 'handover': processList[0].handover },
+      'start': { 'time': processList[1].time, 'handover': processList[1].handover },
+      'in_process': { 'time': processList[2].time, 'handover': processList[2].handover },
+      'finish': { 'time': processList[3].time, 'handover': processList[3].handover },
+    };
   }
 
   async updateMissionProcess(
@@ -496,21 +502,19 @@ export class MissionRepository extends Repository<Mission> {
       .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
       .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
       .leftJoinAndSelect('mission.porter', 'porter')
-      .orderBy('mission.createTime', 'ASC');
+      .orderBy('mission.createTime', 'ASC')
+      .where(`mission.createTime >= '${days}'`);
 
-    if (days && !selectDepartment) {
-      missions.where(`mission.createTime >= '${days}'`);
-    } else if (!days && selectDepartment) {
-      missions.where({ startDepartment: selectDepartment });
-    } else if (days && selectDepartment) {
-      missions.where({ startDepartment: selectDepartment });
-      missions.andWhere(`mission.createTime >= '${days}'`);
+    if (selectDepartment) {
+      missions.andWhere(`(mission.startDepartment = '${selectDepartment}'
+        or mission.endDepartment = '${selectDepartment}')`);
     }
 
     if (status) {
       missions.andWhere(`mission.status = '${status}'`);
     }
 
+    const sql = missions.getSql(); 
     return missions.getMany();
   }
 
@@ -725,11 +729,6 @@ export class MissionModel {
         }
 
         const processList = await new MissionProcessModel().getMissionProcess(findMission.id);
-        // 刪除不要的物件參數
-        processList.forEach(process => {
-          delete process.id;
-          delete process.mid;
-        });
         // 將任務陣列丟到新的任務陣列
         findMission.process = processList;
 
@@ -773,7 +772,7 @@ export class MissionModel {
             await new PorterModel().addPorterMissionCount(porterID);
 
             // 更新任務進度
-            await new MissionProcessModel().updateMissionProcess(missionID, MISSION_STATUS.NOT_STARTED, findMission.startDepartment.id);
+            await new MissionProcessModel().updateMissionProcess(missionID, MISSION_STATUS.NOT_STARTED, 'D1000001');
             resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
           } catch (err) {
             console.error(err);
@@ -794,7 +793,7 @@ export class MissionModel {
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!missionID) {
+      if (!missionID || !handover) {
         reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
         return;
       }
@@ -829,7 +828,7 @@ export class MissionModel {
     handover: string
   ) {
     return new Promise<any>(async (resolve, reject) => {
-      if (!missionID) {
+      if (!missionID || !handover) {
         reject(RESPONSE_STATUS.DATA_UPDATE_FAIL);
         return;
       }
@@ -899,7 +898,7 @@ export class MissionModel {
         if (handover.startsWith('D')) {
           staffOrDepartment = await new DepartmentModel().findByID(handover);
         } else {
-          staffOrDepartment = await new PorterModel().findByID(handover);
+          staffOrDepartment = await new StaffModel().get(handover);
         }
 
         if (!mission || !staffOrDepartment) {
@@ -918,10 +917,12 @@ export class MissionModel {
 
               // 更新任務進度
               await new MissionProcessModel()
-                .updateMissionProcess(mission.id, action, mission.startDepartment.id);
+                .updateMissionProcess(mission.id, action, staffOrDepartment.id);
 
               // 傳送員任務數量更新
-              await new PorterModel().subPorterMissionCount(mission.porter.id);
+              if (action === MISSION_STATUS.FINISH) {
+                await new PorterModel().subPorterMissionCount(mission.porter.id);
+              }
 
               resolve(RESPONSE_STATUS.DATA_UPDATE_SUCCESS);
             } catch (err) {

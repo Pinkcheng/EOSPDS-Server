@@ -35,7 +35,7 @@ export const list = (req: Request, res: Response) => {
   let porterStatus;
   if (status === PORTER_STATUS.START_TO_WORK) {
     porterStatus = PORTER_STATUS.START_TO_WORK;
-  } else {
+  } else if (status === PORTER_STATUS.FINISH_WORK) {
     porterStatus = PORTER_STATUS.FINISH_WORK;
   }
 
