@@ -502,7 +502,7 @@ export class MissionRepository extends Repository<Mission> {
       .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
       .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
       .leftJoinAndSelect('mission.porter', 'porter')
-      .orderBy('mission.createTime', 'ASC')
+      .orderBy('mission.createTime', 'DESC')
       .where(`mission.createTime >= '${days}'`);
 
     if (selectDepartment) {
@@ -539,7 +539,7 @@ export class MissionRepository extends Repository<Mission> {
       missions.andWhere(`mission.status = '${status}'`);
     }
 
-    missions.orderBy('mission.createTime', 'ASC');
+    missions.orderBy('mission.createTime', 'DESC');
     return missions.getMany();
   }
 
