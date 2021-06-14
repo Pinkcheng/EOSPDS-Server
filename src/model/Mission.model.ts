@@ -706,8 +706,8 @@ export class MissionModel {
         // 使用者權限為單位
         if (selectDataUserPermissionID === SYSTEM_PERMISSION.DEPARTMENT) {
           // 取得查詢使用者單位編號
-          const selectDataUserDepartmentID = await (await new StaffModel()
-            .get(selectDataUser.id)).department.id;
+          const selectDataUserDepartmentID = await (await new DepartmentModel()
+            .findByID(selectDataUser.id)).id;
           // 查詢不是自己單位的任務
           if (findMission.startDepartment.id !== selectDataUserDepartmentID) {
             reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
