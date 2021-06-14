@@ -502,7 +502,7 @@ export class MissionRepository extends Repository<Mission> {
       .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
       .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
       .leftJoinAndSelect('mission.porter', 'porter')
-      .orderBy('mission.createTime', 'ASC')
+      .orderBy('mission.createTime', 'DESC')
       .where(`mission.createTime >= '${days}'`);
 
     if (selectDepartment) {
@@ -539,7 +539,7 @@ export class MissionRepository extends Repository<Mission> {
       missions.andWhere(`mission.status = '${status}'`);
     }
 
-    missions.orderBy('mission.createTime', 'ASC');
+    missions.orderBy('mission.createTime', 'DESC');
     return missions.getMany();
   }
 
@@ -706,8 +706,8 @@ export class MissionModel {
         // 使用者權限為單位
         if (selectDataUserPermissionID === SYSTEM_PERMISSION.DEPARTMENT) {
           // 取得查詢使用者單位編號
-          const selectDataUserDepartmentID = await (await new StaffModel()
-            .get(selectDataUser.id)).department.id;
+          const selectDataUserDepartmentID = await (await new DepartmentModel()
+            .findByID(selectDataUser.id)).id;
           // 查詢不是自己單位的任務
           if (findMission.startDepartment.id !== selectDataUserDepartmentID) {
             reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
