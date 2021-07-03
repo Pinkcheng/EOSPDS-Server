@@ -60,6 +60,21 @@ export const get = async (req: Request, res: Response) => {
     });
 };
 
+export const del = async (req: Request, res: Response) => {
+  const missionID = req.params.missionID as string;
+
+  const missionModel = new MissionModel();
+  missionModel.delete(missionID)
+    .then(missions => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_DELETE_SUCCESS, missions));
+    }, errCode => {
+      res.status(400).json(ResponseHandler.message(errCode));
+    }).catch(err => {
+      console.error(err);
+      res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+    });
+};
+
 export const dispatch = (req: Request, res: Response) => {
   const dispatch = req.body.dispatch;
   const missionID = req.params.missionID;

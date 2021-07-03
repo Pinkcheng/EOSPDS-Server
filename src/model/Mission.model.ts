@@ -400,6 +400,12 @@ export class MissionProcessRepository extends Repository<MissionProcess> {
     return missionProcess;
   }
 
+  deleteMissionProcessByID(missionID: string) {
+    this.createQueryBuilder('process')
+      .delete()
+      .where(`process.mid = ${missionID}`)
+      .execute();
+  }
 }
 
 export class MissionProcessModel {
@@ -438,6 +444,10 @@ export class MissionProcessModel {
       'in_process': { 'time': processList[2].time, 'handover': processList[2].handover },
       'finish': { 'time': processList[3].time, 'handover': processList[3].handover },
     };
+  }
+
+  async deleteMissionProcess(missionID: string) {
+    await this.mMissionProcessRepo.deleteMissionProcessByID(missionID);
   }
 
   async updateMissionProcess(
@@ -973,4 +983,14 @@ export class MissionModel {
       }
     });
   }
+
+  async delete(missionID: string) {
+    await this.mMissionRepo.delete({id: missionID});
+    const findMission = await this.mMissionRepo.findByID(missionID);
+    
+    // 如果任務被指派的話，該任務傳送員的任務數量減一
+    if (findMission.status >= MISSION_STATUS.NOT_STARTED) {
+      await new PorterModel().subPorterMissionCount(findMission.porter.id);
+    }
+  } 
 }
