@@ -1,3 +1,4 @@
+import { update } from './Department.controller';
 import { User } from './../entity/UserList.entity';
 import { SYSTEM_PERMISSION } from './../entity/SystemPermission.entity';
 import { StaffModel } from './../model/Staff.model';
@@ -16,6 +17,26 @@ export const create = (req: Request, res: Response) => {
 
   const missionModel = new MissionModel();
   missionModel.create(labelID, startDepartmentID, endDepartmentID, instrumnetID, content)
+    .then(() => {
+      res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
+    }, errCode => {
+      res.status(400).json(ResponseHandler.message(errCode));
+    }).catch(err => {
+      console.error(err);
+      res.status(400).json(ResponseHandler.message(RESPONSE_STATUS.DATA_UNKNOWN));
+    });
+};
+
+export const edit = (req: Request, res: Response) => {
+  const missionID = Formatter.formInput(req.body.missionID);
+  const labelID = Formatter.formInput(req.body.label);
+  const startDepartmentID = Formatter.formInput(req.body.start);
+  const endDepartmentID = Formatter.formInput(req.body.end);
+  const content = req.body.content;
+  const instrumnetID = Formatter.formInput(req.body.instrument);
+
+  const missionModel = new MissionModel();
+  missionModel.updateMission(missionID, content, instrumnetID, startDepartmentID, endDepartmentID, labelID)
     .then(() => {
       res.json(ResponseHandler.message(RESPONSE_STATUS.DATA_CREATE_SUCCESS));
     }, errCode => {

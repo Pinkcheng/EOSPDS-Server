@@ -1,3 +1,4 @@
+import { update } from './../controllers/Department.controller';
 import { User } from './../entity/UserList.entity';
 import { PorterModel } from './Porter.model';
 import { Mission, MISSION_STATUS } from './../entity/Mission.entity';
@@ -984,13 +985,33 @@ export class MissionModel {
     });
   }
 
+  // TODO: 只能刪除自己的任務
   async delete(missionID: string) {
     await this.mMissionRepo.delete({id: missionID});
     const findMission = await this.mMissionRepo.findByID(missionID);
-    
+
     // 如果任務被指派的話，該任務傳送員的任務數量減一
     if (findMission.status >= MISSION_STATUS.NOT_STARTED) {
       await new PorterModel().subPorterMissionCount(findMission.porter.id);
     }
-  } 
+  }
+
+  // TODO: 只能更新自己的任務
+  async updateMission(
+    missionID: string,
+    contant: string,
+    instrumnetID: string,
+    startDepartmentID: string,
+    endDepartmentID: string,
+    missionLabelID: string
+  ) {
+    const findMission = await this.mMissionRepo.findByID(missionID);
+    findMission.content = contant;
+    findMission.instrument = await new MissionInstrumentModel().findByID(instrumnetID);
+    findMission.startDepartment = await new DepartmentModel().findByID(startDepartmentID);
+    findMission.endDepartment = await new DepartmentModel().findByID(endDepartmentID);
+    findMission.label = await new MissionLabelModel().findByID(missionLabelID);
+
+    await this.mMissionRepo.save(findMission);
+  }
 }

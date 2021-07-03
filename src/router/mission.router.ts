@@ -19,6 +19,7 @@ missionRouter.route('/')
 
 missionRouter.route('/:missionID')
   .get(minAccessLevel(SYSTEM_PERMISSION.PORTER), missionController.get)
+  .put(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionController.edit)
   .delete(minAccessLevel(SYSTEM_PERMISSION.DEPARTMENT), missionController.del);
 
 missionRouter.route('/:missionID/dispatch')
