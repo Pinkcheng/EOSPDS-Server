@@ -1,3 +1,4 @@
+import { BuildingModel } from './Building.model';
 import { DepartmentModel } from '../model/Department.model';
 import { SystemParameterModel, SystemPermissionModel } from './System.model';
 import { PorterModel } from './Porter.model';
@@ -133,7 +134,7 @@ export class UserModel {
           return;
         } else {
           let userName = '', permissionID = 9999, permissionName = '';
-          let departmentName = '';
+          let departmentName = '', buildingID = '', buildingName = '';
 
           switch (findUser.permission.id) {
             case SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR:
@@ -141,12 +142,16 @@ export class UserModel {
               permissionID = SYSTEM_PERMISSION.SYSTEM_ADMINISTRATOR;
               permissionName = findUser.permission.name;
               departmentName = '系統管理員';
+              buildingID = 'B0000';
+              buildingName = '系統管理員 - 99F';
               break;
             case SYSTEM_PERMISSION.PORTER_CENTER:
               userName = findUser.permission.name;
               permissionID = SYSTEM_PERMISSION.PORTER_CENTER;
               permissionName = findUser.permission.name;
               departmentName = '傳送中心';
+              buildingID = 'B0000';
+              buildingName = '新醫療大樓 - B1F';
               break;
             case SYSTEM_PERMISSION.DEPARTMENT:
               const departmentModel = new DepartmentModel();
@@ -155,6 +160,8 @@ export class UserModel {
               permissionID = SYSTEM_PERMISSION.DEPARTMENT;
               permissionName = findUser.permission.name;
               departmentName = department.name;
+              buildingID = department.building.id;
+              buildingName = department.building.name + ' - ' + department.floor + 'F';
               break;
             case SYSTEM_PERMISSION.PORTER:
               const porterModel = new PorterModel();
@@ -163,6 +170,8 @@ export class UserModel {
               permissionID = SYSTEM_PERMISSION.PORTER;
               permissionName = findUser.permission.name;
               departmentName = findPorter.department.name;
+              buildingID = department.building.id;
+              buildingName = '新醫療大樓 - B1F';
               break;
             default:
               reject(RESPONSE_STATUS.AUTH_UNKNOWN);
@@ -170,7 +179,7 @@ export class UserModel {
           }
 
           const accessToken = this.generateAccessToken(
-            findUser.id, userName, permissionID, permissionName, departmentName);
+            findUser.id, userName, permissionID, permissionName, departmentName, buildingName, buildingID);
           await this.updateToken(findUser.id, accessToken);
           resolve(accessToken);
         }
@@ -188,6 +197,8 @@ export class UserModel {
     permissionID: number,
     permissionName: string,
     departmentName: string,
+    buildingName: string,
+    buildingID: string,
     expires: string = process.env.ACCESS_TOKEN_DEFAULT_TIMEOUT
   ) {
     return sign({
@@ -195,7 +206,9 @@ export class UserModel {
       name: name,
       permission: permissionID,
       permissionName: permissionName,
-      department: departmentName
+      department: departmentName,
+      bid: buildingID,
+      bname: buildingName,
     }, process.env.JWT_SECRET,
       { expiresIn: expires });
   }
