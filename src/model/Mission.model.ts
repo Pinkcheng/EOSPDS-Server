@@ -988,8 +988,8 @@ export class MissionModel {
   // TODO: 只能刪除自己的任務
   delete(missionID: string) {
     return new Promise<any>(async (resolve, reject) => {
-      await this.mMissionRepo.delete({id: missionID});
       const findMission = await this.mMissionRepo.findByID(missionID);
+      await this.mMissionRepo.delete({id: missionID});
   
       // 如果任務被指派的話，該任務傳送員的任務數量減一
       if (findMission.status >= MISSION_STATUS.NOT_STARTED) {
