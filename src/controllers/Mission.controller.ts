@@ -28,7 +28,7 @@ export const create = (req: Request, res: Response) => {
 };
 
 export const edit = (req: Request, res: Response) => {
-  const missionID = Formatter.formInput(req.body.missionID);
+  const missionID = req.params.missionID as string;
   const labelID = Formatter.formInput(req.body.label);
   const startDepartmentID = Formatter.formInput(req.body.start);
   const endDepartmentID = Formatter.formInput(req.body.end);
