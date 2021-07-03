@@ -709,7 +709,8 @@ export class MissionModel {
           const selectDataUserDepartmentID = await (await new DepartmentModel()
             .findByID(selectDataUser.id)).id;
           // 查詢不是自己單位的任務
-          if (findMission.startDepartment.id !== selectDataUserDepartmentID) {
+          if (findMission.startDepartment.id !== selectDataUserDepartmentID &&
+              findMission.endDepartment.id !== selectDataUserDepartmentID) {
             reject(RESPONSE_STATUS.AUTH_ACCESS_DATA_FAIL);
             return;
           }
