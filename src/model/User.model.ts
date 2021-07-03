@@ -170,7 +170,7 @@ export class UserModel {
               permissionID = SYSTEM_PERMISSION.PORTER;
               permissionName = findUser.permission.name;
               departmentName = findPorter.department.name;
-              buildingID = department.building.id;
+              buildingID = 'B0000';
               buildingName = '新醫療大樓 - B1F';
               break;
             default:
