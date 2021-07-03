@@ -529,7 +529,7 @@ export class MissionRepository extends Repository<Mission> {
       .leftJoinAndSelect('mission.startDepartment', 'startDepartment')
       .leftJoinAndSelect('mission.endDepartment', 'endDepartment')
       .leftJoinAndSelect('mission.porter', 'porter')
-      .where(`mission.porter >= '${selectPorter}'`);
+      .where(`mission.porter = '${selectPorter}'`);
 
     if (days) {
       missions.andWhere(`mission.createTime >= '${days}'`);
