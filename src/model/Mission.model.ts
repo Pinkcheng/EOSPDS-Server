@@ -986,14 +986,18 @@ export class MissionModel {
   }
 
   // TODO: 只能刪除自己的任務
-  async delete(missionID: string) {
-    await this.mMissionRepo.delete({id: missionID});
-    const findMission = await this.mMissionRepo.findByID(missionID);
-
-    // 如果任務被指派的話，該任務傳送員的任務數量減一
-    if (findMission.status >= MISSION_STATUS.NOT_STARTED) {
-      await new PorterModel().subPorterMissionCount(findMission.porter.id);
-    }
+  delete(missionID: string) {
+    return new Promise<any>(async (resolve, reject) => {
+      await this.mMissionRepo.delete({id: missionID});
+      const findMission = await this.mMissionRepo.findByID(missionID);
+  
+      // 如果任務被指派的話，該任務傳送員的任務數量減一
+      if (findMission.status >= MISSION_STATUS.NOT_STARTED) {
+        await new PorterModel().subPorterMissionCount(findMission.porter.id);
+      }
+      
+      resolve(missionID);
+    });
   }
 
   // TODO: 只能更新自己的任務
